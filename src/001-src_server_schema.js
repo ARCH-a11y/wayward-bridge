@@ -70,7 +70,7 @@ var require_schema = __commonJS({
     var rules = (v) => Array.isArray(v) && v.length <= 300 ? v.map(rule).filter((r) => r && (r.find.trim() || r.replace.trim())) : void 0;
     var anyJson = (v) => v !== void 0 && JSON.stringify(v).length < 2e5 ? v : void 0;
     var PROMPTS = {
-      heroines: { "*": { base: str(), negative: str(), name: str(60) } },
+      heroines: { "*": { base: str(), negative: str(), name: str(60), sections: { "*": { tags: str(), negative: str(), on: bool() } }, quarantine: { "*": { tags: str(), negative: str(), when: str(60), mode: oneOf("auto", "always", "never") } } } },
       outfits: { "*": { tags: str(), negative: str(), boldness: num(0, 100) } },
       scenes: { "*": strList(32) },
       looks: { "*": strList(32) },
@@ -81,6 +81,7 @@ var require_schema = __commonJS({
       rooms: { "*": { detail: str(), short: str() } },
       exposure: { "*": str() },
       parts: { "*": { mode: oneOf("game", "replace", "off"), text: str() } },
+      conditions: { "*": { sources: tagList(8), keywords: tagList(400) } },
       negatives: { base: str(), extras: { "*": str() } },
       rules,
       rulesAll: rules,
