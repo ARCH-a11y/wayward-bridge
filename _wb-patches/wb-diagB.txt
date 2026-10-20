@@ -1,0 +1,259 @@
+=== все вхождения 'hooks' в коде ===
+--- @173612 ---
+
+      /** Read + patch index.html once per change of the file. */
+      load() {
+        if (!this.ok()) return null;
+        const file = this.indexFile();
+        const mtime = fs.statSync(file).mtimeMs;
+        if (this.cache && this.cache.mtime === mtime) return this.cache;
+        const original = fs.readFileSync(file, "utf8");
+        const catalog = extractCatalog(original);
+        const hooks = { parts: false };
+        let html = original;
+        if (PARTS_RE.test(html)) {
+          html = html.replace(PARTS_RE, (m, k, p, n, parts) => "return{key:" + k + ",prompt:" + p + ",negativePrompt:" + n + ",parts:(window.__WB_PARTS__&&window.__WB_PARTS__(" + k + "," + parts + ")," + parts + ")");
+          hooks.parts = true;
+          if (!stillCompiles(original, html)) {
+            co
+
+--- @173930 ---
+nc(file, "utf8");
+        const catalog = extractCatalog(original);
+        const hooks = { parts: false };
+        let html = original;
+        if (PARTS_RE.test(html)) {
+          html = html.replace(PARTS_RE, (m, k, p, n, parts) => "return{key:" + k + ",prompt:" + p + ",negativePrompt:" + n + ",parts:(window.__WB_PARTS__&&window.__WB_PARTS__(" + k + "," + parts + ")," + parts + ")");
+          hooks.parts = true;
+          if (!stillCompiles(original, html)) {
+            console.warn("[bridge]   the prompt parts hook would break this game version; serving the game without it.");
+            html = original;
+            hooks.parts = false;
+            hooks.partsBroken = true;
+          }
+        }
+        const storeHtml = html.replace(STORE_RE, (m, a, b, c) => "const " + a + "=window
+
+--- @174161 ---
+ => "return{key:" + k + ",prompt:" + p + ",negativePrompt:" + n + ",parts:(window.__WB_PARTS__&&window.__WB_PARTS__(" + k + "," + parts + ")," + parts + ")");
+          hooks.parts = true;
+          if (!stillCompiles(original, html)) {
+            console.warn("[bridge]   the prompt parts hook would break this game version; serving the game without it.");
+            html = original;
+            hooks.parts = false;
+            hooks.partsBroken = true;
+          }
+        }
+        const storeHtml = html.replace(STORE_RE, (m, a, b, c) => "const " + a + "=window.__WB_STORE__=" + b + "()(" + c + "((e,t)=>({state:");
+        if (storeHtml !== html && stillCompiles(original, storeHtml)) {
+          html = storeHtml;
+          hooks.store = true;
+        } else hooks.store = false;
+        le
+
+--- @174194 ---
+" + p + ",negativePrompt:" + n + ",parts:(window.__WB_PARTS__&&window.__WB_PARTS__(" + k + "," + parts + ")," + parts + ")");
+          hooks.parts = true;
+          if (!stillCompiles(original, html)) {
+            console.warn("[bridge]   the prompt parts hook would break this game version; serving the game without it.");
+            html = original;
+            hooks.parts = false;
+            hooks.partsBroken = true;
+          }
+        }
+        const storeHtml = html.replace(STORE_RE, (m, a, b, c) => "const " + a + "=window.__WB_STORE__=" + b + "()(" + c + "((e,t)=>({state:");
+        if (storeHtml !== html && stillCompiles(original, storeHtml)) {
+          html = storeHtml;
+          hooks.store = true;
+        } else hooks.store = false;
+        let pickHtml = addCustomWives(html)
+
+--- @174495 ---
+ the game without it.");
+            html = original;
+            hooks.parts = false;
+            hooks.partsBroken = true;
+          }
+        }
+        const storeHtml = html.replace(STORE_RE, (m, a, b, c) => "const " + a + "=window.__WB_STORE__=" + b + "()(" + c + "((e,t)=>({state:");
+        if (storeHtml !== html && stillCompiles(original, storeHtml)) {
+          html = storeHtml;
+          hooks.store = true;
+        } else hooks.store = false;
+        let pickHtml = addCustomWives(html);
+        if (pickHtml !== html) pickHtml = pickHtml.replace('children:"Build Your Wife"', 'children:"Build Your Own Heroine"');
+        if (pickHtml !== html && stillCompiles(original, pickHtml)) {
+          html = pickHtml;
+          hooks.customWives = true;
+        } else hooks.customWives = fals
+
+--- @174530 ---
+  html = original;
+            hooks.parts = false;
+            hooks.partsBroken = true;
+          }
+        }
+        const storeHtml = html.replace(STORE_RE, (m, a, b, c) => "const " + a + "=window.__WB_STORE__=" + b + "()(" + c + "((e,t)=>({state:");
+        if (storeHtml !== html && stillCompiles(original, storeHtml)) {
+          html = storeHtml;
+          hooks.store = true;
+        } else hooks.store = false;
+        let pickHtml = addCustomWives(html);
+        if (pickHtml !== html) pickHtml = pickHtml.replace('children:"Build Your Wife"', 'children:"Build Your Own Heroine"');
+        if (pickHtml !== html && stillCompiles(original, pickHtml)) {
+          html = pickHtml;
+          hooks.customWives = true;
+        } else hooks.customWives = false;
+        const tag = '<script id=
+
+--- @174830 ---
+es(original, storeHtml)) {
+          html = storeHtml;
+          hooks.store = true;
+        } else hooks.store = false;
+        let pickHtml = addCustomWives(html);
+        if (pickHtml !== html) pickHtml = pickHtml.replace('children:"Build Your Wife"', 'children:"Build Your Own Heroine"');
+        if (pickHtml !== html && stillCompiles(original, pickHtml)) {
+          html = pickHtml;
+          hooks.customWives = true;
+        } else hooks.customWives = false;
+        const tag = '<script id="wayward-bridge">' + this.bootstrap + '</script>\n<script src="' + this.menuUrl + '" defer></script>';
+        const firstScript = html.search(/<script\b/i);
+        html = firstScript >= 0 ? html.slice(0, firstScript) + tag + "\n    " + html.slice(firstScript) : html.replace(/<\/head>/i, () => tag 
+
+--- @174871 ---
+ = storeHtml;
+          hooks.store = true;
+        } else hooks.store = false;
+        let pickHtml = addCustomWives(html);
+        if (pickHtml !== html) pickHtml = pickHtml.replace('children:"Build Your Wife"', 'children:"Build Your Own Heroine"');
+        if (pickHtml !== html && stillCompiles(original, pickHtml)) {
+          html = pickHtml;
+          hooks.customWives = true;
+        } else hooks.customWives = false;
+        const tag = '<script id="wayward-bridge">' + this.bootstrap + '</script>\n<script src="' + this.menuUrl + '" defer></script>';
+        const firstScript = html.search(/<script\b/i);
+        html = firstScript >= 0 ? html.slice(0, firstScript) + tag + "\n    " + html.slice(firstScript) : html.replace(/<\/head>/i, () => tag + "</head>");
+        const version = (or
+
+--- @175386 ---
+t src="' + this.menuUrl + '" defer></script>';
+        const firstScript = html.search(/<script\b/i);
+        html = firstScript >= 0 ? html.slice(0, firstScript) + tag + "\n    " + html.slice(firstScript) : html.replace(/<\/head>/i, () => tag + "</head>");
+        const version = (original.match(/## \[(\d{4}-\d{2}-\d{2})\]/) || [])[1] || "";
+        this.cache = { mtime, html, original, catalog, hooks, version, hash: crypto.createHash("sha1").update(original).digest("hex").slice(0, 10) };
+        this.catalog = catalog;
+        console.log("[bridge] game loaded:", file, version ? "(changelog " + version + ")" : "");
+        console.log("[bridge]   prompt parts hook:", hooks.parts ? "installed" : "NOT FOUND (edits match the whole prompt)");
+        const missing = Object.entries(catalog.fo
+
+--- @175664 ---
+n = (original.match(/## \[(\d{4}-\d{2}-\d{2})\]/) || [])[1] || "";
+        this.cache = { mtime, html, original, catalog, hooks, version, hash: crypto.createHash("sha1").update(original).digest("hex").slice(0, 10) };
+        this.catalog = catalog;
+        console.log("[bridge] game loaded:", file, version ? "(changelog " + version + ")" : "");
+        console.log("[bridge]   prompt parts hook:", hooks.parts ? "installed" : "NOT FOUND (edits match the whole prompt)");
+        const missing = Object.entries(catalog.found).filter(([, v]) => !v).map(([k]) => k);
+        console.log("[bridge]   game tables:", missing.length ? "missing " + missing.join(", ") : "all found");
+        return this.cache;
+      }
+      /**
+       * Serve a game file. Returns true if handled.
+       * freshImages: hi
+
+--- @243019 ---
+})(0);
+        setInterval(checkActiveHeroine, 3e3);
+        setInterval(compatBanner, 3e3);
+        function compatBanner() {
+          var el = document.getElementById("wb-compat");
+          var d = S.st && S.st.diagnostics ? S.st.diagnostics : null;
+          var g = d ? d.game : null;
+          var bad = [];
+          if (d && !g) bad.push("index.html игры не читается");
+          if (g && g.hooks) {
+            if (g.hooks.parts === false) bad.push("хук частей промпта (PARTS)");
+            if (g.hooks.store === false) bad.push("доступ к стору игры (STORE)");
+            if (g.hooks.builder === false) bad.push("кнопка создания своей героини");
+          }
+          if (g && g.tables && Array.isArray(g.tables.missing) && g.tables.missing.length) {
+            bad.push("не найдено табл
+
+--- @243046 ---
+checkActiveHeroine, 3e3);
+        setInterval(compatBanner, 3e3);
+        function compatBanner() {
+          var el = document.getElementById("wb-compat");
+          var d = S.st && S.st.diagnostics ? S.st.diagnostics : null;
+          var g = d ? d.game : null;
+          var bad = [];
+          if (d && !g) bad.push("index.html игры не читается");
+          if (g && g.hooks) {
+            if (g.hooks.parts === false) bad.push("хук частей промпта (PARTS)");
+            if (g.hooks.store === false) bad.push("доступ к стору игры (STORE)");
+            if (g.hooks.builder === false) bad.push("кнопка создания своей героини");
+          }
+          if (g && g.tables && Array.isArray(g.tables.missing) && g.tables.missing.length) {
+            bad.push("не найдено таблиц промптов: " + g.tables.m
+
+--- @243127 ---
+n compatBanner() {
+          var el = document.getElementById("wb-compat");
+          var d = S.st && S.st.diagnostics ? S.st.diagnostics : null;
+          var g = d ? d.game : null;
+          var bad = [];
+          if (d && !g) bad.push("index.html игры не читается");
+          if (g && g.hooks) {
+            if (g.hooks.parts === false) bad.push("хук частей промпта (PARTS)");
+            if (g.hooks.store === false) bad.push("доступ к стору игры (STORE)");
+            if (g.hooks.builder === false) bad.push("кнопка создания своей героини");
+          }
+          if (g && g.tables && Array.isArray(g.tables.missing) && g.tables.missing.length) {
+            bad.push("не найдено таблиц промптов: " + g.tables.missing.length);
+          }
+          if (!bad.length) {
+            if (el) el.r
+
+--- @243209 ---
+    var d = S.st && S.st.diagnostics ? S.st.diagnostics : null;
+          var g = d ? d.game : null;
+          var bad = [];
+          if (d && !g) bad.push("index.html игры не читается");
+          if (g && g.hooks) {
+            if (g.hooks.parts === false) bad.push("хук частей промпта (PARTS)");
+            if (g.hooks.store === false) bad.push("доступ к стору игры (STORE)");
+            if (g.hooks.builder === false) bad.push("кнопка создания своей героини");
+          }
+          if (g && g.tables && Array.isArray(g.tables.missing) && g.tables.missing.length) {
+            bad.push("не найдено таблиц промптов: " + g.tables.missing.length);
+          }
+          if (!bad.length) {
+            if (el) el.remove();
+            return;
+          }
+          if (!el) {
+            el = doc
+
+--- @347312 ---
+f you like it"),
+              kept != null ? sbtn("Back to his name's face", "#57534e", function() {
+                restore(rel);
+                render();
+              }) : null
+            )
+          );
+        }
+        function partsSection() {
+          var eff = E(["prompts", "parts"]) || {};
+          var lp = live() && live().parts || {};
+          var hooked = !(S.st.diagnostics.game.hooks && S.st.diagnostics.game.hooks.parts === false);
+          var out = sec(
+            "Heroine State",
+            "#f59e0b",
+            'The game adds these parts by itself as the scene changes. Keep its words, use your own, or remove the part. "Live" is what the game sent for the current picture.',
+            hooked ? null : h("div", { class: "err" }, "This game version did not expose it
+
+
+=== живые diagnostics с бриджа ===
+не смог обратиться к /bridge/api/state: fetch failed
+(бридж должен быть запущен)

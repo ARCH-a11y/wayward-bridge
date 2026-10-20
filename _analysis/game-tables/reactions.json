@@ -1,0 +1,9 @@
+{
+  "pleased": "(eye contact, smirk, confident:1.1), inviting expression",
+  "coy": "(blushing, embarrassed, looking away:1.1), shy smile",
+  "unaware": "distracted, looking elsewhere, candid pose, unaware of viewer",
+  "uncomfortable": "(frown:1.1), defensive posture",
+  "annoyed": "(scowl, turning away, irritated:1.1), crossed_arms",
+  "flash_eager": "(showing off, looking at viewer:1.2), confident smirk, relaxed sensual pose, natural hand position, perfect hands",
+  "flash_hesitant": "(blushing furiously:1.2), embarrassed shy smile, biting_own_lip, glancing away nervously, hand at hem, natural hand position, perfect hands"
+}

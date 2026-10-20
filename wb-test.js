@@ -1,0 +1,135 @@
+#!/usr/bin/env node
+"use strict";
+const fs = require("fs");
+const path = require("path");
+const { spawn, execFileSync } = require("child_process");
+
+const PORT = 8799;
+const DATA = path.resolve("wb-test-data");
+const BASE = "http://127.0.0.1:" + PORT;
+const B = (p) => path.join(DATA, p);
+
+let pass = 0, fail = 0;
+const ok = (n, c, x) => c ? (pass++, console.log("PASS  " + n)) : (fail++, console.log("FAIL  " + n + (x ? "  → " + x : "")));
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const safe = (o, p) => p.reduce((a, k) => (a == null ? undefined : a[k]), o);
+const W = (r) => (((r || {}).json || {}).warnings) || [];
+
+async function api(method, url, body) {
+  const r = await fetch(BASE + url, {
+    method,
+    headers: body ? { "Content-Type": "application/json" } : undefined,
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  let j = null;
+  try { j = await r.json(); } catch (_) {}
+  return { status: r.status, json: j };
+}
+const rev = async () => (await api("GET", "/bridge/api/state")).json.revision;
+const patch = async (p, v) => api("PATCH", "/bridge/api/settings", { revision: await rev(), ops: [{ path: p, value: v }] });
+function readSettings() { try { return JSON.parse(fs.readFileSync(B("settings.json"), "utf8")); } catch (_) { return {}; } }
+
+function findNumber(o, p) {
+  for (const k of Object.keys(o)) {
+    const v = o[k];
+    if (typeof v === "number") return p.concat(k);
+    if (v && typeof v === "object" && !Array.isArray(v)) {
+      const r = findNumber(v, p.concat(k));
+      if (r) return r;
+    }
+  }
+  return null;
+}
+
+function startBridge() {
+  const c = spawn(process.execPath, ["wayward-bridge.js", "--data", DATA, "--port", String(PORT), "--game", "."], { stdio: ["ignore", "pipe", "pipe"] });
+  c.log = "";
+  c.stdout.on("data", (d) => { c.log += d; });
+  c.stderr.on("data", (d) => { c.log += d; });
+  return c;
+}
+async function waitUp(c) {
+  for (let i = 0; i < 80; i++) {
+    try { const r = await fetch(BASE + "/bridge/api/ping"); if (r.ok) return true; } catch (_) {}
+    await sleep(250);
+  }
+  return false;
+}
+
+(async () => {
+  fs.rmSync(DATA, { recursive: true, force: true });
+  fs.mkdirSync(DATA, { recursive: true });
+
+  let c = startBridge();
+  const up = await waitUp(c);
+  ok("бридж поднимается", up, (c.log || "").slice(-300));
+  if (!up) { c.kill(); process.exit(1); }
+
+  const st = await api("GET", "/bridge/api/state");
+  ok("GET /state отвечает с revision", st.status === 200 && typeof (st.json || {}).revision === "number");
+
+  // 1. длинный промпт
+  const long = "alpha, bravo, charlie, delta, echo, foxtrot, golf, hotel, india, juliet, ".repeat(700);
+  const r1 = await patch(["layer", "prompts", "heroines", "pippa", "base"], long);
+  ok("длинный промпт: сохранён", r1.status === 200, "status " + r1.status);
+  ok("длинный промпт: предупреждение пришло", W(r1)[0] && W(r1)[0].kind === "string", JSON.stringify(W(r1)).slice(0, 160));
+  const saved = String(safe(readSettings(), ["layer", "prompts", "heroines", "pippa", "base"]) || "");
+  ok("длинный промпт: обрезан до лимита", saved.length <= 32000 && saved.length > 30000, "длина " + saved.length);
+  ok("длинный промпт: тег не разорван", long.slice(0, saved.length + 1).endsWith(",") || saved.endsWith("juliet"), JSON.stringify(saved.slice(-20)));
+
+  // 2. числовое поле — путь берём из defaults
+  const rel = findNumber((st.json || {}).defaults || {}, []);
+  console.log("  числовое поле найдено по пути: " + JSON.stringify(rel));
+  ok("в defaults есть числовое поле", !!rel, "ключи defaults: " + Object.keys((st.json || {}).defaults || {}).join(", "));
+  if (rel) {
+    const numPath = ["layer"].concat(rel);
+    const r2 = await patch(numPath, 99999);
+    const w2 = W(r2).find((x) => x.kind === "number");
+    ok("число зажимается, а не отклоняется", r2.status === 200 && !!w2, "status " + r2.status + " " + JSON.stringify(r2.json).slice(0, 140));
+    ok("число: зажато до верхней границы", !!(w2 && w2.from === 99999 && w2.to < 99999), JSON.stringify(W(r2)).slice(0, 160));
+  }
+
+  // 3. __proto__ как идентификатор героини — значение объект
+  const r3 = await patch(["layer", "prompts", "heroines", "__proto__"], { base: "zzz" });
+  ok("__proto__: принят", r3.status === 200, "status " + r3.status + " " + JSON.stringify(r3.json).slice(0, 140));
+  const hp = safe(readSettings(), ["layer", "prompts", "heroines"]);
+  ok("__proto__: своё свойство", !!(hp && Object.prototype.hasOwnProperty.call(hp, "__proto__")));
+  ok("__proto__: значение читается", !!(hp && hp["__proto__"] && hp["__proto__"].base === "zzz"));
+  ok("__proto__: прототип не подменён", !!(hp && Object.getPrototypeOf(hp) === Object.prototype));
+
+  // 4. устаревший revision → 409
+  const stale = await rev();
+  await patch(["layer", "prompts", "heroines", "pippa", "base"], "x");
+  const r4 = await api("PATCH", "/bridge/api/settings", { revision: stale, ops: [{ path: ["layer", "prompts", "heroines", "pippa", "base"], value: "y" }] });
+  ok("устаревший revision → 409", r4.status === 409, "status " + r4.status);
+
+  // 5. уникальность имён бэкапов
+  const bdir = B("backups");
+  const before = fs.existsSync(bdir) ? fs.readdirSync(bdir) : [];
+  for (const v of ["b1", "b2", "b3"]) await patch(["layer", "prompts", "heroines", "pippa", "base"], v);
+  const after = fs.existsSync(bdir) ? fs.readdirSync(bdir) : [];
+  const fresh = after.filter((x) => !before.includes(x));
+  ok("бэкапы с уникальными именами", fresh.length >= 3 && new Set(fresh).size === fresh.length, "новых: " + fresh.length + ", уникальных: " + new Set(fresh).size);
+
+  // 6. --check-game без пути
+  let cg = "";
+  try { cg = execFileSync(process.execPath, ["wayward-bridge.js", "--check-game"], { encoding: "utf8" }); } catch (e) { cg = "ОШИБКА: " + e.message; }
+  ok("--check-game без пути работает", cg.includes("maintainer report"), cg.slice(0, 120));
+
+  // 7. переживание перезапуска
+  c.kill();
+  await sleep(700);
+  c = startBridge();
+  ok("бридж перезапускается", await waitUp(c), (c.log || "").slice(-300));
+  ok("после перезапуска /state отвечает", (await api("GET", "/bridge/api/state")).status === 200);
+  const hp2 = safe(readSettings(), ["layer", "prompts", "heroines"]);
+  ok("__proto__ пережил перезапуск", !!(hp2 && Object.prototype.hasOwnProperty.call(hp2, "__proto__") && hp2["__proto__"] && hp2["__proto__"].base === "zzz"));
+
+  c.kill();
+  await sleep(300);
+  fs.rmSync(DATA, { recursive: true, force: true });
+
+  console.log("");
+  console.log("PASS: " + pass + ", FAIL: " + fail);
+  process.exit(fail ? 1 : 0);
+})();

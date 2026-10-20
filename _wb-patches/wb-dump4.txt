@@ -1,0 +1,89 @@
+========== !args.portrait @ 140222 ==========
+ || "",
+          lora_strength: loras[0] && loras[0].strength || 1
+        });
+        return { graph: graph2, notes };
+      }
+      const graph = p.family === "anima" ? buildAnima(a) : buildCheckpoint(a);
+      addHires(graph, a, args);
+      addDetailers(graph, a, args);
+      if (p.upscaler && !args.portrait && !(typeof g !== "undefined" && g && g["70"]) && !(typeof graph !== "undefined" && graph && graph["70"])) {
+        const caps = args.caps;
+        const up = pickModel(caps && caps.models && caps.models.upscale, p.upscaler);
+        graph["50"] = { class_type: "UpscaleModelLoader", inputs: { model_name: up } };
+        graph["51"] = { class_type: "ImageUpscaleWithModel", inputs: { upscale_model: ["50", 0], image: ["8", 0] } };
+        graph["9"].inputs.images = ["51", 0];
+      }
+      return { graph, notes };
+    }
+    module2.exports = { buildGraph, fillTemplate, pickModel };
+  }
+});
+
+// src/server/library.js
+var require_library = __commonJS({
+  "src/server/library.js"(exports2, module2) {
+    "use strict";
+    var fs = require("fs");
+    var path = require("path");
+    var { writeAtomic } = require_store();
+    var safe = (s) => String(s || "").replace(/[^A-Za-z0-9._-]+/g, "_").slice(0, 150) || "image";
+    var Library = class {
+      constructor(dir) {
+        this.dir = dir;
+        this.indexFile = path.join(dir, "index.json");
+        this.index = {};
+        
+
+========== p.upscaler @ 51919 ==========
+.assign(p, importCaches(cc));
+      if (cfg.scene && cfg.scene.width) p.scene = { width: Number(cfg.scene.width), height: Number(cfg.scene.height) };
+      if (cfg.avatar && cfg.avatar.width) p.portrait = { width: Number(cfg.avatar.width), height: Number(cfg.avatar.height) };
+      if (cc.upscaler) p.upscaler = String(cc.upscaler);
+      return p;
+    }
+    function importPrompts(po, catalog) {
+      po = po || {};
+      const out = { heroines: {}, outfits: {}, scenes: {}, looks: {}, tasks: {}, expressions: {}, moods: { scene: {}, work: {} }, rooms: {}, exposure: {}, parts: {}, patrons: {} };
+      for (const [short, full] of Object.entries(FULL)) {
+        const rec = po.heroines && po.heroines[short] || {};
+        const base = nonEmpty(rec.imageBase) ? rec.imageBase : po.base && nonEmpty(po.base[full]) ? po.base[full] : "";
+        const neg = nonEmpty(rec.imageNegative) ? rec.imageNegative : po.heroineNegatives && nonEmpty(po.heroineNegatives[full]) ? po.heroineNegatives[full] : "";
+        const h = {};
+        if (base) h.base = base;
+        if (neg) h.negative = neg;
+        if (po.heroineNames && nonEmpty(po.heroineNames[short])) h.name = po.heroineNames[short];
+        if (Object.keys(h).length) out.heroines[short] = h;
+      }
+      for (const [id, o] of Object.entries(po.outfit || {})) {
+        if (!o || typeof o !== "object") continue;
+        const r = {};
+      
+
+========== autoDelete @ 1705773 ==========
+RE__ */ new Set());
+          drawnWith.get(who).add(used);
+        }
+      }
+      if (renders.length > 40) renders.pop();
+      if (req.aheadFor && req.aheadRev === store.revision) ahead.ready.set(req.aheadFor, { imagePath, rev: store.revision, at: Date.now() });
+      if (req.saveTo !== "saved") autoDelete();
+      broadcast({ type: "render", key, image: rec.image });
+      console.log("[bridge] drew", key, "(" + rec.ms + " ms, seed " + seed + ")" + (r.usingParts ? "" : " [whole-prompt mode]"));
+      return { imagePath };
+    }
+    function gifPrompt(g, r) {
+      const scene = g.useScene && r && r.explain ? (r.explain.find((e) => e.label === "Scene" || e.label === "Task" || e.label === "Focus") || {}).final || "" : "";
+      return [scene, g.prompt || ""].filter((x) => String(x).trim()).join(", ") || "2D anime animation, slow breathing, hair sway";
+    }
+    var PATH_KEYS = ["comfyUrl", "modelsDir", "gameDir", "comfyOutputDir", "ffmpegPath"];
+    function makeBackup() {
+      const addons = {};
+      for (const a of store.listAddons()) {
+        try {
+          addons[a.file] = JSON.parse(fs.readFileSync(path.join(store.addonDir, a.file), "utf8"));
+        } catch (_) {
+        }
+      }
+      return { format: "wayward-bridge-backup", version: 1, bridge: VERSION, at: (/* @__PURE__ */ new Date()).toISOString(), settings: store.settings, presets: readPresets(), addons };
+   

@@ -1,0 +1,39 @@
+# Карта проекта
+
+=== index.html ===
+символов: 3127879, строк: 591
+base64 data-URL: 4 шт, 74928 символов (2.4%)
+   image/webp: 72396 (2.3%)
+   image/png: 2532 (0.1%)
+<script>: 1 блоков, 3054937 символов
+<style>: 1 блоков, 67128 символов
+
+=== wayward-bridge.js ===
+символов: 1786775, строк: 12934
+модулей: 25
+     1462600  server/assets.generated.js
+       92848  server/index.js
+       29081  server/prompt.js
+       27434  server/store.js
+       23353  server/model-scan.js
+       19028  server/media.js
+       15687  server/catalog.js
+       13638  server/workflows.js
+       12731  server/maintainer.js
+       12036  server/game.js
+       11302  server/importer.js
+        9917  server/comfy.js
+        9229  server/schema.js
+        6746  server/defaults.js
+        6740  server/jobs.js
+        6384  server/library.js
+        5738  server/wan-i2v.json
+        4753  server/updates.js
+        4254  server/items.js
+        3663  server/learn.js
+        2757  server/lora-info.js
+        2712  server/keyparse.js
+        2422  server/tags.js
+        1343  server/assets.js
+          40  main.js
+модулей крупнее лимита загрузки (190k): 1

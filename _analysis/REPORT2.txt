@@ -1,0 +1,26 @@
+=== 19-server__assets.generated.js — 1462600 символов ===
+          86  VERSION
+        1955  BOOTSTRAP
+      346177  MENU
+     1114218  TAGS_GZ_B64
+
+TAGS_GZ_B64 распакован: 835308 символов base64 -> 1426888 символов текста
+записан в _analysis/tags.txt
+первые 300: "1girl\nsolo\nlong_hair\nbreasts\nlooking_at_viewer\nblush\nsmile\nopen_mouth\nshort_hair\nsimple_background\nshirt\nblue_eyes\nlarge_breasts\nlong_sleeves\nskirt\nblonde_hair\nmultiple_girls\nblack_hair\nwhite_background\nbrown_hair\nhair_ornament\n1boy\nholding\ngloves\ndress\nred_eyes\nhat\nbow\nanimal_ears\nclosed_mouth\norig"
+
+=== index.html: крупные строковые литералы ===
+строк длиннее 300 символов: 1232, суммарно 873403 символов
+      64779  @3062875  "}html,:host{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;-o-tab-size:4;ta"
+      25539  @2998800  "data:image/webp;base64,UklGRrhKAABXRUJQVlA4IKxKAACQnAGdASqAATECPmEsk0ekIiGpIrD68SAMCWdtyNy"
+      23807  @2974986  "data:image/webp;base64,UklGRqZFAABXRUJQVlA4IJpFAADQfQGdASqAATECPmEsk0ekIiGpJNFKySAMCWdtX8i"
+      23119  @2951860  "data:image/webp;base64,UklGRqJDAABXRUJQVlA4IJZDAAAQkwGdASqAATECPmEsk0ckJSGhpTKKqKAMCWdtpci"
+       5258  @125902  "){var S=m.return;try{v.componentDidMount()}catch(J){Co(m,S,J)}}var I=m.return;try{Sv(m)}ca"
+       5043  @386759  "?[`${d} is in ${n}'s ass from behind while she rides ${t.customerName}. The two of them fi"
+       3607  @132102  "&&(Ii===null||!Ii.has(he)))){I.flags|=65536,m&=-m,I.lanes|=m;var Me=uA(I,V,m);Hj(I,Me);bre"
+       3435  @137888  "))}return m;case 0:return v=m.type,S=m.pendingProps,S=m.elementType===v?S:ir(v,S),gv(c,m,v"
+       3413  @85373  ")return c=c(),m(c),function(){m(null)};if(m!=null)return c=c(),m.current=c,function(){m.cu"
+       3304  @210549  "&&e>0&&(s*=1.4);return e*s}const qV={true_prude:{shame:1.5,guilt:1.4,humiliation:1.4,fear:"
+       3218  @75740  "+he,ee!==null&&ee.tag===6?(y(ie,ee.sibling),ee=S(ee,he),ee.return=ie,ie=ee):(y(ie,ee),ee=H"
+       2963  @2908509  ". A man you serve may tell you what he\n  has heard.\n- Fame spreads with the men who travel"
+
+base64-подобных строк (>=200): 0, суммарно 0 символов

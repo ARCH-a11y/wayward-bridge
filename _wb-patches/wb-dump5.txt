@@ -1,0 +1,416 @@
+========== patch(ops   @ 31800 ==========
+.heroineLayer(heroineId), rel) !== void 0) return "Your settings \u2014 " + nameOf(heroineId) + (this.layerIdFor(heroineId) ? " (this save)" : " only");
+        if (getAt(this.settings.layer, rel) !== void 0) return "Your settings \u2014 all heroines (shared or imported)";
+        return "Game default";
+      }
+      // ---- edits ----------------------------------------------------------------
+      /**
+       * ops: [{ path: ['layer'|'heroine'|'app', ...], value } | { path, delete: true }]
+       * A value equal to what the layers below already give is stored as "no change".
+       */
+      patch(ops, baseRevision) {
+        if (!Array.isArray(ops) || !ops.length) return { ok: true, revision: this.revision };
+        const next = clone(this.settings);
+        const touched = [];
+        for (const op of ops) {
+          let p = (op && Array.isArray(op.path) ? op.path : []).map(String);
+          if (!p.length || !["layer", "heroine", "saves", "app", "picks"].includes(p[0])) throw httpError(400, "Unknown settings path: " + p.join("."));
+          const owner = p[0] === "heroine" ? p[1] : p[0] === "saves" ? ((next.saveInfo || {})[p[1]] || {}).heroine : "";
+          if (owner && p[2] === "prompts" && p[3] === "heroines" && p[4] && p[4] !== owner) p = this.layerPathFor(p[4], next).concat(p.slice(2));
+          const key = p.join(".");
+          if (baseRevision != null && (this.changed.get(key) || 0) > baseRevision) {
+            throw httpError(409, "This setting was changed elsewhere since you opened it: " + key);
+          }
+          if (op.delete) {
+            deleteAt(next, p);
+            touched.push(key);
+            continue;
+          }
+          const v = validatorFor(p);
+          if (!v) throw httpError(400, "Unknown settings path: " + key);
+          const value = clean(v, op.value);
+          if (value === void 0) throw httpError(400, "Invalid value for " + key);
+          const below = p[0] === "app" || p[0] === "picks" ? void 0 : this.valueBelow(next, p);
+          if (below !== void 0 && equal(below, value)) deleteAt(next, p);
+          else setAt(next, p, value);
+          touched.push(key);
+        }
+        this.settings = next;
+        thi
+
+========== function clean(node   @ 8819 ==========
+hat it is
+      saves: { "*": LAYER },
+      saveInfo: { "*": { heroine: str(80), name: str(80), at: num(0, 1e16) } },
+      addons: strList(32),
+      legacy: { "*": anyJson }
+    };
+    function validatorFor(path) {
+      let node = SCHEMA;
+      for (const seg of path) {
+        if (typeof node === "function") return null;
+        if (!node || typeof node !== "object") return null;
+        if (Object.prototype.hasOwnProperty.call(node, seg)) node = node[seg];
+        else if (node["*"] && id.test(String(seg))) node = node["*"];
+        else return null;
+      }
+      return node;
+    }
+    function clean(node, value) {
+      if (typeof node === "function") return node(value);
+      if (!node || typeof node !== "object" || !value || typeof value !== "object" || Array.isArray(value)) return void 0;
+      const out = {};
+      for (const [k, v] of Object.entries(value)) {
+        
+        const child = Object.prototype.hasOwnProperty.call(node, k) ? node[k] : node["*"] && id.test(k) ? node["*"] : null;
+        if (!child) continue;
+        const c = clean(child, v);
+        if (c !== void 0) Object.defineProperty(out, k, { value: c, writable: true, enumerable: true, configurable: true });
+      }
+      return out;
+    }
+    module2.exports = { SCHEMA, LAYER, PIPELINE, FAMILY_FIELDS, PART_LABELS, validatorFor, clean };
+  }
+});
+
+// src/server/items.js
+var require_items = __commonJS({
+  "src/server/items.js"(exports2, module2) {
+    "use strict";
+    var isObj = (v) => v && typeof v === "object" && !Array.isArray(v);
+    var SIMPLE = ["scenes", "looks", "tasks", "reactions", "expressions", "rooms", "parts"];
+    var GLOBAL_ITEMS = { has: (item) => item === "rulesAll" };
+    function itemPaths(item, heroine) {
+      if (item === "character") return [["prompts", "heroines", heroine]];
+      if (item === "clothing") return [["prompts", "outfits"], ["prompts", "exposure"]];
+      if (item === "patrons") return [["prompts", "patrons", "quality"], ["prompts", "patrons", "negative"], ["prompts", "patrons", "archetypes"]];
+      if (item === "pipeline") return [["pipeline"]];
+      if (item === "negatives") return [["prompts", "negatives"]];
+      if (item === "rules") ret
+
+========== store.patch(   @ 1737960 ==========
+ && !/^data:/.test(src)) return { kind: "other", key };
+      const e = library.latest(key);
+      return e ? { kind: "wb", e, key, fp: library.filePath(e.file) } : { kind: "none", key };
+    }
+    async function handleBridge(req, res, p, url) {
+      if (!trusted(req)) return send(res, 403, { error: "Only the game page served by Wayward Bridge can use this." });
+      const m = req.method;
+      if (p === "/bridge/api/state" && m === "GET") return send(res, 200, stateFor());
+      if (p === "/bridge/api/settings" && m === "PATCH") {
+        const body = await readJson(req);
+        const r = store.patch(body.ops, body.revision);
+        return send(res, 200, Object.assign(r, { state: stateFor() }));
+      }
+      if (p === "/bridge/api/undo" && m === "POST") return send(res, 200, { ok: store.undo(), state: stateFor() });
+      if (p === "/bridge/api/events" && m === "GET") {
+        res.writeHead(200, { "Content-Type": "text/event-stream", "Cache-Control": "no-store", Connection: "keep-alive" });
+        res.write('data: {"type":"hello"}\n\n');
+        sse.add(res);
+        const ping = setInterval(() => {
+          try {
+            res.write(": ping\n\n");
+          } catch (_) {
+          }
+        }, 25e3);
+        req.on("close", () => {
+          clearInterval(ping);
+          sse.delete(res);
+        });
+        return;
+      }
+      if (p === "/bridge/api/addons/preview" && m === "POST") {
+        const body = await readJson(req);
+        let raw = body.content;
+        if (typeof raw === "string") {
+          try {
+            raw = JSON.parse(raw);
+          } catch (e) {
+            throw httpError(400, "Not a JSON file: " + e.message);
+          }
+        }
+        const conv = convertOldPack(raw, body.name) || raw;
+        if (!conv || conv.format !== "wayward-addon") throw httpError(400, "Not a Wayward add-on file.");
+        const a = { layer: cleanSchema(LAYER_SCHEMA, conv.layer) || {}, heroine: {} };
+        for (const [h, l] of Object.entries(conv.heroine || {})) a.heroine[h] = cleanSchema(LAYER_SCHEMA, l) || {};
+        const heroine = String(body.heroine || currentHeroine());
+        const cur = flattenPrompts(store.effective(heroine).prompt
+
+========== "/bridge/api/settings"   @ 229819 ==========
+     function save() {
+          var ops = Object.keys(S.ops).map(function(k) {
+            var o = S.ops[k];
+            return o.del ? { path: o.path, delete: true } : { path: o.path, value: o.value };
+          });
+          if (!ops.length) {
+            say("Nothing to save.", true);
+            return Promise.resolve();
+          }
+          say("Saving\u2026", true);
+          var renamed = ops.some(function(o) {
+            return /(^|\u0001)prompts\u0001heroines\u0001[^\u0001]+(\u0001name)?$/.test(o.path.join("")) || o.path[0] === "picks";
+          });
+          return api("PATCH", "/bridge/api/settings", { ops, revision: S.st.revision }).then(function(j) {
+            S.ops = {};
+            S.ver++;
+            clearUndo();
+            setState(j.state);
+            if (renamed) syncNamesToGame();
+            var key = S.st.lastKey;
+            if (S.st.app.redrawAfterSave !== false && WBPIC.redrawCurrent()) say("Saved. Redrawing the game's current picture with the new settings \u2014 it replaces the picture in the game and shows in the Prompt inspector.", true);
+            else if (S.st.app.redrawAfterSave !== false && key && !/^patron_/.test(key)) {
+              say("Saved. Redrawing the current picture with the new settings\u2026", true);
+              api("POST", "/bridge/api/redraw", { key, wait: true }).then(function(r) {
+                WBPIC.useImage(r.image);
+                say("Saved and redrawn: the new picture is in the game and in the Prompt inspector.", true);
+              }).catch(function() {
+                say("Saved and applied. Pictures redraw with the new settings the next time the game shows them.", true);
+              });
+            } else say("Saved and applied. Pictures redraw with the new settings the next time the game shows them.", true);
+          }).catch(function(e) {
+            say("Not saved: " + e.message, false);
+          });
+        }
+        function syncNamesToGame() {
+          var store = window.__WB_STORE__;
+          if (!store || !store.getState || !S.st) return 0;
+          var n = 0;
+          try {
+            var prev = store.getState(), st = prev && prev.state;
+            if (!st || !st.charac
+
+========== function toast   @ -1 ==========
+(не найдено)
+
+========== toast(   @ -1 ==========
+(не найдено)
+
+========== notice   @ -1 ==========
+(не найдено)
+
+========== setState(   @ 229978 ==========
+: true } : { path: o.path, value: o.value };
+          });
+          if (!ops.length) {
+            say("Nothing to save.", true);
+            return Promise.resolve();
+          }
+          say("Saving\u2026", true);
+          var renamed = ops.some(function(o) {
+            return /(^|\u0001)prompts\u0001heroines\u0001[^\u0001]+(\u0001name)?$/.test(o.path.join("")) || o.path[0] === "picks";
+          });
+          return api("PATCH", "/bridge/api/settings", { ops, revision: S.st.revision }).then(function(j) {
+            S.ops = {};
+            S.ver++;
+            clearUndo();
+            setState(j.state);
+            if (renamed) syncNamesToGame();
+            var key = S.st.lastKey;
+            if (S.st.app.redrawAfterSave !== false && WBPIC.redrawCurrent()) say("Saved. Redrawing the game's current picture with the new settings \u2014 it replaces the picture in the game and shows in the Prompt inspector.", true);
+            else if (S.st.app.redrawAfterSave !== false && key && !/^patron_/.test(key)) {
+              say("Saved. Redrawing the current picture with the new settings\u2026", true);
+              api("POST", "/bridge/api/redraw", { key, wait: true }).then(function(r) {
+                WBPIC.useImage(r.image);
+                say("Saved and redrawn: the new picture is in the game and in the Prompt inspector.", true);
+              }).catch(function() {
+                say("Saved and applied. Pictures redraw with the new settings the next time the game shows them.", true);
+              });
+            } else say("Saved and applied. Pictures redraw with the new settings the next time the game shows them.", true);
+          }).catch(function(e) {
+            say("Not saved: " + e.message, false);
+          });
+        }
+        function syncNamesToGame() {
+          var store = window.__WB_STORE__;
+          if (!store || !store.getState || !S.st) return 0;
+          var n = 0;
+          try {
+            var prev = store.getState(), st = prev && prev.state;
+            if (!st || !st.characters) return 0;
+            var next = null;
+            Object.keys(st.characters).forEach(function(k) {
+              var c = st.characters[k];
+             
+
+========== function api(   @ 212543 ==========
+   else if (k === "checked") el.checked = !!v;
+            else if (k === "text") el.textContent = v;
+            else el.setAttribute(k, v === true ? "" : v);
+          });
+          for (var i = 2; i < arguments.length; i++) add(el, arguments[i]);
+          return el;
+        }
+        function add(el, c) {
+          if (c == null || c === false) return;
+          if (Array.isArray(c)) {
+            c.forEach(function(x) {
+              add(el, x);
+            });
+            return;
+          }
+          el.appendChild(c.nodeType ? c : document.createTextNode(String(c)));
+        }
+        function api(method, url, body) {
+          return fetch(url, { method, headers: body ? { "Content-Type": "application/json" } : {}, body: body ? JSON.stringify(body) : void 0, credentials: "same-origin" }).then(function(r) {
+            return r.json().catch(function() {
+              return {};
+            }).then(function(j) {
+              if (!r.ok) throw new Error(j.error || "HTTP " + r.status);
+              return j;
+            });
+          });
+        }
+        function local(k, v) {
+          try {
+            if (v === void 0) return JSON.parse(localStorage.getItem("wb:" + k));
+            localStorage.setItem("wb:" + k, JSON.stringify(v));
+          } catch (e) {
+            return void 0;
+          }
+        }
+        var titleCase = function(s) {
+          return String(s || "").replace(/_/g, " ").replace(/\b\w/g, function(c) {
+            return c.toUpperCase();
+          });
+        };
+        function splitTags(s) {
+          return String(s || "").split(",").map(function(x) {
+            return x.trim();
+          }).filter(Boolean);
+        }
+        function tagKey(t) {
+          return String(t || "").trim().toLowerCase().replace(/^\(+|\)+$/g, "").replace(/:\s*-?[\d.]+$/, "").replace(/_/g, " ").replace(/\s+/g, " ").trim();
+        }
+        function uniq(list) {
+          var seen = {};
+          return list.filter(function(x) {
+            var k = tagKey(x);
+            if (!k || seen[k]) return false;
+            seen[k] = 1;
+            return true;
+          });
+        }
+        var S = {
+          st: null,
+          open: false,
+          tab: 
+
+========== api(   @ 212552 ==========
+f (k === "checked") el.checked = !!v;
+            else if (k === "text") el.textContent = v;
+            else el.setAttribute(k, v === true ? "" : v);
+          });
+          for (var i = 2; i < arguments.length; i++) add(el, arguments[i]);
+          return el;
+        }
+        function add(el, c) {
+          if (c == null || c === false) return;
+          if (Array.isArray(c)) {
+            c.forEach(function(x) {
+              add(el, x);
+            });
+            return;
+          }
+          el.appendChild(c.nodeType ? c : document.createTextNode(String(c)));
+        }
+        function api(method, url, body) {
+          return fetch(url, { method, headers: body ? { "Content-Type": "application/json" } : {}, body: body ? JSON.stringify(body) : void 0, credentials: "same-origin" }).then(function(r) {
+            return r.json().catch(function() {
+              return {};
+            }).then(function(j) {
+              if (!r.ok) throw new Error(j.error || "HTTP " + r.status);
+              return j;
+            });
+          });
+        }
+        function local(k, v) {
+          try {
+            if (v === void 0) return JSON.parse(localStorage.getItem("wb:" + k));
+            localStorage.setItem("wb:" + k, JSON.stringify(v));
+          } catch (e) {
+            return void 0;
+          }
+        }
+        var titleCase = function(s) {
+          return String(s || "").replace(/_/g, " ").replace(/\b\w/g, function(c) {
+            return c.toUpperCase();
+          });
+        };
+        function splitTags(s) {
+          return String(s || "").split(",").map(function(x) {
+            return x.trim();
+          }).filter(Boolean);
+        }
+        function tagKey(t) {
+          return String(t || "").trim().toLowerCase().replace(/^\(+|\)+$/g, "").replace(/:\s*-?[\d.]+$/, "").replace(/_/g, " ").replace(/\s+/g, " ").trim();
+        }
+        function uniq(list) {
+          var seen = {};
+          return list.filter(function(x) {
+            var k = tagKey(x);
+            if (!k || seen[k]) return false;
+            seen[k] = 1;
+            return true;
+          });
+        }
+        var S = {
+          st: null,
+          open: false,
+          tab: local("ta
+
+========== S.st.revision   @ 219789 ==========
+nction sourceOf(item, hid) {
+          var P = picks(), sc = scopeOf(item, hid);
+          var pk = P[sc] && P[sc][item];
+          if (pk === "mine") return "mine";
+          var a = pk && addonByFile(pk);
+          if (a && (a.items || []).indexOf(item) >= 0) return pk;
+          for (var i = S.st.stack.length - 1; i >= 0; i--) {
+            var b = addonByFile(S.st.stack[i]);
+            if (b && (b.items || []).indexOf(item) >= 0) return b.file;
+          }
+          return "mine";
+        }
+        var effCache = {};
+        function effective(hid) {
+          var k = (hid || "") + "@" + S.st.revision + "." + S.ver;
+          if (effCache[k]) return effCache[k];
+          if (Object.keys(effCache).length > 8) effCache = {};
+          var defaults = S.st.defaults;
+          var eff = merge(merge(defaults, draftLayer(S.st.you, ["layer"])), hid ? draftLayer(heroLayer(hid), heroPath(hid)) : {});
+          var items = {};
+          S.st.stack.forEach(function(f) {
+            var a = addonByFile(f);
+            (a && a.items || []).forEach(function(it) {
+              items[it] = 1;
+            });
+          });
+          var P = picks();
+          [scopeOf("", hid), "_all"].forEach(function(sc) {
+            Object.keys(P[sc] || {}).forEach(function(it) {
+              if (P[sc][it] !== "mine") items[it] = 1;
+            });
+          });
+          Object.keys(items).forEach(function(item) {
+            if (item === "character" && !hid) return;
+            var src = sourceOf(item, hid);
+            if (src === "mine") return;
+            var a = addonByFile(src);
+            itemPaths(item, hid).forEach(function(rel) {
+              var v = addonValue(a, rel, hid);
+              if (v === void 0) return;
+              setAt(eff, rel, isObj(v) ? merge(getAt(defaults, rel), v) : clone(v));
+            });
+          });
+          effCache[k] = eff;
+          return eff;
+        }
+        function E(rel) {
+          return getAt(effective(S.viewHeroine), rel);
+        }
+        function D(rel) {
+          return getAt(S.st.defaults, rel);
+        }
+        function shared(rel) {
+          return getAt(merge(S.st.defaults, draftLayer(S.st.you, ["layer"])), rel);
+   

@@ -1,0 +1,20 @@
+{
+  "elena": {
+    "archetype": "elena_farmgirl",
+    "name": "Elena",
+    "base": "kisaragi_chihaya, long dark hair, brown eyes, soft features, gentle face, pale skin, slim build, medium breasts, slim waist",
+    "negative": "tattoo, piercing, makeup heavy"
+  },
+  "mara": {
+    "archetype": "mara_citygirl",
+    "name": "Mara",
+    "base": "medium hair, shoulder-length brown hair, straight hair, hazel eyes, sharper features, strong jawline, fair skin, athletic build, medium breasts, narrow waist",
+    "negative": "long hair, tattoo, piercing, makeup heavy"
+  },
+  "pippa": {
+    "archetype": "pippa_waif",
+    "name": "Pippa",
+    "base": "(Kyouko Toshinou:1.2), petite slim build, small breasts, cute face, bright green eyes, freckles, (straight blonde hair:1.1), quirky",
+    "negative": "child, loli, blonde hair, black hair, long hair, tall, curvy, large breasts, tattoo, piercing, makeup heavy"
+  }
+}

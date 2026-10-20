@@ -1,0 +1,21 @@
+{
+  "scenes": true,
+  "tasks": true,
+  "looks": true,
+  "reactions": true,
+  "expressions": true,
+  "moodScene": true,
+  "moodWork": true,
+  "roomDetail": true,
+  "roomShort": true,
+  "heroines": true,
+  "outfits": true,
+  "patrons": true,
+  "quality": true,
+  "sexScenes": true,
+  "bedScenes": true,
+  "patronMoods": true,
+  "roomCode": true,
+  "baseNegative": true,
+  "negativeExtras": true
+}

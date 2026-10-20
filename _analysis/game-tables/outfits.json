@@ -1,0 +1,184 @@
+{
+  "modest": {
+    "name": "Plain Work Dress",
+    "tags": "plain brown dress, high collar, long sleeves, long skirt, white apron, thick fabric",
+    "negative": "cleavage, breasts_out, revealing clothing, bare shoulders, low neckline, short skirt, bare legs",
+    "boldness": 0,
+    "wear": ""
+  },
+  "nightshift": {
+    "name": "Sleep Shift",
+    "tags": "(white linen nightshift:1.3), plain white nightgown, loose fit, drawstring neckline, long sleeves, knee-length, soft white fabric, modest sleepwear, bare lower legs, barefoot, simple, comfortable, bedroom",
+    "negative": "corset, dress, apron, formal, breasts_out, see-through, pink, black, red, blue, green, satin",
+    "boldness": 8,
+    "wear": "sleep"
+  },
+  "bath_linen_wrap": {
+    "name": "Linen Bath Wrap",
+    "tags": "(ankle-length linen robe:1.3), white_robe, heavy off-white linen, tied at waist, three-quarter sleeves, modest neckline, bare feet, hair_up, working attendant attire, damp hem",
+    "negative": "cleavage, breasts_out, bare shoulders, towel, short, sheer, naked, lingerie, bandages, leg_wrap, ankle_wrap",
+    "boldness": 5,
+    "wear": "bath"
+  },
+  "bath_gown": {
+    "name": "Bathing Gown",
+    "tags": "(blue sleeveless long dress:1.2), long_dress, sleeveless_dress, blue_dress, wet_clothes, wet, bare_shoulders, bare_arms, barefoot, hair_up",
+    "negative": "apron, sleeves, short dress, see-through, towel, naked, swimsuit, corset, lingerie",
+    "boldness": 18,
+    "wear": "bath"
+  },
+  "bath_shift": {
+    "name": "Bath Shift",
+    "tags": "(short white linen bath shift:1.3), knee-length, bare arms, drawstring neckline, semi-fitted, simple cotton, damp from steam, barefoot, hair_up, working attendant attire",
+    "negative": "long sleeves, apron, dress, corset, towel only, lingerie, fully clothed, naked",
+    "boldness": 30,
+    "wear": "bath"
+  },
+  "bath_bindings": {
+    "name": "Bound Linens",
+    "tags": "(chest_sarashi:1.3), sarashi, bandeau, (white loincloth:1.2), loincloth, midriff, navel, bare_shoulders, bare_legs, barefoot, wet, hair_up",
+    "negative": "dress, shirt, skirt, apron, swimsuit, bikini, towel, naked, injury, blood, bandaged arms",
+    "boldness": 45,
+    "wear": "bath"
+  },
+  "bath_towel": {
+    "name": "Bath Towel",
+    "tags": "(naked_towel:1.3), white towel wrapped around body, towel knotted above breasts, towel hem mid-thigh, wet, bare_shoulders, bare_legs, barefoot",
+    "negative": "dress, apron, sleeves, long skirt, naked, lingerie, holding_towel, towel_around_neck",
+    "boldness": 55,
+    "wear": "bath"
+  },
+  "bath_sheer_chemise": {
+    "name": "Fine Chemise",
+    "tags": "(see-through white chemise:1.3), chemise, see-through, wet_shirt, wet_clothes, wet, knee-length, bare_shoulders, bare_arms, barefoot, hair_up",
+    "negative": "opaque, dress, apron, sleeves, towel, naked, swimsuit, bikini, corset, lace, lace_trim, frills, ribbon, babydoll",
+    "boldness": 65,
+    "wear": "bath"
+  },
+  "peasant_smock": {
+    "name": "Peasant Smock",
+    "tags": "loose homespun smock, off-white linen, gathered yoke, wide neckline, drawstring at chest, calf-length, barefoot",
+    "negative": "cleavage, corset, fitted bodice, tavern dress, rope, rope belt, sandals, sandal straps, leather straps, ankle straps, footwear straps, bondage",
+    "boldness": 8,
+    "wear": ""
+  },
+  "serving_dress": {
+    "name": "Laced Bodice Dress",
+    "tags": "fitted tavern dress, warm russet wool bodice, front lacing, off-the-shoulder neckline, modest cleavage, gathered waist, full mid-calf skirt, cream blouse beneath, bare shoulders, flattering feminine silhouette",
+    "negative": "high collar, apron, corset to waist, short skirt, bare legs",
+    "boldness": 30,
+    "wear": ""
+  },
+  "patched_sundress": {
+    "name": "Patched Sundress",
+    "tags": "sundress, thin shoulder straps, exposed collarbone, cleavage visible, hem at knee, bare arms, summer warmth, casual everyday",
+    "negative": "apron, corset, long sleeves, high collar",
+    "boldness": 43,
+    "wear": ""
+  },
+  "linen_shift": {
+    "name": "Linen Shift",
+    "tags": "simple white linen shift, thin shoulder straps, soft thin fabric, knee-length flowing skirt, full length shift, covered hips, intact hem, undergarment style, bare arms, bare lower legs, barefoot",
+    "negative": "apron, corset, jacket, dress, fully opaque heavy fabric, panties visible, exposed thighs, skirt lifted, hem raised, t-shirt, short top, crop top, panties, naked, bare hips, lifted skirt, panty shot",
+    "boldness": 52,
+    "wear": ""
+  },
+  "barmaid_corset": {
+    "name": "Barmaid's Corset",
+    "tags": " pushed-up breasts, cleavage, short flared red skirt above knee, bare arms, laced up front, full skirt, knee-high stockings",
+    "negative": "",
+    "boldness": 45,
+    "wear": ""
+  },
+  "wench_bodice": {
+    "name": "Wrapped Bodice & Hip Skirt",
+    "tags": "(cropped wrapped bodice:1.3), short laced bodice covering breasts only, hemline at the underbust, dramatic push-up effect, cleavage, bare midriff, exposed navel, lower belly visible, low-slung long burgundy skirt, skirt waistband below the navel, ankle-length flowing skirt, bare arms, bare shoulders, brown leather ankle boots, no apron, rustic tavern wear",
+    "negative": "long bodice, full corset to waist, midriff covered, apron, short skirt",
+    "boldness": 52,
+    "wear": ""
+  },
+  "his_shirt": {
+    "name": "His Shirt",
+    "tags": "oversized white linen shirt, husband's shirt, falling off one shoulder, sleeves rolled to the elbow, hem at upper thigh, bare collarbone, bare arms, hair tousled, casual just-woken look, tavern context, indoor warm light",
+    "negative": "apron, dress, corset, bra, panties visible, long skirt",
+    "boldness": 58,
+    "wear": ""
+  },
+  "crop_blouse_skirt": {
+    "name": "Crop Blouse & Short Skirt",
+    "tags": "cropped peasant blouse, white cotton, off-shoulder neckline, hem just below breasts, generous cleavage, entirely bare midriff, navel showing, low-rise cotton short skirt, brown linen, hem mid-thigh, bare_legs, tavern girl aesthetic",
+    "negative": "apron, long skirt",
+    "boldness": 60,
+    "wear": ""
+  },
+  "breast_band_skirt": {
+    "name": "Breast Band & Skirt",
+    "tags": "(chest_sarashi:1.3), sarashi, bandeau, strapless, cleavage, underboob, (midriff:1.2), navel, bare_shoulders, bare_arms, brown_skirt, long_skirt",
+    "negative": "apron, blouse, shirt, bodice, bra, bikini, swimsuit, loincloth, bandaged arms, injury",
+    "boldness": 62,
+    "wear": ""
+  },
+  "strapless_thigh_boots": {
+    "name": "Strapless Mini & Thigh Boots",
+    "tags": "strapless minidress, cream cotton, no straps, fitted bodice, deep sweetheart neckline, generous cleavage, hem high on thigh, bare shoulders, lace-up front laces, dark brown leather, indoor tavern light",
+    "negative": "apron, sleeves, long skirt",
+    "boldness": 68,
+    "wear": ""
+  },
+  "silk_robe": {
+    "name": "Silk Robe",
+    "tags": "(loose satin dressing robe:1.3), deep wine satin, plain lustrous fabric, wrapped front, sash tied loosely at the waist, robe slipping off one shoulder, neckline open to a deep v of cleavage, robe parted at the thigh, bare_legs, bare_shoulders, barefoot, boudoir, intimate loungewear",
+    "negative": "dragon, embroidery, embroidered, oriental, kimono, gold trim, pattern, print, floral, white, pink, black, blue, green, lace, dress, silk, spider_web, spider, cobweb",
+    "boldness": 55,
+    "wear": ""
+  },
+  "lingerie": {
+    "name": "Lace Lingerie",
+    "tags": "(black lace lingerie set:1.3), black lace bra, see-through black lace, matching black lace panties, black thigh-high stockings, bare shoulders, bare midriff",
+    "negative": "white, pink, red, blue, dress, robe, babydoll",
+    "boldness": 70,
+    "wear": ""
+  },
+  "pink_babydoll": {
+    "name": "Pink Babydoll",
+    "tags": "pink babydoll nightie, pastel pink, spaghetti_strap, sheer chiffon skirt, upper thigh hemline, ribbon bow at bust, pink lace panties, bare arms, bare legs",
+    "negative": "dress, corset, apron, opaque skirt, full coverage, black, white, red, blue, auburn, satin",
+    "boldness": 65,
+    "wear": ""
+  },
+  "auburn_babydoll": {
+    "name": "Auburn Babydoll",
+    "tags": "(auburn babydoll nightie:1.3), deep red-brown chiffon, rust auburn fabric, fitted satin bust cups, auburn ribbon ties at the shoulders, sweetheart neckline, sheer flowing auburn skirt, hemline at upper thigh, matching auburn lace panties, bare arms, bare legs, warm rust color",
+    "negative": "dress, corset, apron, opaque skirt, pink, black, white, blue, green, satin black",
+    "boldness": 70,
+    "wear": ""
+  },
+  "satin_babydoll": {
+    "name": "Satin Babydoll",
+    "tags": "(black satin babydoll:1.3), glossy black satin fabric, black lace trim, plunging neckline, fitted satin cups pushing the breasts together, sheer black mesh waist, flared black satin skirt at upper thigh, attached garter straps, black thigh-high stockings, matching black satin panties, bare shoulders",
+    "negative": "dress, corset, apron, opaque skirt, full coverage, white, pink, auburn, red, blue, chiffon",
+    "boldness": 75,
+    "wear": ""
+  },
+  "sheer_chemise": {
+    "name": "Sheer Chemise",
+    "tags": "(white sheer chemise:1.4), (transparent see-through fabric:1.4), (nipples visible through the fabric:1.3), short chemise, negligee, thin spaghetti straps, fitted bodice, hem at upper thigh, bare arms, bare legs, white lace trim, intimate undergarment",
+    "negative": "dress, corset, apron, opaque, solid fabric, pink, black, red, blue, auburn, satin, silk, spider_web, spider, cobweb",
+    "boldness": 88,
+    "wear": ""
+  },
+  "sheer_nightgown": {
+    "name": "Sheer Nightgown",
+    "tags": "(short white sheer chemise:1.3)",
+    "negative": "panties",
+    "boldness": 80,
+    "wear": ""
+  },
+  "slave_collar": {
+    "name": "Collar & Chains",
+    "tags": "(black leather collar:1.3), black leather collar buckled at the throat, silver metal ring on the collar, thin silver body chains crossing the chest, silver body chain at the waist, tiny black satin loincloth, bare breasts barely covered by the chains, bare_legs, bare back, kneeling pose suggested, fetish wear, submissive aesthetic",
+    "negative": "dress, corset, apron, public, pink, white, robe, babydoll, full coverage",
+    "boldness": 88,
+    "wear": ""
+  }
+}

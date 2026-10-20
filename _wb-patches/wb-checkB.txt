@@ -1,0 +1,53 @@
+=== файлы wayward-bridge*.js ===
+  wayward-bridge.js  1785442 байт  2026-10-19T19:49:03.986Z
+  wayward-bridge.orig.js  1779165 байт  2026-10-18T07:33:24.930Z
+  wayward-bridge.patchA.js  1783002 байт  2026-10-19T19:21:44.722Z
+  wayward-bridge.patchB.js  1784826 байт  2026-10-19T19:29:27.578Z
+  wayward-bridge.patched.js  1780978 байт  2026-10-19T19:07:04.475Z
+
+=== wayward-bridge.js ===
+  размер: 1785078
+  баннер в коде: да
+  правильный ключ customWives: да
+  старый ключ builder: нет
+  partsBroken: да
+  интервал: да
+
+=== index.html ===
+  размер: 3127879
+  вхождений '},k.id)}),!1,!1]': 0
+  вхождений '},k.id)}),!1,!2]': 1
+
+=== живая диагностика (бридж должен быть запущен) ===
+  diagnostics.game:
+{
+ "dir": "C:\\Users\\arch4\\Downloads\\settings ui mod v2.0\\Wayward",
+ "ok": true,
+ "version": "2026-10-04",
+ "hooks": {
+  "parts": true,
+  "store": true,
+  "customWives": false
+ },
+ "tables": {
+  "scenes": true,
+  "tasks": true,
+  "looks": true,
+  "reactions": true,
+  "expressions": true,
+  "moodScene": true,
+  "moodWork": true,
+  "roomDetail": true,
+  "roomShort": true,
+  "heroines": true,
+  "outfits": true,
+  "patrons": true,
+  "quality": true,
+  "sexScenes": true,
+  "bedScenes": true,
+  "patronMoods": true,
+  "roomCode": true,
+  "baseNegative": true,
+  "negativeExtras": true
+ }
+}

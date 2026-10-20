@@ -1,0 +1,26 @@
+{
+  "taproom": {
+    "detail": "tavern interior, wooden tables, candlelight",
+    "short": "(tavern interior:1.2)"
+  },
+  "back_room": {
+    "detail": "(medieval lounge:1.2), couch, cushion, stone_wall, shadow",
+    "short": "(medieval lounge:1.2), couch, cushion, stone_wall, shadow"
+  },
+  "upstairs_hall": {
+    "detail": "upstairs hall, narrow wood corridor, single sconce, low light",
+    "short": "hallway, indoors"
+  },
+  "bedroom": {
+    "detail": "bedroom, bed, single candle, intimate lighting, private",
+    "short": "(bedroom:1.2)"
+  },
+  "bathhouse": {
+    "detail": "(medieval bathhouse:1.2), stone_wall, wooden_floor, wooden_bucket",
+    "short": "(medieval bathhouse:1.2), stone_wall, wooden_floor, wooden_bucket"
+  },
+  "in_bed": {
+    "detail": "(bedroom:1.2), night, dark, wooden_wall",
+    "short": "(bedroom:1.2), night, dark, wooden_wall"
+  }
+}

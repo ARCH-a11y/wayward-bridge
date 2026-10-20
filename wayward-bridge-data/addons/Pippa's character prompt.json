@@ -1,0 +1,17 @@
+{
+  "format": "wayward-addon",
+  "version": 1,
+  "name": "Pippa's character prompt",
+  "description": "",
+  "layer": {
+    "prompts": {
+      "heroines": {
+        "pippa": {
+          "base": "veins, anus, montgomery_glands, hairy anus, anal hair, mole, fdicks, mm, <lora:Zenith_Greyrat-Mushoku_Tensei_ix:0.8>, anime screencap, short hair, blonde hair, blue eyes, ponytail, ahoge, mature female, mother, small breasts, erect nipples, puffy nipples, narrow waist, wide hips, thick thighs, blonde pubic hair, pubic stubble",
+          "negative": "orange hair, red hair, black hair, pink hair, tall, curvy, large breasts, huge breasts, saggy breasts, flat chest, inverted nipples, small areola, tattoo, piercing, heavy makeup, brown pubic hair, black pubic hair, bald pussy, hair over eyes, glasses",
+          "name": "Pippa"
+        }
+      }
+    }
+  }
+}

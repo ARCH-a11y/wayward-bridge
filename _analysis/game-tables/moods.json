@@ -1,0 +1,25 @@
+{
+  "scene": {
+    "smile": "smile, gentle expression, soft eyes",
+    "shy": "shy, blush, looking down",
+    "scared": "scared, wide eyes, parted lips",
+    "worried": "worried, troubled expression, downcast"
+  },
+  "work": {
+    "happy": "bright smile, cheerful, energetic",
+    "content": "gentle smile, content",
+    "okay": "calm expression, focused",
+    "unhappy": "weary expression, tired eyes",
+    "miserable": "worried expression, tense, furrowed brow"
+  },
+  "patron": {
+    "reluctant_early": "(polite smile, slightly tense, eyes darting away:1.1), shy",
+    "reluctant_contact": "(nervous, tense, looking away:1.2), body stiff",
+    "reluctant_physical": "(uncomfortable, tense, reluctant:1.2), eyes downcast, forced expression",
+    "reluctant_sexual": "(uncomfortable, reluctant, dissociating:1.2), blank expression, eyes averted",
+    "distressed_early": "(uncomfortable, anxious, nervous:1.2), looking down",
+    "distressed_contact": "(distressed, scared, frozen:1.2), shrinking back",
+    "distressed_physical": "(distressed, fearful, recoiling:1.3), tears welling up, lips trembling",
+    "distressed_sexual": "(distressed, fearful, dissociating:1.3), tears, thousand-yard stare"
+  }
+}

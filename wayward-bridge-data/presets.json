@@ -1,0 +1,100 @@
+{
+  "character": {
+    "Default Pippa": {
+      "group": "Core",
+      "data": {
+        "base": "score_9, score_8_up, score_7_up, masterpiece, best quality, 1girl, kisaragi maaya, onee-chan no yuuwaku, long hair, dark brown hair, brown eyes, fair skin, voluptuous physique, very large breasts, slender waist, wide hips, hourglass figure, solo",
+        "negative": "(worst quality, low quality:1.4), deformed, bad anatomy, bad hands"
+      },
+      "at": 1792308569949
+    },
+    "Heroines": {
+      "group": "",
+      "data": {
+        "base": "masterpiece, best quality, amazing quality, very aesthetic, absurdres, highres, ultra detailed, hyper detailed, sharp focus, intricate details, extremely detailed, high resolution, 8k, 4k, uhd, clean lines, crisp lineart, professional illustration, professional lighting, cinematic composition, cinematic lighting, depth of field, bokeh, film grain, color grading, high dynamic range, hdr, rim light, subsurface scattering, ambient occlusion, soft shadows, hard shadows, volumetric lighting, god rays, backlighting, front lighting, three point lighting, studio lighting, natural lighting, warm lighting, cool lighting, golden hour, blue hour, dusk, dawn, overcast, sunbeam, dappled light, caustics, reflections, specular highlights, glossy highlights, matte finish, painterly, semi realistic, stylized, anime style, danbooru, key visual, official art, promotional art, splash art, character sheet,\n1girl, solo, female, young woman, adult, mature female, adult woman, elegant, graceful, charming, confident, gentle smile, warm expression, friendly, approachable, poised, refined, dignified, cheerful, playful, curious, attentive, calm, serene, thoughtful, wistful, sly smirk, coy look, knowing glance, half lidded eyes, soft gaze, direct eye contact, looking at viewer, head tilt, slight head tilt,\nbeautiful detailed face, pretty face, delicate features, soft features, symmetrical face, flawless skin, porcelain skin, pale skin, fair skin, warm skin tone, creamy skin, dewy skin, healthy glow, rosy cheeks, blush, light blush, subtle blush, freckles, beauty mark, mole under eye, dimples, soft lips, full lips, plump lips, glossy lips, tinted lips, rose lips, parted lips, slight smile, closed mouth, small nose, button nose, upturned nose, high cheekbones, defined jawline, soft jawline, round face, oval face, heart shaped face, long eyelashes, thick eyelashes, dark eyelashes, eyelashes, eyebrows, thick eyebrows, arched eyebrows, soft eyebrows, expressive eyebrows, forehead, bangs, sidelocks, hair between eyes, ahoge, cowlick, baby hairs, wispy hair, flyaway hair,\nlong hair, very long hair, flowing hair, wavy hair, straight hair, silky hair, glossy hair, shiny hair, lustrous hair, voluminous hair, layered hair, braided hair, side braid, loose braid, french braid, twin braids, ponytail, high ponytail, low ponytail, side ponytail, twintails, low twintails, bun, hair bun, double bun, messy bun, half updo, updo, chignon, hair ribbon, hair bow, hairband, headband, hairpin, hair clip, hair ornament, hair flower, hair ribbon, hair streaks, two tone hair, gradient hair, ombre hair, honey brown hair, chestnut hair, auburn hair, copper hair, strawberry blonde hair, ash blonde hair, platinum blonde hair, raven hair, jet black hair, midnight blue hair, lavender hair, rose pink hair,\nslender, slim waist, narrow waist, hourglass figure, curvy, voluptuous, petite, tall, medium height, long legs, shapely legs, thick thighs, soft thighs, toned legs, wide hips, child bearing hips, soft hips, narrow shoulders, delicate shoulders, collarbone, prominent collarbone, slender neck, graceful neck, elegant hands, delicate fingers, slender fingers, manicured nails, long nails, painted nails, soft arms, bare arms, bare shoulders, bare legs, bare feet, ankles, calves, knees, thighs, midriff, navel, stomach, soft belly, flat stomach, waist, back, spine, shoulder blades,\nsmooth skin, silky skin, soft skin, supple skin, glowing skin, luminous skin, translucent skin, subtle sheen, sweat drop, light sweat, glistening skin, wet skin, water droplets, freckled shoulders, freckled chest, collarbone shadow, neck shadow, blush on ears, flushed, flushed cheeks, ears, earring, earrings, small earrings, hoop earrings, pearl earrings, dangling earrings, stud earrings, choker, ribbon choker, lace choker, pendant, locket, amulet, necklace, pearl necklace, thin necklace, bracelet, bangles, anklet, rings, ring, brooch,\ndress, sundress, summer dress, cotton dress, linen dress, corset, underbust corset, overbust corset, laced corset, bodice, fitted bodice, blouse, frilled blouse, peasant blouse, off shoulder blouse, shirt, dress shirt, rolled up sleeves, puffy sleeves, long sleeves, short sleeves, bell sleeves, layered skirt, pleated skirt, long skirt, maxi skirt, midi skirt, flowing skirt, slit skirt, high slit, apron, frilled apron, waist apron, half apron, petticoat, underskirt, stockings, thighhighs, black thighhighs, white thighhighs, patterned stockings, lace top stockings, garter belt, garters, suspenders, boots, ankle boots, leather boots, heeled boots, lace up boots, shoes, mary janes, pumps, heels, sandals, shawl, wrap, capelet, cloak, hooded cloak, cardigan, knit cardigan, bolero, jacket, leather jacket, belt, leather belt, wide belt, sash, fabric sash, ribbons, laces, frills, ruffles, embroidery, floral embroidery, brocade, damask, velvet, silk, satin, lace, crochet, knitted, wool, leather, denim, plaid, tartan, pinstripes, polka dots, floral pattern, botanical print, paisley, geometric pattern,\nhat, straw hat, wide brimmed hat, sun hat, bonnet, beret, flat cap, feathered hat, hairnet, veil, half veil, gloves, fingerless gloves, opera gloves, lace gloves, leather gloves, mittens, wrist cuffs, arm warmers, shoulder cape, collar, peter pan collar, sailor collar, high collar, popped collar, scarf, silk scarf, knitted scarf, muffler, bandana, hair scarf, sash, tool belt, pouch, satchel, shoulder bag, basket, wicker basket, parasol, lace parasol, umbrella, fan, folding fan, hand fan, teacup, teacup in hand, book, book in hand, quill, letter, envelope, candle, lantern, oil lamp, lantern in hand,\nstanding, contrapposto, standing on one leg, weight on one leg, hand on hip, hands on hips, arms crossed, arms behind back, hands behind back, hands clasped, fingers intertwined, hand on chest, hand on collarbone, hand near face, hand on cheek, hand in hair, playing with hair, tucking hair behind ear, adjusting hat, holding skirt, lifting skirt, curtsy, bowing, leaning forward, leaning back, leaning on wall, leaning on counter, sitting, seated, sitting on chair, sitting on stool, sitting on ledge, legs crossed, crossed ankles, knees together, knees apart, kneeling, crouching, squatting, stretching, arms up, arms raised, stretching arms, yawn, waking up, sleepy, waking, lying down, on back, on side, on stomach, reclining, lounging, relaxing, walking, strolling, stepping, running, skipping, dancing, twirling, spinning, jumping, floating, falling, reaching out, pointing, waving, beckoning, greeting, salute, thumbs up, peace sign, v sign, ok sign, heart hands, blowing kiss, kiss, wink, laughing, giggling, chuckling, smiling, grinning, pouting, frowning, surprised, shocked, embarrassed, shy, flustered, blushing heavily, crying, teary eyes, tears, sweatdrop, sighing, thinking, pondering, daydreaming, distracted, focused, determined, smug, proud, regal,\nindoor, tavern, inn, pub, taproom, wooden interior, wooden beams, wooden floor, wooden table, wooden chair, wooden stool, bar counter, barstools, shelf, shelves, bottles, wine bottles, liquor bottles, mugs, tankard, beer mug, wine glass, goblet, pitcher, jug, barrel, barrels, keg, hearth, fireplace, fire, burning fire, firelight, candlelight, candelabra, lantern, oil lamp, chandelier, iron chandelier, hanging lamp, sconce, wall sconce, tapestry, banner, pennant, rug, carpet, patterned rug, stairs, staircase, railing, balcony, mezzanine, window, arched window, leaded glass, stained glass, curtains, drapes, lace curtains, shutters, door, wooden door, arched door, doorway, threshold, hallway, corridor, back room, storage room, pantry, kitchen, hearth kitchen, cauldron, pot, kettle, copper pots, hanging herbs, dried herbs, garlic braid, sacks, crates, baskets, produce, apples, bread, cheese, cheese wheel, ham, sausages, root vegetables, mushrooms, flowers in vase, potted plant, hanging plant, ivy, ivy on wall, moss, cobblestone, stone wall, brick wall, plaster wall, timber framing, thatch, ",
+        "negative": "orange hair, red hair, black hair, pink hair, tall, curvy, large breasts, huge breasts, saggy breasts, flat chest, inverted nipples, small areola, tattoo, piercing, heavy makeup, brown pubic hair, black pubic hair, bald pussy, hair over eyes, glasses"
+      },
+      "at": 1792433715807
+    }
+  },
+  "mood": {
+    "emotions": {
+      "group": "",
+      "data": {
+        "moods": {
+          "scene": {
+            "smile": "smile, soft smile, blush, soft eyes, half-closed eyes, relaxed",
+            "shy": "shy, heavy blush, looking away, fidgeting, fingers together, bashful smile, averted gaze",
+            "scared": "surprised, wide eyes, sweat drop, blush, parted lips, startled, leaning back",
+            "worried": "nervous, blush, looking at viewer, forced smile, sweat, furrowed brows",
+            "aroused": "half-closed eyes, heavy blush, parted lips, glazed eyes, heavy breathing, drool, dazed",
+            "blissful": "closed eyes, smile, heavy blush, arched back, relaxed, afterglow, dazed",
+            "pouty": "pout, puffed cheeks, blush, looking away, annoyed smile",
+            "disgusted": "disgusted face, shaded face, half-closed eyes, frown, narrowed eyes, blush, contempt",
+            "drunk": "drunk, flushed face, heavy blush, half-closed eyes, loose smile, swaying, dazed",
+            "embarrassed": "heavy blush, ears red, covering face with hands, embarrassed, wide eyes, look down"
+          },
+          "work": {
+            "happy": "smile, open mouth, eager, looking at viewer, blush, bright eyes",
+            "content": "smile, blush, content, relaxed",
+            "okay": "neutral expression, looking ahead, calm, blank",
+            "unhappy": "tired, half-closed eyes, weak smile, slight sweat, shoulders down",
+            "miserable": "flustered, blush, sweat, forced smile, furrowed brows, tense",
+            "reluctant": "shy, blush, hesitant, looking at viewer, weak smile, fidgeting",
+            "distressed": "heavy blush, tears, tears of joy, pleasure, trembling, afterglow, dazed, drooling, smile",
+            "exhausted": "exhausted, half-closed eyes, heavy breathing, sweat, slumped, dead eyes",
+            "eager": "eager, open mouth, blush, leaning forward, bright eyes, big smile",
+            "focused": "focused, serious, narrowed eyes, small frown, absorbed",
+            "sleepy": "sleepy, half-closed eyes, yawn, blush, drowsy, soft expression"
+          },
+          "patron": {
+            "reluctant_early": "(polite smile, slightly tense, eyes darting away:1.1), shy",
+            "reluctant_contact": "(nervous, tense, looking away:1.2), body stiff",
+            "reluctant_physical": "(uncomfortable, tense, reluctant:1.2), eyes downcast, forced expression",
+            "reluctant_sexual": "(uncomfortable, reluctant, dissociating:1.2), blank expression, eyes averted",
+            "distressed_early": "(uncomfortable, anxious, nervous:1.2), looking down",
+            "distressed_contact": "(distressed, scared, frozen:1.2), shrinking back",
+            "distressed_physical": "(distressed, fearful, recoiling:1.3), tears welling up, lips trembling",
+            "distressed_sexual": "(distressed, fearful, dissociating:1.3), tears, thousand-yard stare"
+          }
+        },
+        "expressions": {
+          "chatting": "1girl, 1boy, talking, leaning on table, looking at viewer, netorase, motion lines, sweat, close-up",
+          "flirting": "1girl, 1boy, flirting, wink, looking at viewer, netorase, motion lines, sweat, close-up",
+          "touching": "1girl, 1boy, touching, hand on chest, looking at viewer, netorase, motion lines, sweat, close-up",
+          "bold": "1girl, 1boy, hand under skirt, looking at viewer, netorase, motion lines, sweat, close-up",
+          "intimate": "1girl, 1boy, intimate, face to face, looking at viewer, netorase, motion lines, sweat, あんっ, close-up",
+          "groping": "1girl, 1boy, groping, breast grab, looking at viewer, netorase, motion lines, sweat, あんっ, close-up",
+          "kissing": "blush, closed_eyes",
+          "groped_ass": "flustered, blush, surprised",
+          "groped_tits": "flustered, blush, open_mouth",
+          "grinding": "flushed face, biting_own_lip",
+          "lap_dance": "seductive, half-lidded eyes",
+          "fingered": "pleasure, open_mouth, half-closed eyes",
+          "self_pleasure": "self-pleasure, closed_eyes, lost in it",
+          "handjob": "focused, parted lips, blush",
+          "blowjob": "looking up",
+          "deepthroat": "tears, drooling",
+          "titfuck": "blush, looking up",
+          "cunnilingus": "head_back, open_mouth",
+          "breast_worship": "moaning, head_back, closed_eyes",
+          "mutual_touching": "panting",
+          "thigh_job": "biting_own_lip, blush",
+          "anal_fingering": "nervous, gripping, biting_own_lip",
+          "face_sitting": "closed_eyes, open_mouth, pleasure",
+          "sixty_nine": "focused, pleasure",
+          "sex": "moaning, pleasure, sweating",
+          "sex_rough": "intense, overwhelmed, sweating",
+          "riding": "confident, rolling hips, moaning",
+          "standing_sex": "moaning, gripping, legs trembling",
+          "anal": "nervous, gripping, tight expression",
+          "facial": "messy, closed_eyes, afterglow",
+          "cum_in_mouth": "open_mouth, looking up, satisfied",
+          "handjob_finish": "1girl, 1boy, handjob, cum, ejaculation, looking at viewer, netorase, motion lines, sweat, どぷっ, close-up",
+          "sex_finish": "1girl, 1boy, after sex, cum, afterglow, looking at viewer, netorase, motion lines, sweat, どぷっ, close-up"
+        }
+      },
+      "at": 1792324667510
+    }
+  }
+}

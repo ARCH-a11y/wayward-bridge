@@ -1,0 +1,150 @@
+{
+  "base": "worst quality, low quality, blurry, bad anatomy, extra limbs, deformed, text, watermark, signature, ugly, duplicate, morbid, mutilated, 3d, realistic, photorealistic, large breasts, huge breasts, gigantic breasts, multiple girls, 2girls",
+  "extras": [
+    {
+      "id": "covered_outfit",
+      "label": "Keeps a modest outfit covered (outfit boldness under 30)",
+      "text": "cleavage, breasts_out, nipples, ass, exposed ass, bottomless, no panties, revealing clothing"
+    },
+    {
+      "id": "patron_one_girl",
+      "label": "Patron scene: only one girl",
+      "text": "(2girls:1.3), (multiple girls:1.3), multiple views, split screen, 3girls, bad proportions"
+    },
+    {
+      "id": "no_man",
+      "label": "Scene without a man",
+      "text": "1boy, 2boys, male, man, multiple boys"
+    },
+    {
+      "id": "one_patron",
+      "label": "Only one patron",
+      "text": "2boys, 3boys, multiple boys, group sex"
+    },
+    {
+      "id": "joined_4boys",
+      "label": "Patrons who joined in (3 or fewer men)",
+      "text": "4boys"
+    },
+    {
+      "id": "joined_5boys",
+      "label": "Patrons who joined in (4 or fewer men)",
+      "text": "5boys"
+    },
+    {
+      "id": "joined_crowd",
+      "label": "Patrons who joined in",
+      "text": "crowd"
+    },
+    {
+      "id": "patron_gaze",
+      "label": "Patron scene: she looks at him, not at you",
+      "text": "looking at viewer"
+    },
+    {
+      "id": "patron_dress",
+      "label": "Patron scene: the man is not in a dress",
+      "text": "(crossdressing:1.3), (otoko no ko:1.2), male in dress, male in lingerie, male wearing skirt, man in sheer clothing, matching outfits"
+    },
+    {
+      "id": "exposed_one_girl",
+      "label": "Exposed or naked: only one girl",
+      "text": "(2girls:1.3), (multiple girls:1.3), multiple views, split screen"
+    },
+    {
+      "id": "bath_attendant",
+      "label": "Bath attendant scene",
+      "text": "(1girl in bathtub:1.3), (girl in tub:1.3), (girl bathing:1.3), girl partially submerged, girl in water, solo, 1girl only, looking at viewer, (toilet:1.3), (toilet bowl:1.3), (round porcelain basin:1.3), white porcelain tub, sitting in basin"
+    },
+    {
+      "id": "cum_places",
+      "label": "Where cum may not go",
+      "text": "cum on table, cum on furniture, cum on floor, cum on clothes, cum on dress"
+    },
+    {
+      "id": "reluctant",
+      "label": "She is reluctant (no happy faces)",
+      "text": "happy, eager, joyful, bright smile, laughing, ecstatic, wanting"
+    },
+    {
+      "id": "distressed",
+      "label": "She is distressed (no happy faces)",
+      "text": "happy, eager, joyful, smiling, laughing, pleasure, ecstatic, satisfied, afterglow"
+    },
+    {
+      "id": "room_in_bed",
+      "label": "Room: in bed (keeps other places out)",
+      "text": "standing, against_wall, table, chair, bar_(place), counter, blue_theme, window, cityscape, city_lights, sunlight, day"
+    },
+    {
+      "id": "room_back_room",
+      "label": "Room: back room (keeps other places out)",
+      "text": "bar_(place), counter, shelf, bottle, beer_mug, mug, barrel, candle, candlestand, chandelier, wine_glass, wine, blue_theme"
+    },
+    {
+      "id": "room_back_room_2",
+      "label": "Room: back room (keeps other places out)",
+      "text": "fireplace, fire"
+    },
+    {
+      "id": "room_bathhouse",
+      "label": "Room: bathhouse (keeps other places out)",
+      "text": "faucet, shower_head, tiles"
+    },
+    {
+      "id": "room_bathhouse_2",
+      "label": "Room: bathhouse (keeps other places out)",
+      "text": "partially_submerged, topless, nipples, breasts_out"
+    },
+    {
+      "id": "room_bathhouse_3",
+      "label": "Room: bathhouse (keeps other places out)",
+      "text": "partially_submerged, bathing, water, (sitting in bathtub:1.3)"
+    },
+    {
+      "id": "room_bathhouse_4",
+      "label": "Room: bathhouse (keeps other places out)",
+      "text": "bar_(place), counter, shelf, bottle, beer_mug, mug"
+    },
+    {
+      "id": "exposure_off",
+      "label": "Exposure: clothes she took off stay off (shirt…)",
+      "text": "shirt, blouse, bra, chest covered, clothed upper body"
+    },
+    {
+      "id": "exposure_off_2",
+      "label": "Exposure: clothes she took off stay off (chest covered…)",
+      "text": "chest covered, bra, fully clothed upper body"
+    },
+    {
+      "id": "exposure_off_3",
+      "label": "Exposure: clothes she took off stay off (skirt…)",
+      "text": "skirt, dress bottom"
+    },
+    {
+      "id": "exposure_off_4",
+      "label": "Exposure: clothes she took off stay off (skirt…)",
+      "text": "skirt, long_skirt, dress"
+    },
+    {
+      "id": "exposure_off_5",
+      "label": "Exposure: clothes she took off stay off (underwear…)",
+      "text": "underwear, pubic clothing"
+    },
+    {
+      "id": "exposure_off_6",
+      "label": "Exposure: clothes she took off stay off (panties…)",
+      "text": "(panties:1.3), underwear, pubic clothing"
+    },
+    {
+      "id": "exposure_off_7",
+      "label": "Exposure: clothes she took off stay off (panties…)",
+      "text": "(panties:1.3), underwear"
+    },
+    {
+      "id": "exposure_covered",
+      "label": "Exposure: parts that stay covered",
+      "text": "topless, breasts_out, naked_apron, bottomless, no_pants, pussy, no_panties, ,"
+    }
+  ]
+}

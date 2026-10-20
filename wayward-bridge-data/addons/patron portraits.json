@@ -1,0 +1,64 @@
+{
+  "format": "wayward-addon",
+  "version": 1,
+  "name": "patron portraits",
+  "description": "",
+  "layer": {
+    "prompts": {
+      "patrons": {
+        "quality": "masterpiece, best quality, portrait, upper body, medieval tavern background, warm candlelight",
+        "negative": "worst quality, low quality, blurry, bad anatomy, extra limbs, deformed, text, watermark, 3d, realistic, photorealistic, female, girl, woman, breasts",
+        "archetypes": [
+          {
+            "label": "Grizzled veteran",
+            "tags": "1boy, middle-aged man, short brown hair, beard, sturdy build, rough face"
+          },
+          {
+            "label": "Young farmhand",
+            "tags": "1boy, young man, blond hair, clean-shaven, slim, bright eyes"
+          },
+          {
+            "label": "Weathered elder",
+            "tags": "1boy, old man, grey hair, long beard, weathered face, wrinkled"
+          },
+          {
+            "label": "Scarred brute",
+            "tags": "1boy, muscular man, bald, square jaw, scars on face, intimidating"
+          },
+          {
+            "label": "Jolly redhead",
+            "tags": "1boy, heavyset man, red hair, bushy beard, jolly expression, round face"
+          },
+          {
+            "label": "Gaunt drifter",
+            "tags": "1boy, tall thin man, dark hair, gaunt face, sharp features, narrow eyes"
+          },
+          {
+            "label": "Eager youth",
+            "tags": "1boy, young man, curly brown hair, freckles, boyish face, eager expression"
+          },
+          {
+            "label": "Dignified merchant",
+            "tags": "1boy, middle-aged man, black hair, moustache, dignified, merchant clothes"
+          },
+          {
+            "label": "Rough laborer",
+            "tags": "1boy, stocky man, sandy hair, crooked nose, rough hands, working class"
+          },
+          {
+            "label": "Kindly old man",
+            "tags": "1boy, elderly man, white hair, kind eyes, gentle expression, thin frame"
+          },
+          {
+            "label": "Broad-shouldered",
+            "tags": "1boy, large man, dark beard, booming presence, deep-set eyes, broad shoulders"
+          },
+          {
+            "label": "Weary traveler",
+            "tags": "1boy, lean man, messy hair, stubble, tired eyes, traveler clothes"
+          }
+        ]
+      }
+    }
+  }
+}

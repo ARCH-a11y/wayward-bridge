@@ -1,0 +1,194 @@
+SETTINGS UI MOD 2.0 — CHANGELOG
+Changes since Settings UI Mod 1.7. Made for game version 2026-10-04.
+
+UPGRADING FROM 1.7
+  Put wayward-bridge.js and Start-Wayward-Bridge.bat in the game folder and start the
+  .bat. Your old config.json (prompts, models, LoRAs, sizes, GIF and saved-picture
+  settings), its presets.json and your add-on packs are brought over automatically the
+  first time; the old files are not changed. Presets the old menu kept in your browser
+  come over with Config > Import old presets. Saved scene pictures stay where they are.
+
+
+ADDED
+
+Your own heroines
+  * "+ Build your own heroine" in the game's heroine picker (New game). It opens the
+    builder the game already contains (name, age, background, looks, tendencies,
+    portrait); your heroines are listed in the picker with Edit and Delete.
+  * Works with every "Who is she to you?" choice, not only wife.
+  * Your heroines get their own settings, saved-picture folders and add-ons, like the
+    built-in heroines.
+
+On the game's picture
+  * New buttons: Show prompt (how the picture's prompt was built) and Edit (opens its
+    prompts in the menu).
+  * Saved < > arrows at the bottom right step through the scene's saved pictures one
+    after another, with a counter such as "Saved 3/9". They wrap around at the ends
+    and work whether Use Saved Images/GIFs is on or off.
+  * The + button cycles through the scene's prompt variants (1, 2, 3…).
+  * A thin progress bar with "step 12 / 24" while a picture is being drawn.
+  * Short messages ("drawing…", "saved") pop up briefly instead of staying on screen.
+  * Clicking the picture shows the prompt the mod really used, part by part.
+  * The same buttons on the full-screen picture from the camera icon in the log; if a
+    moment has no picture yet, Generate new draws one.
+  * Keyboard shortcuts: Alt+G Generate new, Alt+S Same seed, Alt+Left / Alt+Right
+    saved pictures, Alt+K save, Alt+X delete, Alt+P Show prompt, Alt+E Edit.
+
+Prompt inspector (new tab)
+  * Every picture drawn this session, with its prompt broken down part by part and
+    who changed each part (your settings, an add-on, or the game).
+  * The negative prompt is split by where each word comes from.
+  * An Edit button on every row changes those words right where they come from.
+  * "Preview with current settings" shows what a picture's prompt would be now,
+    unsaved changes included.
+  * "Use this scene" puts any earlier picture back in the game for its scene.
+  * "Compare with…" shows two pictures side by side with the tags that differ.
+  * "Compare models…" draws the same picture with the same seed but another model or
+    LoRA strength, without changing your settings.
+  * The drawing queue: what ComfyUI is drawing and what is waiting, with Cancel.
+
+Negatives & tag rules (new tab)
+  * The game's own negative prompt is editable: the list used for every picture and
+    every extra it adds in some situations (patron scenes, clothing and exposure,
+    rooms and the bath, her mood).
+  * "Same game negatives for all heroines" makes one shared set.
+  * Tag rules: find tags anywhere in the finished prompt and replace or remove them,
+    or always add tags. A rule can be for all heroines or one, and limited to one part
+    of the prompt (Mood, Pose…). "(2girls:1.3)", "2girls" and "2_girls" count as the
+    same tag.
+  * Suggestions from your ratings: after you have saved and deleted a few pictures,
+    tags that keep showing up in the deleted ones are listed, each with a button that
+    makes a tag rule. Nothing changes unless you press it.
+
+Pipeline & models
+  * Recommended size for your screen: measures the game's picture box in your window
+    and suggests a size that fits it. "Fit picture to my screen" fills it in;
+    "Restore defaults" puts it back.
+  * Size advice follows your model type: SDXL models (Illustrious, Pony, NoobAI) and
+    Anima / Z-Image models are each given sizes they draw well. The inspector warns
+    when a picture was drawn at a size that tends to stretch or double bodies.
+  * Picture size for single scenes: give one scene its own size.
+  * Hi-res fix: draw, scale up, then add detail. Sharper, about twice as slow.
+  * Face & hand fix: faces and hands are found and redrawn in more detail (needs the
+    ComfyUI Impact Pack and Impact Subpack). Off by default.
+  * Test pipeline: draws one small test picture and says in plain words what is wrong
+    if it fails (ComfyUI not running, a missing model or custom node, out of graphics
+    memory…).
+  * LoRAs for chosen scenes or outfits only: their trigger words are added to just
+    those pictures.
+
+Patrons
+  * Every man keeps the same face each time he is drawn. "Try a new face" draws him
+    with another one; "Keep this face" makes it his.
+
+Saved pictures
+  * Browse saved pictures (Config): pick any heroine and scene, then star, move to
+    another outfit / room / mood, or delete. Starred pictures are shown four times as
+    often.
+  * Generate all scenes: "Only fill gaps" tops each combination up to the count
+    instead of adding that many more.
+
+Menu
+  * Undo and redo for your edits, step by step back to your last save (Ctrl+Z /
+    Ctrl+Y). Config > Undo last save takes back a whole save.
+  * Search prompts: type a few letters at the top of the menu to find every prompt
+    that contains them.
+  * The green bar under the tabs shows what the game is showing right now (scene,
+    outfit, exposure, mood, room); click one to jump to its prompt.
+  * Ctrl+Up / Ctrl+Down on a tag raises or lowers its weight: blush → (blush:1.1).
+  * Long dropdowns (samplers, LoRAs…) can be searched.
+  * Optional: Backspace / Delete remove whole tags (Config > Prompt boxes).
+  * Renaming a heroine renames her in the game too, not only in the menu.
+
+Add-ons
+  * Use several add-ons at once.
+  * Every prompt has a "Prompt from" dropdown: your settings or any add-on, a
+    different one per prompt if you like. It can also save that one prompt into an
+    add-on.
+  * "Create add-on" makes one from just the parts you tick, including game negatives
+    and tag rules.
+  * Every add-on file is previewed before it is imported: what it contains and how
+    many of your prompts it would change.
+
+Config
+  * Game update check: after a game update, lists the prompts the game changed, added
+    or removed, and which of your edits were made for the old text.
+  * Export everything / Import a backup: all settings, presets and add-ons in one
+    file, to move to another PC. You see what is in the backup before it is used, and
+    your folders and ComfyUI address can be kept.
+  * Draw ahead while idle (off by default): recently shown scenes are drawn again in
+    the background, so a fresh picture appears at once next time.
+  * Diagnostics: whether the game, its prompt tables and ComfyUI were found.
+
+
+CHANGED
+
+  * Rebuilt from the ground up as one file, wayward-bridge.js, with
+    Start-Wayward-Bridge.bat. Settings are kept in the wayward-bridge-data folder next
+    to it.
+  * The mod reads the game's own index.html each time, so it keeps working when the
+    game updates. Replace the game's files and reload the page; no restart, no new mod
+    needed unless the game changes how it builds its prompts.
+  * New game default prompts come through after a game update: only the prompts you
+    changed are stored.
+  * Edits are drafts (orange border) until you press "Save & Apply to game". After
+    saving, the picture on screen is drawn again with the new settings (can be turned
+    off). Closing the menu with unsaved changes asks first.
+  * Every playthrough keeps its own settings, even two games that started as the same
+    heroine. A new game starts with that heroine's most recently played save's settings.
+  * Saved for the heroine selected at the top: her prompts, model family, models,
+    sampler, which LoRAs are used, turbo and patron portraits. LoRA trigger words and
+    groups, picture sizes, quality tags, the hi-res fix, face fix, GIF settings and
+    Config are shared by all heroines.
+  * Tabs: "Server & defaults" is now "Config"; new "Negatives & tag rules" and
+    "Prompt inspector" tabs.
+  * A tidier menu: each tab has its own colour, and its sections, buttons and Save
+    button use it. Sections share one look, buttons come in three kinds (normal,
+    main, delete), and the header fits on one line.
+  * The "Gen All" button is gone: every picture is drawn new until you turn on Use
+    Saved Images/GIFs. With it on, Generate new and Same seed still draw a new picture.
+  * Thumbs up saves the current scene; thumbs down deletes it and draws a new one
+    (asks first). On a saved picture, thumbs down deletes that saved file.
+  * The game's video button turns the picture into a looping GIF.
+  * Buttons on the game's picture, the mod's and the game's own, only show while the
+    mouse is over it (a tap shows them on touch screens), so the picture stays clear.
+  * Saved pictures are kept per heroine. Saving works without a ComfyUI output
+    folder set (they then go in the wayward-bridge-data folder).
+  * Danbooru tag suggestions while typing: about 81,000 tags, other spellings (aliases)
+    lead to the right tag, and choosing works like an IME list (Up / Down, Enter or
+    Tab, Esc). Only the letters you typed are replaced.
+  * The default scene size is 1216 × 832, the shape of the game's picture box.
+  * Old add-on packs can still be imported (Config > Add-ons), and old presets
+    (Config > Import old presets).
+
+
+BUGFIXES
+
+  * Works with the current game version. 1.7 looked for parts of the game by names
+    that change with every game build, so some features stopped working after game
+    updates; 2.0 finds them by what they contain.
+  * "Restore defaults" works again (it failed with an error).
+  * "Unload add-on" works again (it did nothing).
+  * TeaCache / SDXL cache settings no longer turn themselves off when ComfyUI is
+    offline or the cache node is not found.
+  * A missing cache node in ComfyUI is skipped instead of making ComfyUI refuse the
+    whole picture.
+  * Switching heroine or loading an add-on no longer empties the character prompt.
+  * Removed LoRA trigger words no longer come back, or get lost, when the menu is used
+    in another browser.
+  * Thumbs up saves the picture you are looking at, not the last picture drawn, and
+    pressing it twice no longer saves a second copy.
+
+
+MISC / OTHER
+
+  * Other websites you visit can no longer change your settings, start drawings on
+    your graphics card or read your pictures; only the game page on your own computer
+    can.
+  * ComfyUI is only contacted over its web address; it is never started or stopped.
+  * Every picture drawn is kept in a library with its prompt and seed, and the last 50
+    versions of your settings are kept as backups.
+  * Options for the .bat: --port, --game (game folder), --host 0.0.0.0 (play from a
+    phone on your network).
+  * Your own ComfyUI workflow can replace the built-in one (see README).
+  * Needs Node.js 18 or newer.

@@ -1,0 +1,199 @@
+{
+  "format": "wayward-addon",
+  "version": 1,
+  "name": "Clothes",
+  "description": "",
+  "layer": {
+    "prompts": {
+      "outfits": {
+        "modest": {
+          "tags": "dress, apron, cleavage, short_sleeves, knee-length_skirt",
+          "negative": "nude, breasts_out, see-through",
+          "boldness": 12
+        },
+        "nightshift": {
+          "tags": "nightgown, bare_shoulders, short_hem, bare_legs, thin_fabric",
+          "negative": "armor, apron",
+          "boldness": 22
+        },
+        "bath_linen_wrap": {
+          "tags": "towel, cleavage, bare_shoulders, bare_thighs, wet",
+          "negative": "robe, dress",
+          "boldness": 28
+        },
+        "bath_gown": {
+          "tags": "wet_clothes, dress, see-through, bare_shoulders, nipples_visible_through_clothes",
+          "negative": "dry, apron",
+          "boldness": 40
+        },
+        "bath_shift": {
+          "tags": "wet_clothes, see-through, short_dress, bare_thighs, nipples_visible_through_clothes",
+          "negative": "long_sleeves, opaque",
+          "boldness": 42
+        },
+        "bath_bindings": {
+          "tags": "breast_bondage, sarashi, bare_midriff, short_skirt, bare_shoulders",
+          "negative": "dress, cloak",
+          "boldness": 48
+        },
+        "bath_towel": {
+          "tags": "towel, covering_breasts, bare_shoulders, bare_hips, wet",
+          "negative": "robe, dress",
+          "boldness": 55
+        },
+        "bath_sheer_chemise": {
+          "tags": "see-through, chemise, nipples, short_hem, bare_legs, wet",
+          "negative": "opaque",
+          "boldness": 60
+        },
+        "peasant_smock": {
+          "tags": "blouse, cleavage, off_shoulder, short_skirt, bare_shoulders",
+          "negative": "high_collar, long_sleeves",
+          "boldness": 30
+        },
+        "serving_dress": {
+          "tags": "waitress, dress, cleavage, corset, short_skirt, thigh_strap, apron",
+          "negative": "high_collar",
+          "boldness": 38
+        },
+        "patched_sundress": {
+          "tags": "sundress, cleavage, bare_shoulders, short_dress",
+          "negative": "long_sleeves, cloak",
+          "boldness": 32
+        },
+        "linen_shift": {
+          "tags": "chemise, off_shoulder, cleavage, bare_legs, short_hem",
+          "negative": "armor, cloak",
+          "boldness": 34
+        },
+        "barmaid_corset": {
+          "tags": "corset, cleavage, bare_shoulders, short_skirt, garter_straps",
+          "negative": "high_collar",
+          "boldness": 50
+        },
+        "wench_bodice": {
+          "tags": "bodice, unlaced, cleavage, underboob, short_skirt, bare_midriff",
+          "negative": "high_collar",
+          "boldness": 58
+        },
+        "his_shirt": {
+          "tags": "shirt, oversized_clothes, no_panties, cleavage, bare_legs, unbuttoned",
+          "negative": "dress, skirt, pants",
+          "boldness": 62
+        },
+        "crop_blouse_skirt": {
+          "tags": "crop_top, underboob, short_skirt, bare_midriff, no_bra",
+          "negative": "long_sleeves",
+          "boldness": 52
+        },
+        "breast_band_skirt": {
+          "tags": "sarashi, micro_skirt, bare_midriff, sideboob",
+          "negative": "dress",
+          "boldness": 64
+        },
+        "strapless_thigh_boots": {
+          "tags": "strapless, cleavage, thighhighs, short_skirt, garter_straps",
+          "negative": "long_dress",
+          "boldness": 56
+        },
+        "silk_robe": {
+          "tags": "open_robe, nude, nipples, no_panties, silk",
+          "negative": "closed_robe",
+          "boldness": 78
+        },
+        "lingerie": {
+          "tags": "lingerie, bra, panties, garter_belt, thighhighs, cleavage, lace",
+          "negative": "dress, armor",
+          "boldness": 80
+        },
+        "pink_babydoll": {
+          "tags": "babydoll, see-through, pink_lingerie, nipples, panties, frills",
+          "negative": "opaque",
+          "boldness": 82
+        },
+        "auburn_babydoll": {
+          "tags": "babydoll, see-through, nipples, thong",
+          "negative": "opaque",
+          "boldness": 82
+        },
+        "satin_babydoll": {
+          "tags": "babydoll, open_clothes, nipples, panties, satin",
+          "negative": "nightgown",
+          "boldness": 84
+        },
+        "sheer_chemise": {
+          "tags": "see-through, chemise, nipples, no_panties, short_hem",
+          "negative": "opaque",
+          "boldness": 86
+        },
+        "sheer_nightgown": {
+          "tags": "see-through, nightgown, nipples, open_clothes, bare_hips",
+          "negative": "opaque",
+          "boldness": 86
+        },
+        "slave_collar": {
+          "tags": "collar, gift, smile",
+          "negative": "chain, cage, humiliation, tears, slave",
+          "boldness": 20
+        },
+        "nude": {
+          "tags": "nude, nipples, navel, completely_nude",
+          "negative": "clothes, dress, shirt, skirt",
+          "boldness": 98
+        },
+        "naked": {
+          "tags": "nude, completely_nude, nipples, navel",
+          "negative": "clothes, dress, panties, bra",
+          "boldness": 100
+        },
+        "panties_only": {
+          "tags": "topless, panties, nipples, bare_shoulders",
+          "negative": "shirt, dress, bra",
+          "boldness": 90
+        },
+        "test": {
+          "tags": "collar, gift, smile",
+          "negative": "chain, cage, humiliation, tears, slave",
+          "boldness": 20
+        }
+      },
+      "exposure": {
+        "1000000": "unlaced, cleavage",
+        "1000001": "unlaced, cleavage, no panties, pussy",
+        "1000010": "unlaced, cleavage, panties aside, pussy, spread legs",
+        "1000100": "unlaced, cleavage, bottomless, bare hips, ass, panties",
+        "1000101": "unlaced, cleavage, bottomless, bare hips, no panties, pussy",
+        "1000110": "unlaced, cleavage, bottomless, bare hips, panties aside, pussy",
+        "1001000": "unlaced, cleavage, skirt lift, bare thighs, panties",
+        "1001001": "unlaced, cleavage, skirt lift, bare thighs, no panties, pussy",
+        "1001010": "unlaced, cleavage, skirt lift, bare thighs, panties aside, pussy",
+        "0000010": "panties aside, pussy, spread legs",
+        "0000001": "no panties, pussy",
+        "0001000": "skirt lift, bare thighs, panties",
+        "0001010": "skirt lift, bare thighs, panties aside, pussy",
+        "0001001": "skirt lift, bare thighs, no panties, pussy",
+        "0000100": "bottomless, bare hips, ass, panties",
+        "0000110": "bottomless, bare hips, panties aside, pussy",
+        "0000101": "bottomless, bare hips, no panties, pussy",
+        "0100000": "breasts out, nipples, clothes pull",
+        "0100010": "breasts out, nipples, panties aside, pussy, spread legs",
+        "0100001": "breasts out, nipples, no panties, pussy",
+        "0101000": "breasts out, nipples, skirt lift, bare thighs, panties",
+        "0101010": "breasts out, nipples, skirt lift, bare thighs, panties aside, pussy",
+        "0101001": "breasts out, nipples, skirt lift, bare thighs, no panties, pussy",
+        "0100100": "breasts out, nipples, bottomless, bare hips, ass, panties",
+        "0100110": "breasts out, nipples, bottomless, bare hips, panties aside, pussy",
+        "0100101": "breasts out, nipples, bottomless, bare hips, no panties, pussy",
+        "0010000": "topless, nipples, bare shoulders",
+        "0010010": "topless, nipples, panties aside, pussy, spread legs",
+        "0010001": "topless, nipples, no panties, pussy",
+        "0011000": "topless, nipples, skirt lift, bare thighs, panties",
+        "0011010": "topless, nipples, skirt lift, bare thighs, panties aside, pussy",
+        "0011001": "topless, nipples, skirt lift, bare thighs, no panties, pussy",
+        "0010100": "topless, nipples, bottomless, bare hips, ass, panties",
+        "0010110": "topless, nipples, bottomless, bare hips, panties aside, pussy",
+        "0010101": "nude, nipples, pussy, bare shoulders"
+      }
+    }
+  }
+}

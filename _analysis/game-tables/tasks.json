@@ -1,0 +1,9 @@
+{
+  "idle": "standing, relaxed",
+  "idle_bedroom": "sitting,on_bed, looking at viewer, relaxed",
+  "greeting": "standing, welcoming gesture, friendly smile, tavern entrance",
+  "taking_order": " listening attentively, notepad in hand, warm lighting",
+  "serving": "carrying tray, alcohol, busy tavern",
+  "cleaning": "wiping table, cleaning, tavern interior",
+  "cooking": "kitchen, hearth, stirring pot, steam, firelight"
+}

@@ -1,0 +1,1045 @@
+{
+ "heroines": {
+  "elena": {
+   "archetype": "elena_farmgirl",
+   "name": "Elena",
+   "base": "kisaragi_chihaya, long dark hair, brown eyes, soft features, gentle face, pale skin, slim build, medium breasts, slim waist",
+   "negative": "tattoo, piercing, makeup heavy"
+  },
+  "mara": {
+   "archetype": "mara_citygirl",
+   "name": "Mara",
+   "base": "medium hair, shoulder-length brown hair, straight hair, hazel eyes, sharper features, strong jawline, fair skin, athletic build, medium breasts, narrow waist",
+   "negative": "long hair, tattoo, piercing, makeup heavy"
+  },
+  "pippa": {
+   "archetype": "pippa_waif",
+   "name": "Pippa",
+   "base": "(Kyouko Toshinou:1.2), petite slim build, small breasts, cute face, bright green eyes, freckles, (straight blonde hair:1.1), quirky",
+   "negative": "child, loli, blonde hair, black hair, long hair, tall, curvy, large breasts, tattoo, piercing, makeup heavy"
+  }
+ },
+ "outfits": {
+  "modest": {
+   "name": "Plain Work Dress",
+   "tags": "plain brown dress, high collar, long sleeves, long skirt, white apron, thick fabric",
+   "negative": "cleavage, breasts_out, revealing clothing, bare shoulders, low neckline, short skirt, bare legs",
+   "boldness": 0,
+   "wear": ""
+  },
+  "nightshift": {
+   "name": "Sleep Shift",
+   "tags": "(white linen nightshift:1.3), plain white nightgown, loose fit, drawstring neckline, long sleeves, knee-length, soft white fabric, modest sleepwear, bare lower legs, barefoot, simple, comfortable, bedroom",
+   "negative": "corset, dress, apron, formal, breasts_out, see-through, pink, black, red, blue, green, satin",
+   "boldness": 8,
+   "wear": "sleep"
+  },
+  "bath_linen_wrap": {
+   "name": "Linen Bath Wrap",
+   "tags": "(ankle-length linen robe:1.3), white_robe, heavy off-white linen, tied at waist, three-quarter sleeves, modest neckline, bare feet, hair_up, working attendant attire, damp hem",
+   "negative": "cleavage, breasts_out, bare shoulders, towel, short, sheer, naked, lingerie, bandages, leg_wrap, ankle_wrap",
+   "boldness": 5,
+   "wear": "bath"
+  },
+  "bath_gown": {
+   "name": "Bathing Gown",
+   "tags": "(blue sleeveless long dress:1.2), long_dress, sleeveless_dress, blue_dress, wet_clothes, wet, bare_shoulders, bare_arms, barefoot, hair_up",
+   "negative": "apron, sleeves, short dress, see-through, towel, naked, swimsuit, corset, lingerie",
+   "boldness": 18,
+   "wear": "bath"
+  },
+  "bath_shift": {
+   "name": "Bath Shift",
+   "tags": "(short white linen bath shift:1.3), knee-length, bare arms, drawstring neckline, semi-fitted, simple cotton, damp from steam, barefoot, hair_up, working attendant attire",
+   "negative": "long sleeves, apron, dress, corset, towel only, lingerie, fully clothed, naked",
+   "boldness": 30,
+   "wear": "bath"
+  },
+  "bath_bindings": {
+   "name": "Bound Linens",
+   "tags": "(chest_sarashi:1.3), sarashi, bandeau, (white loincloth:1.2), loincloth, midriff, navel, bare_shoulders, bare_legs, barefoot, wet, hair_up",
+   "negative": "dress, shirt, skirt, apron, swimsuit, bikini, towel, naked, injury, blood, bandaged arms",
+   "boldness": 45,
+   "wear": "bath"
+  },
+  "bath_towel": {
+   "name": "Bath Towel",
+   "tags": "(naked_towel:1.3), white towel wrapped around body, towel knotted above breasts, towel hem mid-thigh, wet, bare_shoulders, bare_legs, barefoot",
+   "negative": "dress, apron, sleeves, long skirt, naked, lingerie, holding_towel, towel_around_neck",
+   "boldness": 55,
+   "wear": "bath"
+  },
+  "bath_sheer_chemise": {
+   "name": "Fine Chemise",
+   "tags": "(see-through white chemise:1.3), chemise, see-through, wet_shirt, wet_clothes, wet, knee-length, bare_shoulders, bare_arms, barefoot, hair_up",
+   "negative": "opaque, dress, apron, sleeves, towel, naked, swimsuit, bikini, corset, lace, lace_trim, frills, ribbon, babydoll",
+   "boldness": 65,
+   "wear": "bath"
+  },
+  "peasant_smock": {
+   "name": "Peasant Smock",
+   "tags": "loose homespun smock, off-white linen, gathered yoke, wide neckline, drawstring at chest, calf-length, barefoot",
+   "negative": "cleavage, corset, fitted bodice, tavern dress, rope, rope belt, sandals, sandal straps, leather straps, ankle straps, footwear straps, bondage",
+   "boldness": 8,
+   "wear": ""
+  },
+  "serving_dress": {
+   "name": "Laced Bodice Dress",
+   "tags": "fitted tavern dress, warm russet wool bodice, front lacing, off-the-shoulder neckline, modest cleavage, gathered waist, full mid-calf skirt, cream blouse beneath, bare shoulders, flattering feminine silhouette",
+   "negative": "high collar, apron, corset to waist, short skirt, bare legs",
+   "boldness": 30,
+   "wear": ""
+  },
+  "patched_sundress": {
+   "name": "Patched Sundress",
+   "tags": "sundress, thin shoulder straps, exposed collarbone, cleavage visible, hem at knee, bare arms, summer warmth, casual everyday",
+   "negative": "apron, corset, long sleeves, high collar",
+   "boldness": 43,
+   "wear": ""
+  },
+  "linen_shift": {
+   "name": "Linen Shift",
+   "tags": "simple white linen shift, thin shoulder straps, soft thin fabric, knee-length flowing skirt, full length shift, covered hips, intact hem, undergarment style, bare arms, bare lower legs, barefoot",
+   "negative": "apron, corset, jacket, dress, fully opaque heavy fabric, panties visible, exposed thighs, skirt lifted, hem raised, t-shirt, short top, crop top, panties, naked, bare hips, lifted skirt, panty shot",
+   "boldness": 52,
+   "wear": ""
+  },
+  "barmaid_corset": {
+   "name": "Barmaid's Corset",
+   "tags": " pushed-up breasts, cleavage, short flared red skirt above knee, bare arms, laced up front, full skirt, knee-high stockings",
+   "negative": "",
+   "boldness": 45,
+   "wear": ""
+  },
+  "wench_bodice": {
+   "name": "Wrapped Bodice & Hip Skirt",
+   "tags": "(cropped wrapped bodice:1.3), short laced bodice covering breasts only, hemline at the underbust, dramatic push-up effect, cleavage, bare midriff, exposed navel, lower belly visible, low-slung long burgundy skirt, skirt waistband below the navel, ankle-length flowing skirt, bare arms, bare shoulders, brown leather ankle boots, no apron, rustic tavern wear",
+   "negative": "long bodice, full corset to waist, midriff covered, apron, short skirt",
+   "boldness": 52,
+   "wear": ""
+  },
+  "his_shirt": {
+   "name": "His Shirt",
+   "tags": "oversized white linen shirt, husband's shirt, falling off one shoulder, sleeves rolled to the elbow, hem at upper thigh, bare collarbone, bare arms, hair tousled, casual just-woken look, tavern context, indoor warm light",
+   "negative": "apron, dress, corset, bra, panties visible, long skirt",
+   "boldness": 58,
+   "wear": ""
+  },
+  "crop_blouse_skirt": {
+   "name": "Crop Blouse & Short Skirt",
+   "tags": "cropped peasant blouse, white cotton, off-shoulder neckline, hem just below breasts, generous cleavage, entirely bare midriff, navel showing, low-rise cotton short skirt, brown linen, hem mid-thigh, bare_legs, tavern girl aesthetic",
+   "negative": "apron, long skirt",
+   "boldness": 60,
+   "wear": ""
+  },
+  "breast_band_skirt": {
+   "name": "Breast Band & Skirt",
+   "tags": "(chest_sarashi:1.3), sarashi, bandeau, strapless, cleavage, underboob, (midriff:1.2), navel, bare_shoulders, bare_arms, brown_skirt, long_skirt",
+   "negative": "apron, blouse, shirt, bodice, bra, bikini, swimsuit, loincloth, bandaged arms, injury",
+   "boldness": 62,
+   "wear": ""
+  },
+  "strapless_thigh_boots": {
+   "name": "Strapless Mini & Thigh Boots",
+   "tags": "strapless minidress, cream cotton, no straps, fitted bodice, deep sweetheart neckline, generous cleavage, hem high on thigh, bare shoulders, lace-up front laces, dark brown leather, indoor tavern light",
+   "negative": "apron, sleeves, long skirt",
+   "boldness": 68,
+   "wear": ""
+  },
+  "silk_robe": {
+   "name": "Silk Robe",
+   "tags": "(loose satin dressing robe:1.3), deep wine satin, plain lustrous fabric, wrapped front, sash tied loosely at the waist, robe slipping off one shoulder, neckline open to a deep v of cleavage, robe parted at the thigh, bare_legs, bare_shoulders, barefoot, boudoir, intimate loungewear",
+   "negative": "dragon, embroidery, embroidered, oriental, kimono, gold trim, pattern, print, floral, white, pink, black, blue, green, lace, dress, silk, spider_web, spider, cobweb",
+   "boldness": 55,
+   "wear": ""
+  },
+  "lingerie": {
+   "name": "Lace Lingerie",
+   "tags": "(black lace lingerie set:1.3), black lace bra, see-through black lace, matching black lace panties, black thigh-high stockings, bare shoulders, bare midriff",
+   "negative": "white, pink, red, blue, dress, robe, babydoll",
+   "boldness": 70,
+   "wear": ""
+  },
+  "pink_babydoll": {
+   "name": "Pink Babydoll",
+   "tags": "pink babydoll nightie, pastel pink, spaghetti_strap, sheer chiffon skirt, upper thigh hemline, ribbon bow at bust, pink lace panties, bare arms, bare legs",
+   "negative": "dress, corset, apron, opaque skirt, full coverage, black, white, red, blue, auburn, satin",
+   "boldness": 65,
+   "wear": ""
+  },
+  "auburn_babydoll": {
+   "name": "Auburn Babydoll",
+   "tags": "(auburn babydoll nightie:1.3), deep red-brown chiffon, rust auburn fabric, fitted satin bust cups, auburn ribbon ties at the shoulders, sweetheart neckline, sheer flowing auburn skirt, hemline at upper thigh, matching auburn lace panties, bare arms, bare legs, warm rust color",
+   "negative": "dress, corset, apron, opaque skirt, pink, black, white, blue, green, satin black",
+   "boldness": 70,
+   "wear": ""
+  },
+  "satin_babydoll": {
+   "name": "Satin Babydoll",
+   "tags": "(black satin babydoll:1.3), glossy black satin fabric, black lace trim, plunging neckline, fitted satin cups pushing the breasts together, sheer black mesh waist, flared black satin skirt at upper thigh, attached garter straps, black thigh-high stockings, matching black satin panties, bare shoulders",
+   "negative": "dress, corset, apron, opaque skirt, full coverage, white, pink, auburn, red, blue, chiffon",
+   "boldness": 75,
+   "wear": ""
+  },
+  "sheer_chemise": {
+   "name": "Sheer Chemise",
+   "tags": "(white sheer chemise:1.4), (transparent see-through fabric:1.4), (nipples visible through the fabric:1.3), short chemise, negligee, thin spaghetti straps, fitted bodice, hem at upper thigh, bare arms, bare legs, white lace trim, intimate undergarment",
+   "negative": "dress, corset, apron, opaque, solid fabric, pink, black, red, blue, auburn, satin, silk, spider_web, spider, cobweb",
+   "boldness": 88,
+   "wear": ""
+  },
+  "sheer_nightgown": {
+   "name": "Sheer Nightgown",
+   "tags": "(short white sheer chemise:1.3)",
+   "negative": "panties",
+   "boldness": 80,
+   "wear": ""
+  },
+  "slave_collar": {
+   "name": "Collar & Chains",
+   "tags": "(black leather collar:1.3), black leather collar buckled at the throat, silver metal ring on the collar, thin silver body chains crossing the chest, silver body chain at the waist, tiny black satin loincloth, bare breasts barely covered by the chains, bare_legs, bare back, kneeling pose suggested, fetish wear, submissive aesthetic",
+   "negative": "dress, corset, apron, public, pink, white, robe, babydoll, full coverage",
+   "boldness": 88,
+   "wear": ""
+  }
+ },
+ "scenes": {
+  "kissing": [
+   "1boy, kiss, closed_eyes, hug, blush",
+   "1boy, deep kiss, hand on cheek, pov, blush",
+   "1boy, kissing against wall, hands in hair, blush"
+  ],
+  "groped_ass": [
+   "1boy, from behind, (ass_grab:1.2), looking_back, pov",
+   "1boy, (grabbing_another's_ass:1.2), looking back, surprised, pov",
+   "1boy, (ass_grab:1.2), at the bar, blush",
+   "1boy, (ass_grab:1.2), leaning on bar counter, flustered",
+   "1boy, three-quarter view, (ass_grab:1.2), (from_behind:1.2), embarrassed",
+   "1boy, facing_viewer, (ass_grab:1.2), pressed close, blush",
+   "1boy, (ass_grab:1.2), carrying a tray, mid-stride, surprised"
+  ],
+  "groped_tits": [
+   "1boy, (grabbing_another's_breast:1.2), through clothes, blush, pov",
+   "1boy, (both hands cupping breasts:1.2), from behind, head_back, open_mouth, pov",
+   "1boy, (hand inside blouse, groping bare breast:1.2), biting_own_lip, pov"
+  ],
+  "fingered": [
+   "1boy, (fingering:1.3), spread legs, bare_legs, open_mouth, pov",
+   "1boy, (fingering:1.2), leaning back, legs apart, moaning, pov",
+   "1boy, (fingering:1.2), head_back, pov"
+  ],
+  "self_pleasure": [
+   "(solo:1.3), 1girl, on bed, spread_legs, (fingering:1.3), closed_eyes, head_back, blush",
+   "(solo:1.3), 1girl, lying, on_back, knees apart, (one hand on breast:1.2), (fingering:1.3), biting_own_lip, blush",
+   "(solo:1.3), 1girl, sitting, on_bed, legs apart, (fingering:1.3), arched_back, open_mouth"
+  ],
+  "bath_solo": [
+   "1girl, solo, (bathtub:1.4), partially_submerged, wet hair, closed_eyes",
+   "1girl, solo, (sitting in wooden bathtub:1.4), hair_up, head_back, water to shoulders",
+   "1girl, solo, (kneeling in wooden bathtub:1.4), wet hair"
+  ],
+  "bath_attendant": [
+   "1boy, 1girl, (bathtub:1.3), topless_male, (1boy in bathtub:1.2), (kneeling on floor:1.2), hair_up",
+   "1boy, 1girl, (bathtub:1.3), topless_male, (1boy in bathtub:1.2), (standing:1.3), bare arms"
+  ],
+  "bath_attendant_wash_chest": [
+   "1boy, 1girl, (bathtub:1.3), topless_male, (1boy in bathtub:1.2), (kneeling on floor:1.2)",
+   "1boy, 1girl, (bathtub:1.3), topless_male, (1boy in bathtub:1.2), (leaning_forward:1.3)"
+  ],
+  "bath_attendant_wash_body": [
+   "1boy, 1girl, (bathtub:1.3), topless_male, (1boy in bathtub:1.2), (kneeling on floor:1.2), washing, sponge",
+   "1boy, 1girl, (bathtub:1.3), topless_male, (1boy in bathtub:1.2), (leaning_forward:1.3), washing"
+  ],
+  "bath_attendant_handjob": [
+   "1boy, 1girl, (bathtub:1.3), topless_male, (1boy in bathtub:1.2), (kneeling on floor:1.2), (handjob:1.3), (penis:1.2)",
+   "1boy, 1girl, (bathtub:1.3), topless_male, (1boy in bathtub:1.2), (leaning_forward:1.3), (handjob:1.3), (penis:1.2), close-up, parted lips"
+  ],
+  "bath_with_patron": [
+   "1boy, 1girl, (bathtub:1.4), (shared_bathing:1.4), partially_submerged, bare shoulders, eye contact",
+   "1boy, 1girl, (bathtub:1.4), (shared_bathing:1.4), partially_submerged, wet hair"
+  ],
+  "handjob": [
+   "1boy, handjob, looking up, pov",
+   "1boy, handjob, both hands on cock, kneeling, looking up, parted lips, pov",
+   "1boy, handjob, tongue out, close-up, pov"
+  ],
+  "blowjob": [
+   "1boy, fellatio, penis, kneeling, looking up",
+   "1boy, fellatio, penis, (deepthroat:1.2), kneeling, looking up",
+   "1boy, fellatio, licking shaft, tongue on cock, kneeling, looking up"
+  ],
+  "titfuck": [
+   "1boy, paizuri, breast_press, looking up, pov",
+   "1boy, paizuri, breast_press, licking_penis, pov"
+  ],
+  "sex": [
+   "sex,vaginal, penis, missionary, spread_legs, on bed, pov",
+   "sex,vaginal, penis, from behind, doggystyle, arched back, pov",
+   "sex,vaginal, (cowgirl_position:1.2), (penis:1.3), straddling, from_below",
+   "sex,vaginal, penis, standing, against_wall, pov",
+   "sex,vaginal, penis, spooning, from behind, lying, on_side, pov",
+   "sex,vaginal, penis, bent_over, from behind, pov"
+  ],
+  "sex_rough": [
+   "rough_sex,sex,vaginal, (penis:1.3), restrained, missionary, arms_up, spread_legs, pov",
+   "rough_sex,sex,vaginal, (penis:1.3), from behind, doggystyle, gripping hips, spread_legs, pov",
+   "rough_sex,sex,vaginal, (penis:1.3), (bent_over:1.2), from behind, ass focus, grabbing_another's_hair, spread_legs",
+   "rough_sex,sex,vaginal, (penis:1.3), against wall, spread_legs, pov"
+  ],
+  "anal": [
+   "1boy, anal, penis, from behind, ass, on bed",
+   "1boy, anal, penis, all_fours, arched back, moaning, on bed, pov"
+  ],
+  "facial": [
+   "1boy, facial, penis, kneeling, closed_eyes, messy",
+   "1boy, facial, penis, cum_on_breasts, kneeling, tongue out, messy"
+  ],
+  "finish_on_stomach": [
+   "1boy, (cum on stomach:1.3), lying, on_back, heavy_breathing, on bed"
+  ],
+  "finish_on_chest": [
+   "1boy, (cum on breasts:1.3), lying, on_back, blush, on bed"
+  ],
+  "finish_on_back": [
+   "1boy, (cum_on_body:1.3), (cum on ass:1.2), lying, on_stomach, on bed"
+  ],
+  "clean_with_mouth": [
+   "1boy, (penis:1.2), (licking_penis:1.3), kneeling, tongue out, half-closed_eyes, after sex, on bed",
+   "1boy, (penis:1.2), (licking_penis:1.3), kneeling, looking up, after sex, on bed"
+  ],
+  "cum_in_mouth": [
+   "1boy, (penis:1.2), (fellatio:1.3), (cum in mouth:1.3), kneeling, tongue out, looking up, pov",
+   "1boy, (penis:1.2), (cum on lips:1.3), kneeling, hand stroking shaft, pov",
+   "1boy, (penis:1.2), (cumshot:1.3), cum on tongue, kneeling, closed_eyes, pov"
+  ],
+  "patron_chatting": [
+   "1boy, talking, on_chair, alcohol, smile, indoors",
+   "1boy, sitting, bar_(place), drinking"
+  ],
+  "patron_flirting": [
+   "1boy, whispering",
+   "1boy, standing, bar_(place), whispering"
+  ],
+  "patron_touching": [
+   "1boy, on_chair, (holding hands)",
+   "1boy, standing, bar_(place)",
+   "1boy, sitting together in booth"
+  ],
+  "patron_bold": [
+   "1boy, sitting, bar_(place), (hand_on_another's_waist)",
+   "1boy, sitting at bar",
+   "1boy, on_chair"
+  ],
+  "patron_groping": [
+   "1boy, (grabbing_another's_breast:1.2)",
+   "1boy, (hand squeezing ass:1.2), from behind",
+   "1boy, in corner booth, (hand on breast:1.2), other hand on thigh"
+  ],
+  "patron_groping_lap": [
+   "1boy, sitting_on_lap, on_chair, (grabbing_another's_breast:1.2)",
+   "1boy, sitting_on_lap, on_chair",
+   "1boy, sitting_on_lap, on_chair, (grabbing_another's_breast:1.2), fingering, facing_viewer"
+  ],
+  "patron_intimate": [
+   "1boy, (grabbing_another's_breast:1.3), breasts_out",
+   "1boy, (hand under skirt:1.3), skirt_lift, bare thigh",
+   "1boy, (hand inside bodice:1.2), fingering, open_mouth"
+  ],
+  "patron_intimate_lap": [
+   "1boy, sitting_on_lap, on_chair, (fingering:1.3), skirt_lift, bare_legs",
+   "1boy, sitting_on_lap, on_chair, (grabbing_another's_breast:1.3), breasts_out, facing_viewer",
+   "1boy, (fingering:1.2), skirt_lift, spread_legs, head_back",
+   "1boy, nipple visible"
+  ],
+  "patron_handjob": [
+   "1boy, (on_chair:1.2), kneeling, (handjob:1.2), penis",
+   "1boy, (on_chair:1.2), (handjob:1.2), penis"
+  ],
+  "patron_blowjob": [
+   "1boy, (fellatio:1.2), penis, kneeling, indoors",
+   "1boy, (fellatio:1.2), penis, kneeling, pov"
+  ],
+  "patron_sex": [
+   "1boy, (sex from behind:1.2), (penis:1.3), bent_over, indoors",
+   "1boy, (sex:1.2), (vaginal:1.2), (penis:1.3), straddling, dark corner",
+   "1boy, (standing sex:1.2), (penis:1.3), against_wall, leg_lift, hallway"
+  ],
+  "patron_rubbing": [
+   "1boy, (imminent_penetration:1.3), (penis:1.2), pussy, from_behind, bent_over, indoors",
+   "1boy, (imminent_vaginal:1.3), (penis:1.2), pussy, sitting_on_lap, spread_legs, from_above, indoors",
+   "1boy, (imminent_penetration:1.3), (penis:1.2), pussy_juice, standing, against_wall, from_behind, indoors"
+  ],
+  "patron_rubbing_finish": [
+   "1boy, (cum_on_pussy:1.3), (penis:1.2), bent_over, from_behind, indoors",
+   "1boy, (cum_on_body:1.3), cum_on_stomach, (penis:1.2), sitting_on_lap, spread_legs, indoors"
+  ],
+  "patron_rubbing_climax": [
+   "1boy, (imminent_penetration:1.2), (penis:1.2), (orgasm:1.3), trembling, arched_back, open_mouth",
+   "1boy, (imminent_vaginal:1.2), (female_orgasm:1.3), pussy_juice, legs_together, closed_eyes, from_behind"
+  ],
+  "patron_facial": [
+   "1boy, (facial:1.2), penis, kneeling, closed_eyes, indoors",
+   "1boy, (facial:1.2), penis, kneeling, tongue out, indoors, pov"
+  ],
+  "grinding": [
+   "grinding, pov",
+   "grinding, straddling, pov"
+  ],
+  "lap_dance": [
+   "sitting_on_lap, facing_away, grinding, from_behind",
+   " straddling, looking_down, pov"
+  ],
+  "thigh_job": [
+   "(thigh_sex:1.2), (penis:1.2), thighs, lying, on_side, from_behind, bare_legs, on bed",
+   "(thigh_sex:1.2), (penis:1.2), thighs, lying, from_behind, bare_legs"
+  ],
+  "mutual_touching": [
+   "(mutual masturbation:1.2), handjob, fingering, pov",
+   " handjob, fingering, pov"
+  ],
+  "deepthroat": [
+   "(deepthroat:1.2), (penis:1.2), tears, kneeling, pov",
+   "(deepthroat:1.2), (penis:1.2), drooling, looking up, pov"
+  ],
+  "cunnilingus": [
+   "cunnilingus, lying, on_back, spread_legs, from_above",
+   "cunnilingus, sitting, legs_up, head_back, pov"
+  ],
+  "face_sitting": [
+   "sitting_on_face, from_below",
+   "sitting_on_face, pov"
+  ],
+  "sixty_nine": [
+   "(69:1.2), girl on top, sitting_on_face, fellatio, from_below",
+   "(69:1.2), lying, on_side, pov"
+  ],
+  "breast_worship": [
+   "breast_sucking, hand cupping other breast, from_below",
+   "licking nipple, tongue on breast, head_back, pov",
+   "both hands on breasts, pov"
+  ],
+  "riding": [
+   "(cowgirl_position:1.2), (penis:1.3), (sex:1.3), (vaginal:1.3), girl on top, bouncing_breasts, from_below",
+   "(reverse_cowgirl_position:1.2), (penis:1.3), (sex:1.3), (vaginal:1.3), girl facing away, ass visible, gripping thighs, from_below",
+   "riding, (penis:1.3), (sex:1.3), (vaginal:1.3), sitting upright on cock, hands behind head, from_below"
+  ],
+  "standing_sex": [
+   "standing sex, against_wall, leg_lift, arms around neck, pov",
+   "standing,from_behind, bent_over, hand_on_wall, pov"
+  ],
+  "anal_fingering": [
+   "(anal fingering:1.2), bent over, looking back, pov",
+   "(anal fingering:1.2), all_fours, biting_own_lip, pov"
+  ],
+  "patron_grinding": [
+   "1boy, (grinding:1.2), sitting_on_lap, on_chair, hands_on_another's_hips",
+   "1boy, (grinding:1.2), sitting_on_lap, on_chair, arms around neck, from_behind"
+  ],
+  "patron_lap_dance": [
+   "1boy, sitting_on_lap, grinding, arms_around_neck, from_behind",
+   "1boy, straddling"
+  ],
+  "patron_thigh_job": [
+   "1boy, (thigh_sex:1.2), (penis:1.2), thighs, lying, on_side, from_behind, bare_legs, on bed",
+   "1boy, (thigh_sex:1.2), (penis:1.2), thighs, lying, from_behind, bare_legs, indoors",
+   "1boy, (thigh_sex:1.2), (penis:1.2), thighs, bent_over, from_behind, bare_legs, indoors"
+  ],
+  "patron_mutual_touching": [
+   "1boy, (mutual masturbation:1.2), handjob, booth",
+   "1boy, handjob, fingering, indoors"
+  ],
+  "patron_deepthroat": [
+   "1boy, (deepthroat:1.2), kneeling, male sitting in chair",
+   "1boy, (deepthroat:1.2), head held in place, drooling, kneeling, pov"
+  ],
+  "patron_cunnilingus": [
+   "1boy, (cunnilingus:1.2), sitting on table edge, spread_legs, indoors",
+   "1boy, (cunnilingus:1.2), sitting on counter, spread_legs, male kneeling, indoors, from above"
+  ],
+  "patron_self_stroke": [
+   "1boy, (male_masturbation:1.2), (penis:1.2), erection, sitting, looking_at_penis, blush, indoors",
+   "1boy, (male_masturbation:1.2), (penis:1.2), erection, staring, embarrassed, hand_on_another's_thigh, indoors"
+  ],
+  "patron_breast_worship": [
+   "1boy, (breast_sucking:1.2), leaning back in chair, breasts_out, indoors",
+   "1boy, (breast worship:1.2), male face in cleavage, sitting on table, indoors, facing_viewer"
+  ],
+  "patron_titfuck": [
+   "1boy, (paizuri:1.2), kneeling, looking up, pov",
+   "1boy, (paizuri:1.2), indoors"
+  ],
+  "patron_riding": [
+   "1boy, (cowgirl_position:1.2), (penis:1.3), (sex:1.3), (vaginal:1.3), girl_on_top, straddling, indoors",
+   "1boy, (reverse_cowgirl_position:1.2), (penis:1.3), (sex:1.3), (vaginal:1.3), girl_on_top, from_behind, indoors"
+  ],
+  "patron_standing_sex": [
+   "1boy, (standing sex:1.2), penis, against_wall, leg_lift, back hallway",
+   "1boy, (sex from behind:1.2), penis, bent over counter, from_behind"
+  ],
+  "patron_handjob_finish": [
+   "1boy, (cum_on_hands:1.3)",
+   "1boy, she kneels, (cum on hands and wrist:1.3), cock in hand, looking at cum, facing_viewer"
+  ],
+  "patron_handjob_climax": [
+   "1boy, (orgasm:1.3), open mouth, blush",
+   "1boy, (ejaculation:1.3), trembling, head_back, eyes shut, facing_viewer"
+  ],
+  "patron_blowjob_climax": [
+   "1boy, (fellatio:1.2), (orgasm:1.3), moaning around him, blush, kneeling",
+   "1boy, (ejaculation:1.3), thighs clenched, eyes rolled up"
+  ],
+  "patron_sex_climax": [
+   "1boy, (sex:1.2), (vaginal:1.2), (penis:1.3), (orgasm:1.3), arched back, gripping his shoulders, open mouth, head_back",
+   "1boy, (sex from behind:1.2), (penis:1.3), (ejaculation:1.3), trembling, open_mouth"
+  ],
+  "patron_anal": [
+   "1boy, (anal:1.3), (penis:1.3), from_behind, bent_over, ass_focus, indoors",
+   "1boy, (anal:1.3), (penis:1.3), doggystyle, looking_back, table, indoors"
+  ],
+  "patron_anal_climax": [
+   "1boy, (anal:1.3), (penis:1.3), (orgasm:1.3), from_behind, arched back, open_mouth, trembling"
+  ],
+  "patron_anal_finish": [
+   "1boy, (cum_in_ass:1.3), (after_anal:1.2), bent_over, from_behind, ass_focus, indoors",
+   "1boy, (cum_in_ass:1.3), (penis:1.2), from_behind, indoors"
+  ],
+  "patron_anal_finish_pullout": [
+   "1boy, (cum_on_ass:1.3), (after_anal:1.2), (penis:1.3), bent_over, from_behind, indoors",
+   "1boy, (ejaculation:1.3), (cum_on_ass:1.3), (penis:1.3), from_behind, indoors"
+  ],
+  "patron_moment_cleavage": [
+   "solo, 1girl, (leaning forward:1.2), (cleavage:1.3), setting down a cup, looking down, from_above",
+   "solo, 1girl, (bending low:1.2), (cleavage:1.3), bodice gaping open, glancing up at viewer, facing_viewer",
+   "solo, 1girl, (leaning over table:1.2), (breasts pushed together:1.2), serving, from_above"
+  ],
+  "patron_moment_flash_tits": [
+   "solo, 1girl, (shirt_lift:1.3), (bare breasts exposed:1.3), looking at viewer, blush, facing_viewer",
+   "solo, 1girl, (top pulled up:1.3), (breasts_out:1.3), looking_at_viewer, facing_viewer",
+   "solo, 1girl, (shirt lifted to chin:1.2), (breasts_out:1.3), biting_own_lip"
+  ],
+  "patron_moment_lift_skirt": [
+   "solo, 1girl, (skirt_lift:1.3), (panties visible:1.2), looking at viewer, facing_viewer",
+   "solo, 1girl, (skirt hiked to waist:1.3), (bare_legs:1.2), blush",
+   "solo, 1girl, (skirt raised:1.2), (thigh exposed:1.2), biting_own_lip, facing_viewer"
+  ],
+  "patron_moment_sit_on_lap": [
+   "1boy, 1girl, (sitting_on_lap:1.3), looking_down",
+   "1boy, 1girl, (sitting_on_lap:1.3), facing_viewer",
+   "1boy, 1girl"
+  ],
+  "patron_moment_show_tongue": [
+   "solo, 1girl, (tongue out:1.3), looking at viewer, close-up, facing_viewer",
+   "solo, 1girl, (sticking out tongue:1.3), looking at viewer, parted_lips, close portrait",
+   "solo, 1girl, (tongue extended:1.2), half-closed_eyes, looking at viewer, close-up, facing_viewer"
+  ],
+  "patron_moment_twirl": [
+   "solo, 1girl, (twirling:1.3), (skirt flaring:1.2), looking over shoulder, facing_viewer",
+   "solo, 1girl, (spinning slowly:1.2), (skirt swirling:1.2), hair_lift, looking aside",
+   "solo, 1girl, (mid-twirl:1.3), one hand lifting skirt edge"
+  ],
+  "patron_moment_pose_dance": [
+   "solo, 1girl, (sensual pose:1.2), hand on hip, looking at viewer, facing_viewer",
+   "solo, 1girl, (slow dance:1.2), (hips swaying:1.2), arm_above_head, parted_lips",
+   "solo, 1girl, (posing for the viewer:1.2), one leg forward, hands at waist, facing_viewer"
+  ],
+  "patron_sex_finish": [
+   "1boy, (cum_in_pussy:1.3), (internal_cumshot:1.2), spread_legs, close-up, cum on thighs, indoors",
+   "1boy, spread_legs, indoors",
+   "1boy, (cum_in_pussy:1.3), (x-ray:1.2), close-up, lying, on_back, spread_legs, indoors"
+  ],
+  "patron_sex_finish_pullout": [
+   "1boy, (cum_on_ass:1.3), (penis:1.3), bent_over, from_behind, indoors",
+   "1boy, (ejaculation:1.3), (cum_on_body:1.3), (penis:1.3), from_behind, indoors",
+   "1boy, (cum_on_body:1.3), (penis:1.2), lying, on_stomach, after_sex, indoors"
+  ],
+  "patron_blowjob_swallow": [
+   "1boy, (fellatio:1.3), (cum_in_mouth:1.3), (penis:1.2), kneeling, closed_eyes",
+   "1boy, (cum_in_mouth:1.3), open_mouth, tongue, kneeling, looking_up"
+  ],
+  "patron_chatting_bed": [
+   "1boy, lying, on_side, on_bed, under_covers, talking",
+   "1boy, lying, on_bed, pillow, under_covers, smile"
+  ],
+  "patron_flirting_bed": [
+   "1boy, lying, on_side, on_bed, under_covers, whispering",
+   "1boy, lying, on_bed, pillow, under_covers, smile"
+  ],
+  "patron_touching_bed": [
+   "1boy, lying, on_bed, under_covers, hug",
+   "1boy, spooning, lying, on_side, on_bed, under_covers"
+  ],
+  "patron_bold_bed": [
+   "1boy, lying, on_side, on_bed, under_covers, (hand_on_another's_hip:1.1)",
+   "1boy, spooning, lying, on_side, on_bed, hug"
+  ],
+  "patron_groping_bed": [
+   "1boy, lying, on_bed, under_covers, (grabbing_another's_breast:1.2)",
+   "1boy, spooning, lying, on_side, on_bed, (grabbing_another's_breast:1.2), from_behind"
+  ],
+  "patron_intimate_bed": [
+   "1boy, lying, on_back, on_bed, (fingering:1.2), spread_legs",
+   "1boy, spooning, lying, on_side, on_bed, under_covers, (fingering:1.2), (grabbing_another's_breast:1.2)"
+  ],
+  "patron_rubbing_bed": [
+   "1boy, (imminent_penetration:1.3), (penis:1.2), pussy, lying, on_back, on_bed, spread_legs",
+   "1boy, (imminent_penetration:1.3), (penis:1.2), pussy, spooning, lying, on_side, on_bed, from_behind"
+  ],
+  "patron_rubbing_climax_bed": [
+   "1boy, (imminent_penetration:1.2), (penis:1.2), (orgasm:1.3), lying, on_back, on_bed, arched_back",
+   "1boy, (imminent_vaginal:1.2), (penis:1.2), (female_orgasm:1.3), pussy_juice, spooning, on_bed, closed_eyes"
+  ],
+  "patron_rubbing_finish_bed": [
+   "1boy, (cum_on_pussy:1.3), (penis:1.2), lying, on_back, on_bed, spread_legs",
+   "1boy, (cum_on_body:1.3), cum_on_stomach, (penis:1.2), lying, on_back, on_bed"
+  ],
+  "patron_handjob_bed": [
+   "1boy, (handjob:1.2), (penis:1.2), lying, on_side, on_bed, under_covers",
+   "1boy, (handjob:1.2), (penis:1.2), kneeling, on_bed, between_legs"
+  ],
+  "patron_handjob_climax_bed": [
+   "1boy, (handjob:1.2), (penis:1.2), (orgasm:1.3), lying, on_side, on_bed, open_mouth",
+   "1boy, (handjob:1.2), (penis:1.2), (orgasm:1.3), kneeling, on_bed, trembling"
+  ],
+  "patron_handjob_finish_bed": [
+   "1boy, (cum_on_hands:1.3), (penis:1.2), lying, on_side, on_bed",
+   "1boy, (cum_on_hands:1.3), (penis:1.2), kneeling, on_bed, between_legs"
+  ],
+  "patron_mutual_touching_bed": [
+   "1boy, (mutual_masturbation:1.2), handjob, fingering, (penis:1.2), lying, on_side, on_bed, under_covers",
+   "1boy, handjob, fingering, (penis:1.2), lying, on_bed"
+  ],
+  "patron_self_stroke_bed": [
+   "1boy, (male_masturbation:1.2), (penis:1.2), erection, lying, on_bed, looking_at_penis",
+   "1boy, (male_masturbation:1.2), (penis:1.2), erection, lying, on_side, on_bed, blush"
+  ],
+  "patron_blowjob_bed": [
+   "1boy, (fellatio:1.2), (penis:1.2), kneeling, on_bed, between_legs, looking_up",
+   "1boy, (fellatio:1.2), (penis:1.2), lying, on_stomach, on_bed, between_legs, looking_up"
+  ],
+  "patron_deepthroat_bed": [
+   "1boy, (deepthroat:1.2), (penis:1.2), kneeling, on_bed, between_legs",
+   "1boy, (deepthroat:1.2), (penis:1.2), lying, on_stomach, on_bed, between_legs, looking_up"
+  ],
+  "patron_blowjob_climax_bed": [
+   "1boy, (fellatio:1.2), (penis:1.2), (orgasm:1.3), kneeling, on_bed, between_legs",
+   "1boy, (fellatio:1.2), (penis:1.2), (orgasm:1.3), lying, on_stomach, on_bed, closed_eyes"
+  ],
+  "patron_blowjob_swallow_bed": [
+   "1boy, (fellatio:1.3), (cum_in_mouth:1.3), (penis:1.2), kneeling, on_bed, closed_eyes",
+   "1boy, (cum_in_mouth:1.3), (penis:1.2), open_mouth, tongue, kneeling, on_bed, looking_up"
+  ],
+  "patron_facial_bed": [
+   "1boy, (facial:1.2), (penis:1.2), kneeling, on_bed, closed_eyes",
+   "1boy, (facial:1.2), (penis:1.2), lying, on_back, on_bed, tongue_out"
+  ],
+  "patron_cunnilingus_bed": [
+   "1boy, (cunnilingus:1.2), lying, on_back, on_bed, spread_legs, between_legs",
+   "1boy, (cunnilingus:1.2), lying, on_back, on_bed, spread_legs, head_back, sheet_grab"
+  ],
+  "patron_breast_worship_bed": [
+   "1boy, (breast_sucking:1.2), lying, on_back, on_bed, breasts_out",
+   "1boy, (breast_sucking:1.2), lying, on_side, on_bed, under_covers"
+  ],
+  "patron_titfuck_bed": [
+   "1boy, (paizuri:1.2), (penis:1.2), kneeling, on_bed, between_legs, looking_up",
+   "1boy, (paizuri:1.2), (penis:1.2), lying, on_back, on_bed, boy_on_top, pov"
+  ],
+  "patron_thigh_job_bed": [
+   "1boy, (thigh_sex:1.2), (penis:1.2), thighs, spooning, lying, on_side, on_bed, from_behind",
+   "1boy, (thigh_sex:1.2), (penis:1.2), thighs, lying, on_stomach, on_bed, from_behind"
+  ],
+  "patron_grinding_bed": [
+   "1boy, (grinding:1.2), straddling, girl_on_top, on_bed",
+   "1boy, (grinding:1.2), spooning, lying, on_side, on_bed, from_behind"
+  ],
+  "patron_lap_dance_bed": [
+   "1boy, straddling, girl_on_top, on_bed, grinding",
+   "1boy, straddling, girl_on_top, on_bed, arms_around_neck"
+  ],
+  "patron_sex_bed": [
+   "1boy, (sex_from_behind:1.2), (vaginal:1.2), (penis:1.3), doggystyle, all_fours, on_bed",
+   "1boy, (sex_from_behind:1.2), (vaginal:1.2), (penis:1.3), spooning, lying, on_side, on_bed"
+  ],
+  "patron_sex_climax_bed": [
+   "1boy, (sex_from_behind:1.2), (vaginal:1.2), (penis:1.3), (orgasm:1.3), all_fours, on_bed, arched_back, open_mouth",
+   "1boy, (sex_from_behind:1.2), (vaginal:1.2), (penis:1.3), (orgasm:1.3), spooning, on_bed, trembling"
+  ],
+  "patron_sex_finish_bed": [
+   "1boy, (cum_in_pussy:1.3), (penis:1.2), lying, on_back, on_bed, spread_legs, after_sex",
+   "1boy, (cum_in_pussy:1.3), (penis:1.2), lying, on_stomach, on_bed, after_sex, from_behind"
+  ],
+  "patron_sex_finish_pullout_bed": [
+   "1boy, (cum_on_ass:1.3), (penis:1.3), lying, on_stomach, on_bed, from_behind",
+   "1boy, (cum_on_body:1.3), cum_on_stomach, (penis:1.3), lying, on_back, on_bed"
+  ],
+  "patron_riding_bed": [
+   "1boy, (cowgirl_position:1.2), (penis:1.3), (sex:1.3), (vaginal:1.3), girl_on_top, straddling, on_bed",
+   "1boy, (reverse_cowgirl_position:1.2), (penis:1.3), (sex:1.3), (vaginal:1.3), girl_on_top, on_bed, from_behind"
+  ],
+  "patron_anal_bed": [
+   "1boy, (anal:1.3), (penis:1.3), doggystyle, all_fours, on_bed, from_behind",
+   "1boy, (anal:1.3), (penis:1.3), prone_bone, lying, on_stomach, on_bed"
+  ],
+  "patron_anal_climax_bed": [
+   "1boy, (anal:1.3), (penis:1.3), (orgasm:1.3), all_fours, on_bed, arched_back, open_mouth",
+   "1boy, (anal:1.3), (penis:1.3), (orgasm:1.3), prone_bone, on_bed, trembling"
+  ],
+  "patron_anal_finish_bed": [
+   "1boy, (cum_in_ass:1.3), (penis:1.2), lying, on_stomach, on_bed, from_behind",
+   "1boy, (cum_in_ass:1.3), (after_anal:1.2), (penis:1.2), all_fours, on_bed, from_behind"
+  ],
+  "patron_anal_finish_pullout_bed": [
+   "1boy, (cum_on_ass:1.3), (penis:1.3), lying, on_stomach, on_bed, from_behind",
+   "1boy, (cum_on_ass:1.3), (after_anal:1.2), (penis:1.3), all_fours, on_bed, from_behind"
+  ]
+ },
+ "tasks": {
+  "idle": "standing, relaxed",
+  "idle_bedroom": "sitting,on_bed, looking at viewer, relaxed",
+  "greeting": "standing, welcoming gesture, friendly smile, tavern entrance",
+  "taking_order": " listening attentively, notepad in hand, warm lighting",
+  "serving": "carrying tray, alcohol, busy tavern",
+  "cleaning": "wiping table, cleaning, tavern interior",
+  "cooking": "kitchen, hearth, stirring pot, steam, firelight"
+ },
+ "looks": {
+  "tits": [
+   "breasts focus, facing viewer, standing, close-up",
+   "breasts focus, standing, close-up",
+   "breasts focus, three-quarter view, standing, close-up",
+   "breasts focus, leaning forward slightly, standing, close-up"
+  ],
+  "ass": [
+   "ass focus, from behind, standing, looking back",
+   "ass focus, from behind, standing, hand on hip",
+   "ass focus, standing, hand on hip",
+   "ass focus, from behind, standing, walking away, looking back"
+  ],
+  "pussy": [
+   "pussy focus, sitting on edge, spread_legs, skirt_lift",
+   "pussy focus, sitting, on_chair, spread_legs",
+   "pussy focus, lying, on_back, on_bed, knees up"
+  ]
+ },
+ "reactions": {
+  "pleased": "(eye contact, smirk, confident:1.1), inviting expression",
+  "coy": "(blushing, embarrassed, looking away:1.1), shy smile",
+  "unaware": "distracted, looking elsewhere, candid pose, unaware of viewer",
+  "uncomfortable": "(frown:1.1), defensive posture",
+  "annoyed": "(scowl, turning away, irritated:1.1), crossed_arms",
+  "flash_eager": "(showing off, looking at viewer:1.2), confident smirk, relaxed sensual pose, natural hand position, perfect hands",
+  "flash_hesitant": "(blushing furiously:1.2), embarrassed shy smile, biting_own_lip, glancing away nervously, hand at hem, natural hand position, perfect hands"
+ },
+ "expressions": {
+  "chatting": "smile, interested",
+  "flirting": "blush, playful smile, shy",
+  "touching": "flustered, blush, looking away",
+  "bold": "flustered, blush, biting_own_lip",
+  "intimate": "blush, open_mouth, aroused",
+  "groping": "flustered, blush, open_mouth",
+  "kissing": "blush, closed_eyes",
+  "groped_ass": "flustered, blush, surprised",
+  "groped_tits": "flustered, blush, open_mouth",
+  "grinding": "flushed face, biting_own_lip",
+  "lap_dance": "seductive, half-lidded eyes",
+  "fingered": "pleasure, open_mouth, half-closed eyes",
+  "self_pleasure": "self-pleasure, closed_eyes, lost in it",
+  "handjob": "focused, parted lips, blush",
+  "blowjob": "looking up",
+  "deepthroat": "tears, drooling",
+  "titfuck": "blush, looking up",
+  "cunnilingus": "head_back, open_mouth",
+  "breast_worship": "moaning, head_back, closed_eyes",
+  "mutual_touching": "panting",
+  "thigh_job": "biting_own_lip, blush",
+  "anal_fingering": "nervous, gripping, biting_own_lip",
+  "face_sitting": "closed_eyes, open_mouth, pleasure",
+  "sixty_nine": "focused, pleasure",
+  "sex": "moaning, pleasure, sweating",
+  "sex_rough": "intense, overwhelmed, sweating",
+  "riding": "confident, rolling hips, moaning",
+  "standing_sex": "moaning, gripping, legs trembling",
+  "anal": "nervous, gripping, tight expression",
+  "facial": "messy, closed_eyes, afterglow",
+  "cum_in_mouth": "open_mouth, looking up, satisfied",
+  "handjob_finish": "blush, staring at cum, breathing hard",
+  "sex_finish": "panting, afterglow, exhausted"
+ },
+ "moods": {
+  "scene": {
+   "smile": "smile, gentle expression, soft eyes",
+   "shy": "shy, blush, looking down",
+   "scared": "scared, wide eyes, parted lips",
+   "worried": "worried, troubled expression, downcast"
+  },
+  "work": {
+   "happy": "bright smile, cheerful, energetic",
+   "content": "gentle smile, content",
+   "okay": "calm expression, focused",
+   "unhappy": "weary expression, tired eyes",
+   "miserable": "worried expression, tense, furrowed brow"
+  },
+  "patron": {
+   "reluctant_early": "(polite smile, slightly tense, eyes darting away:1.1), shy",
+   "reluctant_contact": "(nervous, tense, looking away:1.2), body stiff",
+   "reluctant_physical": "(uncomfortable, tense, reluctant:1.2), eyes downcast, forced expression",
+   "reluctant_sexual": "(uncomfortable, reluctant, dissociating:1.2), blank expression, eyes averted",
+   "distressed_early": "(uncomfortable, anxious, nervous:1.2), looking down",
+   "distressed_contact": "(distressed, scared, frozen:1.2), shrinking back",
+   "distressed_physical": "(distressed, fearful, recoiling:1.3), tears welling up, lips trembling",
+   "distressed_sexual": "(distressed, fearful, dissociating:1.3), tears, thousand-yard stare"
+  }
+ },
+ "rooms": {
+  "taproom": {
+   "detail": "tavern interior, wooden tables, candlelight",
+   "short": "(tavern interior:1.2)"
+  },
+  "back_room": {
+   "detail": "(medieval lounge:1.2), couch, cushion, stone_wall, shadow",
+   "short": "(medieval lounge:1.2), couch, cushion, stone_wall, shadow"
+  },
+  "upstairs_hall": {
+   "detail": "upstairs hall, narrow wood corridor, single sconce, low light",
+   "short": "hallway, indoors"
+  },
+  "bedroom": {
+   "detail": "bedroom, bed, single candle, intimate lighting, private",
+   "short": "(bedroom:1.2)"
+  },
+  "bathhouse": {
+   "detail": "(medieval bathhouse:1.2), stone_wall, wooden_floor, wooden_bucket",
+   "short": "(medieval bathhouse:1.2), stone_wall, wooden_floor, wooden_bucket"
+  },
+  "in_bed": {
+   "detail": "(bedroom:1.2), night, dark, wooden_wall",
+   "short": "(bedroom:1.2), night, dark, wooden_wall"
+  }
+ },
+ "patrons": {
+  "quality": "masterpiece, best quality, portrait, upper body, medieval tavern background, warm candlelight",
+  "negative": "worst quality, low quality, blurry, bad anatomy, extra limbs, deformed, text, watermark, 3d, realistic, photorealistic, female, girl, woman, breasts",
+  "archetypes": [
+   {
+    "label": "Grizzled veteran",
+    "tags": "1boy, middle-aged man, short brown hair, beard, sturdy build, rough face"
+   },
+   {
+    "label": "Young farmhand",
+    "tags": "1boy, young man, blond hair, clean-shaven, slim, bright eyes"
+   },
+   {
+    "label": "Weathered elder",
+    "tags": "1boy, old man, grey hair, long beard, weathered face, wrinkled"
+   },
+   {
+    "label": "Scarred brute",
+    "tags": "1boy, muscular man, bald, square jaw, scars on face, intimidating"
+   },
+   {
+    "label": "Jolly redhead",
+    "tags": "1boy, heavyset man, red hair, bushy beard, jolly expression, round face"
+   },
+   {
+    "label": "Gaunt drifter",
+    "tags": "1boy, tall thin man, dark hair, gaunt face, sharp features, narrow eyes"
+   },
+   {
+    "label": "Eager youth",
+    "tags": "1boy, young man, curly brown hair, freckles, boyish face, eager expression"
+   },
+   {
+    "label": "Dignified merchant",
+    "tags": "1boy, middle-aged man, black hair, moustache, dignified, merchant clothes"
+   },
+   {
+    "label": "Rough laborer",
+    "tags": "1boy, stocky man, sandy hair, crooked nose, rough hands, working class"
+   },
+   {
+    "label": "Kindly old man",
+    "tags": "1boy, elderly man, white hair, kind eyes, gentle expression, thin frame"
+   },
+   {
+    "label": "Broad-shouldered",
+    "tags": "1boy, large man, dark beard, booming presence, deep-set eyes, broad shoulders"
+   },
+   {
+    "label": "Weary traveler",
+    "tags": "1boy, lean man, messy hair, stubble, tired eyes, traveler clothes"
+   }
+  ]
+ },
+ "quality": "masterpiece, best quality",
+ "negatives": {
+  "base": "worst quality, low quality, blurry, bad anatomy, extra limbs, deformed, text, watermark, signature, ugly, duplicate, morbid, mutilated, 3d, realistic, photorealistic, large breasts, huge breasts, gigantic breasts, multiple girls, 2girls",
+  "extras": [
+   {
+    "id": "covered_outfit",
+    "label": "Keeps a modest outfit covered (outfit boldness under 30)",
+    "text": "cleavage, breasts_out, nipples, ass, exposed ass, bottomless, no panties, revealing clothing"
+   },
+   {
+    "id": "patron_one_girl",
+    "label": "Patron scene: only one girl",
+    "text": "(2girls:1.3), (multiple girls:1.3), multiple views, split screen, 3girls, bad proportions"
+   },
+   {
+    "id": "no_man",
+    "label": "Scene without a man",
+    "text": "1boy, 2boys, male, man, multiple boys"
+   },
+   {
+    "id": "one_patron",
+    "label": "Only one patron",
+    "text": "2boys, 3boys, multiple boys, group sex"
+   },
+   {
+    "id": "joined_4boys",
+    "label": "Patrons who joined in (3 or fewer men)",
+    "text": "4boys"
+   },
+   {
+    "id": "joined_5boys",
+    "label": "Patrons who joined in (4 or fewer men)",
+    "text": "5boys"
+   },
+   {
+    "id": "joined_crowd",
+    "label": "Patrons who joined in",
+    "text": "crowd"
+   },
+   {
+    "id": "patron_gaze",
+    "label": "Patron scene: she looks at him, not at you",
+    "text": "looking at viewer"
+   },
+   {
+    "id": "patron_dress",
+    "label": "Patron scene: the man is not in a dress",
+    "text": "(crossdressing:1.3), (otoko no ko:1.2), male in dress, male in lingerie, male wearing skirt, man in sheer clothing, matching outfits"
+   },
+   {
+    "id": "exposed_one_girl",
+    "label": "Exposed or naked: only one girl",
+    "text": "(2girls:1.3), (multiple girls:1.3), multiple views, split screen"
+   },
+   {
+    "id": "bath_attendant",
+    "label": "Bath attendant scene",
+    "text": "(1girl in bathtub:1.3), (girl in tub:1.3), (girl bathing:1.3), girl partially submerged, girl in water, solo, 1girl only, looking at viewer, (toilet:1.3), (toilet bowl:1.3), (round porcelain basin:1.3), white porcelain tub, sitting in basin"
+   },
+   {
+    "id": "cum_places",
+    "label": "Where cum may not go",
+    "text": "cum on table, cum on furniture, cum on floor, cum on clothes, cum on dress"
+   },
+   {
+    "id": "reluctant",
+    "label": "She is reluctant (no happy faces)",
+    "text": "happy, eager, joyful, bright smile, laughing, ecstatic, wanting"
+   },
+   {
+    "id": "distressed",
+    "label": "She is distressed (no happy faces)",
+    "text": "happy, eager, joyful, smiling, laughing, pleasure, ecstatic, satisfied, afterglow"
+   },
+   {
+    "id": "room_in_bed",
+    "label": "Room: in bed (keeps other places out)",
+    "text": "standing, against_wall, table, chair, bar_(place), counter, blue_theme, window, cityscape, city_lights, sunlight, day"
+   },
+   {
+    "id": "room_back_room",
+    "label": "Room: back room (keeps other places out)",
+    "text": "bar_(place), counter, shelf, bottle, beer_mug, mug, barrel, candle, candlestand, chandelier, wine_glass, wine, blue_theme"
+   },
+   {
+    "id": "room_back_room_2",
+    "label": "Room: back room (keeps other places out)",
+    "text": "fireplace, fire"
+   },
+   {
+    "id": "room_bathhouse",
+    "label": "Room: bathhouse (keeps other places out)",
+    "text": "faucet, shower_head, tiles"
+   },
+   {
+    "id": "room_bathhouse_2",
+    "label": "Room: bathhouse (keeps other places out)",
+    "text": "partially_submerged, topless, nipples, breasts_out"
+   },
+   {
+    "id": "room_bathhouse_3",
+    "label": "Room: bathhouse (keeps other places out)",
+    "text": "partially_submerged, bathing, water, (sitting in bathtub:1.3)"
+   },
+   {
+    "id": "room_bathhouse_4",
+    "label": "Room: bathhouse (keeps other places out)",
+    "text": "bar_(place), counter, shelf, bottle, beer_mug, mug"
+   },
+   {
+    "id": "exposure_off",
+    "label": "Exposure: clothes she took off stay off (shirt…)",
+    "text": "shirt, blouse, bra, chest covered, clothed upper body"
+   },
+   {
+    "id": "exposure_off_2",
+    "label": "Exposure: clothes she took off stay off (chest covered…)",
+    "text": "chest covered, bra, fully clothed upper body"
+   },
+   {
+    "id": "exposure_off_3",
+    "label": "Exposure: clothes she took off stay off (skirt…)",
+    "text": "skirt, dress bottom"
+   },
+   {
+    "id": "exposure_off_4",
+    "label": "Exposure: clothes she took off stay off (skirt…)",
+    "text": "skirt, long_skirt, dress"
+   },
+   {
+    "id": "exposure_off_5",
+    "label": "Exposure: clothes she took off stay off (underwear…)",
+    "text": "underwear, pubic clothing"
+   },
+   {
+    "id": "exposure_off_6",
+    "label": "Exposure: clothes she took off stay off (panties…)",
+    "text": "(panties:1.3), underwear, pubic clothing"
+   },
+   {
+    "id": "exposure_off_7",
+    "label": "Exposure: clothes she took off stay off (panties…)",
+    "text": "(panties:1.3), underwear"
+   },
+   {
+    "id": "exposure_covered",
+    "label": "Exposure: parts that stay covered",
+    "text": "topless, breasts_out, naked_apron, bottomless, no_pants, pussy, no_panties, ,"
+   }
+  ]
+ },
+ "found": {
+  "scenes": true,
+  "tasks": true,
+  "looks": true,
+  "reactions": true,
+  "expressions": true,
+  "moodScene": true,
+  "moodWork": true,
+  "roomDetail": true,
+  "roomShort": true,
+  "heroines": true,
+  "outfits": true,
+  "patrons": true,
+  "quality": true,
+  "sexScenes": true,
+  "bedScenes": true,
+  "patronMoods": true,
+  "roomCode": true,
+  "baseNegative": true,
+  "negativeExtras": true
+ }
+}

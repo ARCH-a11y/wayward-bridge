@@ -1,0 +1,509 @@
+{
+  "format": "wayward-addon",
+  "version": 1,
+  "name": "pipeline & models - 1",
+  "description": "",
+  "layer": {
+    "pipeline": {
+      "family": "illustrious",
+      "families": {
+        "anima": {
+          "checkpoint": "waiIllustriousSDXL_v170.safetensors",
+          "unet": "anima-base-v1.0.safetensors",
+          "clip": "qwen_3_06b_base.safetensors",
+          "vae": "qwen_image_vae.safetensors",
+          "useCheckpointVae": true,
+          "sampler": "euler",
+          "scheduler": "simple",
+          "clipSkip": 1,
+          "turbo": {
+            "enabled": false,
+            "steps": 8,
+            "cfg": 1
+          },
+          "quality": "masterpiece, best quality, newest",
+          "negative": "",
+          "loras": [
+            {
+              "model": "anima-turbo-lora-v0.2.safetensors",
+              "strength": 0.9,
+              "enabled": true,
+              "words": [],
+              "removed": [],
+              "groups": [],
+              "only": [],
+              "trigger": []
+            },
+            {
+              "model": "Marie Rose - Anima Version.safetensors",
+              "strength": 1,
+              "enabled": true,
+              "words": [],
+              "removed": [],
+              "groups": [],
+              "only": [],
+              "trigger": []
+            },
+            {
+              "model": "_anus_epoch_10.safetensors",
+              "strength": 1,
+              "enabled": true,
+              "words": [],
+              "removed": [],
+              "groups": [],
+              "only": [],
+              "trigger": []
+            },
+            {
+              "model": "_feet_epoch_10.safetensors",
+              "strength": 1,
+              "enabled": true,
+              "words": [],
+              "removed": [],
+              "groups": [],
+              "only": [],
+              "trigger": []
+            },
+            {
+              "model": "_spreadanus_epoch_10.safetensors",
+              "strength": 1,
+              "enabled": true,
+              "words": [],
+              "removed": [],
+              "groups": [],
+              "only": [],
+              "trigger": []
+            },
+            {
+              "model": "afterimage_(breasts)_v0.0.2_0800.safetensors",
+              "strength": 1,
+              "enabled": true,
+              "words": [],
+              "removed": [],
+              "groups": [],
+              "only": [],
+              "trigger": []
+            },
+            {
+              "model": "anal_slit_anima_v1.safetensors",
+              "strength": 1,
+              "enabled": true,
+              "words": [],
+              "removed": [],
+              "groups": [],
+              "only": [],
+              "trigger": []
+            },
+            {
+              "model": "BallsDeep-Anima-V1F-Re.safetensors",
+              "strength": 1,
+              "enabled": true,
+              "words": [],
+              "removed": [],
+              "groups": [],
+              "only": [],
+              "trigger": []
+            },
+            {
+              "model": "concept_labia_spread.safetensors",
+              "strength": 1,
+              "enabled": true,
+              "words": [],
+              "removed": [],
+              "groups": [],
+              "only": [],
+              "trigger": []
+            },
+            {
+              "model": "disgusted_face_anima_goofy.safetensors",
+              "strength": 1,
+              "enabled": true,
+              "words": [],
+              "removed": [],
+              "groups": [],
+              "only": [],
+              "trigger": []
+            },
+            {
+              "model": "freaky_dicks_anima.safetensors",
+              "strength": 1,
+              "enabled": true,
+              "words": [],
+              "removed": [],
+              "groups": [],
+              "only": [],
+              "trigger": []
+            },
+            {
+              "model": "frenchkiss_anima_epoch_10.safetensors",
+              "strength": 1,
+              "enabled": true,
+              "words": [],
+              "removed": [],
+              "groups": [],
+              "only": [],
+              "trigger": []
+            },
+            {
+              "model": "home_run_acme_v0.0.0-1000.safetensors",
+              "strength": 1,
+              "enabled": true,
+              "words": [],
+              "removed": [],
+              "groups": [],
+              "only": [],
+              "trigger": []
+            },
+            {
+              "model": "living_onahole_anima.safetensors",
+              "strength": 1,
+              "enabled": true,
+              "words": [],
+              "removed": [],
+              "groups": [],
+              "only": [],
+              "trigger": []
+            },
+            {
+              "model": "Neromashin_Anima.safetensors",
+              "strength": 1,
+              "enabled": true,
+              "words": [],
+              "removed": [],
+              "groups": [],
+              "only": [],
+              "trigger": []
+            },
+            {
+              "model": "pulling_labia_anima_v1-000030.safetensors",
+              "strength": 1,
+              "enabled": true,
+              "words": [],
+              "removed": [],
+              "groups": [],
+              "only": [],
+              "trigger": []
+            },
+            {
+              "model": "togawagatame_anima_v1.safetensors",
+              "strength": 1,
+              "enabled": true,
+              "words": [],
+              "removed": [],
+              "groups": [],
+              "only": [],
+              "trigger": []
+            },
+            {
+              "model": "vaginal_gaping_cervix-v2-ana-concept-soralz.safetensors",
+              "strength": 1,
+              "enabled": true,
+              "words": [],
+              "removed": [],
+              "groups": [],
+              "only": [],
+              "trigger": []
+            },
+            {
+              "model": "x-ray_deepthroat_V1_Anima.safetensors",
+              "strength": 1,
+              "enabled": true,
+              "words": [],
+              "removed": [],
+              "groups": [],
+              "only": [],
+              "trigger": []
+            },
+            {
+              "model": "zenith-greyrat-s1-anima-lora-nochekaiser.safetensors",
+              "strength": 0.2,
+              "enabled": true,
+              "words": [],
+              "removed": [],
+              "groups": [],
+              "only": [],
+              "trigger": []
+            },
+            {
+              "model": "Bukkake-slider-Anima2.safetensors",
+              "strength": 1,
+              "enabled": true,
+              "words": [],
+              "removed": [],
+              "groups": [],
+              "only": [],
+              "trigger": []
+            },
+            {
+              "model": "DP-Slider2.safetensors",
+              "strength": 1,
+              "enabled": true,
+              "words": [
+                "@lemontyoisy r18"
+              ],
+              "removed": [],
+              "groups": [],
+              "only": [],
+              "trigger": []
+            }
+          ]
+        },
+        "illustrious": {
+          "checkpoint": "waiIllustriousSDXL_v170.safetensors",
+          "unet": "anima-base-v1.0.safetensors",
+          "clip": "qwen_3_06b_base.safetensors",
+          "vae": "qwen_image_vae.safetensors",
+          "useCheckpointVae": true,
+          "sampler": "euler",
+          "scheduler": "simple",
+          "clipSkip": 1,
+          "turbo": {
+            "enabled": false,
+            "steps": 8,
+            "cfg": 1
+          },
+          "quality": "masterpiece, best quality, score_9, score_8_up, score_7_up, source_anime",
+          "negative": "",
+          "loras": [
+            {
+              "model": "sdxl_lightning_8step_lora.safetensors",
+              "strength": 0.5,
+              "enabled": false,
+              "words": [],
+              "removed": [],
+              "groups": [],
+              "only": [],
+              "trigger": []
+            },
+            {
+              "model": "Illustrious/anus_enhancer_v2.safetensors",
+              "strength": 0.2,
+              "enabled": true,
+              "words": [],
+              "removed": [],
+              "groups": [],
+              "only": [],
+              "trigger": []
+            },
+            {
+              "model": "Illustrious/Freaky_dicksv3.safetensors",
+              "strength": 1,
+              "enabled": true,
+              "words": [],
+              "removed": [],
+              "groups": [],
+              "only": [],
+              "trigger": []
+            },
+            {
+              "model": "Illustrious/disgusted_face_ilxl_goofy.safetensors",
+              "strength": 0.4,
+              "enabled": true,
+              "words": [],
+              "removed": [],
+              "groups": [],
+              "only": [],
+              "trigger": []
+            },
+            {
+              "model": "_feet_epoch_10.safetensors",
+              "strength": 0.2,
+              "enabled": true,
+              "words": [],
+              "removed": [],
+              "groups": [],
+              "only": [],
+              "trigger": []
+            },
+            {
+              "model": "Illustrious/spreadanusill.safetensors",
+              "strength": 1,
+              "enabled": true,
+              "words": [],
+              "removed": [
+                "dasda"
+              ],
+              "groups": [],
+              "only": [
+                "scene:groped_ass"
+              ],
+              "trigger": []
+            },
+            {
+              "model": "Illustrious/pulling_labia_IL_v1.safetensors",
+              "strength": 1,
+              "enabled": true,
+              "words": [],
+              "removed": [],
+              "groups": [],
+              "only": [],
+              "trigger": []
+            },
+            {
+              "model": "Illustrious/long_nipples_addift_v2.safetensors",
+              "strength": 0.1,
+              "enabled": false,
+              "words": [],
+              "removed": [],
+              "groups": [],
+              "only": [],
+              "trigger": []
+            },
+            {
+              "model": "Illustrious/Nipple_pull_v4culty_il.safetensors",
+              "strength": 0.6,
+              "enabled": true,
+              "words": [
+                "nipple pull"
+              ],
+              "removed": [],
+              "groups": [],
+              "only": [
+                "scene:patron_breast_worship_bed"
+              ],
+              "trigger": []
+            },
+            {
+              "model": "Illustrious/analhairill 333.safetensors",
+              "strength": 0.5,
+              "enabled": true,
+              "words": [
+                "anal hair",
+                "hairy anus"
+              ],
+              "removed": [],
+              "groups": [],
+              "only": [],
+              "trigger": []
+            },
+            {
+              "model": "Illustrious/montgomery_glands_IL.safetensors",
+              "strength": 0.8,
+              "enabled": true,
+              "words": [],
+              "removed": [],
+              "groups": [],
+              "only": [],
+              "trigger": []
+            }
+          ]
+        },
+        "pony": {
+          "checkpoint": "",
+          "unet": "anima-base-v1.0.safetensors",
+          "clip": "qwen_3_06b_base.safetensors",
+          "vae": "qwen_image_vae.safetensors",
+          "useCheckpointVae": true,
+          "sampler": "euler",
+          "scheduler": "simple",
+          "clipSkip": 1,
+          "turbo": {
+            "enabled": false,
+            "steps": 8,
+            "cfg": 1
+          },
+          "quality": "masterpiece, best quality, score_9, score_8_up, score_7_up, source_anime",
+          "negative": "",
+          "loras": [
+            {
+              "model": "takedaXL_AP_V1.safetensors",
+              "strength": 1,
+              "enabled": true,
+              "words": [],
+              "removed": [],
+              "groups": [],
+              "only": [],
+              "trigger": []
+            }
+          ]
+        },
+        "noobai": {
+          "checkpoint": "waiIllustriousSDXL_v170.safetensors",
+          "unet": "anima-base-v1.0.safetensors",
+          "clip": "qwen_3_06b_base.safetensors",
+          "vae": "qwen_image_vae.safetensors",
+          "useCheckpointVae": true,
+          "sampler": "euler",
+          "scheduler": "simple",
+          "clipSkip": 1,
+          "turbo": {
+            "enabled": false,
+            "steps": 8,
+            "cfg": 1
+          },
+          "quality": "masterpiece, best quality, score_9, score_8_up, score_7_up, source_anime",
+          "negative": "",
+          "loras": [
+            {
+              "model": "sdxl_lightning_8step_lora.safetensors",
+              "strength": 1,
+              "enabled": true,
+              "words": [],
+              "removed": [],
+              "groups": [],
+              "only": [],
+              "trigger": []
+            }
+          ]
+        }
+      },
+      "scene": {
+        "width": 832,
+        "height": 1216
+      },
+      "portrait": {
+        "width": 512,
+        "height": 512
+      },
+      "sceneSizes": {},
+      "hires": {
+        "enabled": false,
+        "scale": 1.5,
+        "denoise": 0.4,
+        "steps": 0,
+        "model": ""
+      },
+      "detail": {
+        "face": false,
+        "hands": false,
+        "denoise": 0.4,
+        "faceModel": "",
+        "handModel": "",
+        "portraits": false
+      },
+      "upscaler": "",
+      "teacache": {
+        "enabled": false,
+        "version": "v1 (Legacy Fast)",
+        "device": "cuda",
+        "adaptive": true,
+        "threshold": 0.15,
+        "early": 0.4,
+        "late": 1.8,
+        "start": 0,
+        "end": 1
+      },
+      "gif": {
+        "enabled": false,
+        "fps": 8,
+        "seconds": 3,
+        "prompt": "",
+        "negative": "",
+        "useScene": false
+      },
+      "sdxlCache": {
+        "enabled": true,
+        "mode": "donut",
+        "preset": "balanced",
+        "device": "cuda",
+        "verbose": false,
+        "threshold": 0.3,
+        "start": 0,
+        "end": 1,
+        "easyReuse": 0.2,
+        "easyStart": 0.15,
+        "easyEnd": 0.95
+      }
+    }
+  }
+}

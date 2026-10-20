@@ -1,0 +1,789 @@
+========== EventSource  @530221 ==========
+llJobs, 1500);
+          window.addEventListener("wb:generate", function() {
+            clearTimeout(jobsTimer);
+            jobsTimer = setTimeout(pollJobs, 300);
+          });
+          return { useImage, redrawCurrent, pollJobs, refreshAll: function() {
+            document.querySelectorAll("[data-wb-bar]").forEach(function(bar) {
+              bar._src = null;
+            });
+          } };
+        })();
+        try {
+          var es = new EventSource("/bridge/api/events");
+          es.onmessage = function(ev) {
+            var m;
+            try {
+              m = JSON.parse(ev.data);
+            } catch (e) {
+              return;
+            }
+            if (m.type === "settings" && S.st && m.revision > S.st.revision && !count()) refresh();
+            if (m.type === "render") {
+              if (S.open && S.tab === "inspector") loadRenders();
+            }
+          };
+        } catch (e) {
+        }
+        window.addEventListener("wb:generate", function() {
+          setTimeout(function() {
+            if (!S.open) api("GET", "/bridge/api/state").then(function(st) {
+              S.st = st;
+              effCache = {};
+              if (!count()) setViewHeroine(st.ac
+
+========== onerror  @122726 ==========
+       this.ws = ws;
+          ws.onmessage = (ev) => {
+            if (typeof ev.data !== "string") return;
+            let msg;
+            try {
+              msg = JSON.parse(ev.data);
+            } catch (_) {
+              return;
+            }
+            if (msg.type === "progress" && msg.data && msg.data.prompt_id) this.progress.set(msg.data.prompt_id, { value: msg.data.value, max: msg.data.max });
+          };
+          ws.onclose = ws.onerror = () => {
+            this.ws = null;
+          };
+        } catch (_) {
+          this.ws = null;
+        }
+      }
+      async submit(graph) {
+        const { ok, status, data } = await this.json("/prompt", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt: graph, client_id: this.clientId })
+        }, 3e4);
+        if (!ok) {
+          let detail = data && data.error && (data.error.message || data.error.details) || "HTTP " + status;
+          const ne = data && data.node_errors;
+          if (ne && typeof ne === "object") {
+            detail += " \u2014 " + Object.entries(ne).map(([id, e]) => id + " " + (e && e.class_type || "") + ": " + (e && e.errors 
+
+========== onmessage  @122310 ==========
+online = true;
+        } catch (e) {
+          this.capsError = String(e && e.message || e);
+          if (!this.caps) this.caps = null;
+        }
+        return this.caps;
+      }
+      connectWs() {
+        if (this.ws || typeof WebSocket === "undefined") return;
+        try {
+          const url = this.base().replace(/^http/, "ws") + "/ws?clientId=" + this.clientId;
+          const ws = new WebSocket(url);
+          this.ws = ws;
+          ws.onmessage = (ev) => {
+            if (typeof ev.data !== "string") return;
+            let msg;
+            try {
+              msg = JSON.parse(ev.data);
+            } catch (_) {
+              return;
+            }
+            if (msg.type === "progress" && msg.data && msg.data.prompt_id) this.progress.set(msg.data.prompt_id, { value: msg.data.value, max: msg.data.max });
+          };
+          ws.onclose = ws.onerror = () => {
+            this.ws = null;
+          };
+        } catch (_) {
+          this.ws = null;
+        }
+      }
+      async submit(graph) {
+        const { ok, status, data } = await this.json("/prompt", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify
+
+========== onmessage  @530269 ==========
+("wb:generate", function() {
+            clearTimeout(jobsTimer);
+            jobsTimer = setTimeout(pollJobs, 300);
+          });
+          return { useImage, redrawCurrent, pollJobs, refreshAll: function() {
+            document.querySelectorAll("[data-wb-bar]").forEach(function(bar) {
+              bar._src = null;
+            });
+          } };
+        })();
+        try {
+          var es = new EventSource("/bridge/api/events");
+          es.onmessage = function(ev) {
+            var m;
+            try {
+              m = JSON.parse(ev.data);
+            } catch (e) {
+              return;
+            }
+            if (m.type === "settings" && S.st && m.revision > S.st.revision && !count()) refresh();
+            if (m.type === "render") {
+              if (S.open && S.tab === "inspector") loadRenders();
+            }
+          };
+        } catch (e) {
+        }
+        window.addEventListener("wb:generate", function() {
+          setTimeout(function() {
+            if (!S.open) api("GET", "/bridge/api/state").then(function(st) {
+              S.st = st;
+              effCache = {};
+              if (!count()) setViewHeroine(st.activeHeroine || st.live && st.live.heroine || S.v
+
+========== setInterval(  @242634 ==========
+) {
+          var s = window.__WB_STORE__;
+          if (s && s.subscribe) {
+            wrapNewGame(s);
+            try {
+              s.subscribe(function() {
+                checkActiveHeroine();
+              });
+            } catch (e) {
+            }
+            checkActiveHeroine();
+            return;
+          }
+          if (tries < 60) setTimeout(function() {
+            hookStore(tries + 1);
+          }, 500);
+        })(0);
+        setInterval(checkActiveHeroine, 3e3);
+        setInterval(compatBanner, 3e3);
+        function compatBanner() {
+  try {
+    var el = document.getElementById("wb-compat");
+    var d = typeof S !== "undefined" && S && S.st && S.st.diagnostics ? S.st.diagnostics : null;
+    var g = d && d.game ? d.game : null;
+    var bad = [];
+    if (d && !g) bad.push("index.html игры не читается");
+    if (g && g.hooks) {
+      if (g.hooks.parts === false) bad.push("хук частей промпта (PARTS)");
+      if (g.hooks.store === false) bad.push("доступ к стору игры (STORE)");
+      if (g.hooks.customWives === false) bad.push("кнопка создания своей героини");
+      if (g.hooks.partsBroken === true) bad.push("хук частей промпта собран, но ломает игру");
+    }
+    v
+
+========== setInterval(  @242680 ==========
+       if (s && s.subscribe) {
+            wrapNewGame(s);
+            try {
+              s.subscribe(function() {
+                checkActiveHeroine();
+              });
+            } catch (e) {
+            }
+            checkActiveHeroine();
+            return;
+          }
+          if (tries < 60) setTimeout(function() {
+            hookStore(tries + 1);
+          }, 500);
+        })(0);
+        setInterval(checkActiveHeroine, 3e3);
+        setInterval(compatBanner, 3e3);
+        function compatBanner() {
+  try {
+    var el = document.getElementById("wb-compat");
+    var d = typeof S !== "undefined" && S && S.st && S.st.diagnostics ? S.st.diagnostics : null;
+    var g = d && d.game ? d.game : null;
+    var bad = [];
+    if (d && !g) bad.push("index.html игры не читается");
+    if (g && g.hooks) {
+      if (g.hooks.parts === false) bad.push("хук частей промпта (PARTS)");
+      if (g.hooks.store === false) bad.push("доступ к стору игры (STORE)");
+      if (g.hooks.customWives === false) bad.push("кнопка создания своей героини");
+      if (g.hooks.partsBroken === true) bad.push("хук частей промпта собран, но ломает игру");
+    }
+    var tbl = g && g.tables ? g.tables : g && g.cat
+
+========== setInterval(  @245698 ==========
+right:0;z-index:2147483647;background:#3a1414;border-bottom:1px solid #ff6b6b;color:#ffb4b4;font:12px/1.45 system-ui,sans-serif;padding:6px 12px;text-align:center;cursor:pointer";
+    el.textContent = "⚠ Мод не совместим с текущей версией игры: " + bad.join(", ") + ". Клик — скрыть. Подробности: wayward-bridge-data/maintainer/latest.md";
+  } catch (e) {
+    try {
+      console.warn("[wb-compat] ошибка:", e);
+    } catch (_) {
+    }
+  }
+}
+        setInterval(function() {
+          if (S.st) syncCustomWives();
+        }, 3e3);
+        function isTyping() {
+          var a = root.activeElement;
+          return !!(a && (a.tagName === "TEXTAREA" || a.tagName === "INPUT") && a.type !== "checkbox");
+        }
+        function refresh() {
+          return api("GET", "/bridge/api/state").then(setState).catch(function(e) {
+            say(e.message, false);
+          });
+        }
+        function loadModels(rescan) {
+          return api("GET", "/bridge/api/models" + (rescan ? "?rescan=1" : "")).then(function(j) {
+            S.models = j;
+            if (S.open && !isTyping()) render();
+            return j;
+          }).catch(function() {
+          });
+        }
+        function loadPres
+
+========== setInterval(  @431456 ==========
+014 Select scene to clear")].concat((sv.scenes || []).map(function(x) {
+              return h("option", { value: x.scene, selected: S.sel.clearScene === x.scene }, x.scene + " (" + x.count + ")");
+            }))
+          );
+          var status = h("div", { class: "note genstatus", style: "color:" + (S.genAll && S.genAll.running ? "#fbbf24" : "#a8a29e") }, genLine(S.genAll));
+          if (S.genAll && S.genAll.running && !genTimer) genTimer = setInterval(pollGenAll, 1500);
+          return sec(
+            "Saved scene images / GIFs",
+            "#fbbf24",
+            "Use Saved Images/GIFs reads saved-scenes / <heroine> / <scene> / <outfit> / <room> / <mood> /" + (sv.root ? " (in " + sv.root + ")" : "") + ".",
+            h("div", { class: "note", style: "color:#93c5fd" }, "With Use Saved Images/GIFs on, the game shows a random saved picture of the scene instead of drawing one. The Generate new and Same seed buttons on the game's picture still draw a new picture. The \u2039 Saved \u203A arrows at the bottom right of the game's picture step through the saved pictures of the scene in order, wrapping around at the ends. Saving and Generate all scenes use the heroine selected at t
+
+========== setInterval(  @434261 ==========
+deOutfits: S.sel.exO || [],
+                  excludeRooms: S.sel.exR || [],
+                  excludeMoods: S.sel.exM || [],
+                  excludeScenes: S.sel.exS || []
+                }).then(function(j) {
+                  S.genAll = j.genAll;
+                  say("Started " + j.genAll.total + " pictures for " + heroineName(S.viewHeroine) + ".", true);
+                  if (genTimer) clearInterval(genTimer);
+                  genTimer = setInterval(pollGenAll, 1500);
+                  pollGenAll();
+                }).catch(function(e) {
+                  say("Generate-all failed: " + e.message, false);
+                });
+              }),
+              sbtn("Stop", "#44403c", function() {
+                api("POST", "/bridge/api/gen-all/stop").then(pollGenAll);
+              })
+            ),
+            h(
+              "div",
+              { class: "crowf" },
+              vary("varyO", "Vary outfits"),
+              vary("varyR", "Vary rooms"),
+              vary("varyM", "Vary moods"),
+              h("label", { class: "cb", title: "Each combination is only filled up to the number per scene: one that already has saved pictures gets only the missing ones" }, h("input",
+
+========== setInterval(  @502098 ==========
+mportant}";
+            (document.head || document.documentElement).appendChild(st);
+          })();
+          function regenViaGame(host2, bar, label) {
+            var regen = host2.querySelector("button[data-wb-regen]");
+            if (!regen || regen.disabled) return false;
+            document.documentElement.classList.add("wb-quiet-regen");
+            regen._wbProgrammatic = true;
+            regen.click();
+            var tries = 0, t = setInterval(function() {
+              var just = regenDialogButton("Just regenerate");
+              if (just) {
+                clearInterval(t);
+                just.click();
+                note(bar, label || "drawing\u2026");
+                setTimeout(function() {
+                  document.documentElement.classList.remove("wb-quiet-regen");
+                }, 50);
+              } else if (++tries > 40) {
+                clearInterval(t);
+                document.documentElement.classList.remove("wb-quiet-regen");
+              }
+            }, 40);
+            return true;
+          }
+          function drawViaGame(host2, bar, seed) {
+            var key = keyOf(host2);
+            var go = function() {
+              if (!regenViaGam
+
+========== setInterval(  @522321 ==========
+no picture for this moment.";
+              });
+              if (!pic && !missing && !ov.querySelector("img")) return;
+              var bar = addBar(ov, { direct: true, css: "top:10px;right:56px;" });
+              bar.addEventListener("click", function(e) {
+                e.stopPropagation();
+              });
+              if (missing) note(bar, "no picture yet \u2014 Generate new draws it", "#a8a29e");
+            });
+          }
+          setInterval(function() {
+            try {
+              scan();
+            } catch (e) {
+            }
+          }, 700);
+          setInterval(function() {
+            try {
+              document.querySelectorAll("button[title='View image fullscreen']").forEach(function(full) {
+                var host2 = full.parentElement && full.parentElement.parentElement || full.parentElement;
+                if (!host2) return;
+                patchDetails(host2);
+                var open = Array.prototype.some.call(host2.querySelectorAll("div.absolute.inset-0"), function(d) {
+                  return /bg-black\/85/.test(d.className);
+                });
+                var bar = host2.querySelector("[data-wb-bar]");
+                if (bar) {
+   
+
+========== setInterval(  @522455 ==========
+var bar = addBar(ov, { direct: true, css: "top:10px;right:56px;" });
+              bar.addEventListener("click", function(e) {
+                e.stopPropagation();
+              });
+              if (missing) note(bar, "no picture yet \u2014 Generate new draws it", "#a8a29e");
+            });
+          }
+          setInterval(function() {
+            try {
+              scan();
+            } catch (e) {
+            }
+          }, 700);
+          setInterval(function() {
+            try {
+              document.querySelectorAll("button[title='View image fullscreen']").forEach(function(full) {
+                var host2 = full.parentElement && full.parentElement.parentElement || full.parentElement;
+                if (!host2) return;
+                patchDetails(host2);
+                var open = Array.prototype.some.call(host2.querySelectorAll("div.absolute.inset-0"), function(d) {
+                  return /bg-black\/85/.test(d.className);
+                });
+                var bar = host2.querySelector("[data-wb-bar]");
+                if (bar) {
+                  [bar, bar._pill, bar._toast].forEach(function(el) {
+                    if (el) el.style.visibility = open ? "hidden" :
+
+========== api("GET"  @246007 ==========
+ge-data/maintainer/latest.md";
+  } catch (e) {
+    try {
+      console.warn("[wb-compat] ошибка:", e);
+    } catch (_) {
+    }
+  }
+}
+        setInterval(function() {
+          if (S.st) syncCustomWives();
+        }, 3e3);
+        function isTyping() {
+          var a = root.activeElement;
+          return !!(a && (a.tagName === "TEXTAREA" || a.tagName === "INPUT") && a.type !== "checkbox");
+        }
+        function refresh() {
+          return api("GET", "/bridge/api/state").then(setState).catch(function(e) {
+            say(e.message, false);
+          });
+        }
+        function loadModels(rescan) {
+          return api("GET", "/bridge/api/models" + (rescan ? "?rescan=1" : "")).then(function(j) {
+            S.models = j;
+            if (S.open && !isTyping()) render();
+            return j;
+          }).catch(function() {
+          });
+        }
+        function loadPresets() {
+          return api("GET", "/bridge/api/presets").then(function(j) {
+            S.presets = j.presets || {};
+            if (S.open && !isTyping()) render();
+          }).catch(function() {
+          });
+        }
+        var host = document.createElement("div");
+        host.id = "wayward-bridge-u
+
+========== api("GET"  @246188 ==========
+.st) syncCustomWives();
+        }, 3e3);
+        function isTyping() {
+          var a = root.activeElement;
+          return !!(a && (a.tagName === "TEXTAREA" || a.tagName === "INPUT") && a.type !== "checkbox");
+        }
+        function refresh() {
+          return api("GET", "/bridge/api/state").then(setState).catch(function(e) {
+            say(e.message, false);
+          });
+        }
+        function loadModels(rescan) {
+          return api("GET", "/bridge/api/models" + (rescan ? "?rescan=1" : "")).then(function(j) {
+            S.models = j;
+            if (S.open && !isTyping()) render();
+            return j;
+          }).catch(function() {
+          });
+        }
+        function loadPresets() {
+          return api("GET", "/bridge/api/presets").then(function(j) {
+            S.presets = j.presets || {};
+            if (S.open && !isTyping()) render();
+          }).catch(function() {
+          });
+        }
+        var host = document.createElement("div");
+        host.id = "wayward-bridge-ui";
+        host.style.cssText = "position:fixed;inset:auto;z-index:2147483000;";
+        var root = host.attachShadow({ mode: "open" });
+        var styleEl = document.createElemen
+
+========== api("GET"  @246473 ==========
+dge/api/state").then(setState).catch(function(e) {
+            say(e.message, false);
+          });
+        }
+        function loadModels(rescan) {
+          return api("GET", "/bridge/api/models" + (rescan ? "?rescan=1" : "")).then(function(j) {
+            S.models = j;
+            if (S.open && !isTyping()) render();
+            return j;
+          }).catch(function() {
+          });
+        }
+        function loadPresets() {
+          return api("GET", "/bridge/api/presets").then(function(j) {
+            S.presets = j.presets || {};
+            if (S.open && !isTyping()) render();
+          }).catch(function() {
+          });
+        }
+        var host = document.createElement("div");
+        host.id = "wayward-bridge-ui";
+        host.style.cssText = "position:fixed;inset:auto;z-index:2147483000;";
+        var root = host.attachShadow({ mode: "open" });
+        var styleEl = document.createElement("style");
+        styleEl.textContent = CSS();
+        root.appendChild(styleEl);
+        var btn = h("button", { class: "fab", title: "Settings UI Mod 2.0", onclick: function() {
+          if (!btn._dragged) toggle();
+        } }, h("span", { class: "dot" }), "Pippa");
+        var 
+
+========== api("GET"  @369903 ==========
+0%" }, rep),
+                h("td", null, sbtn("\u2715", "#44403c", function() {
+                  var l = rulesNow(all);
+                  l.splice(i, 1);
+                  setRules(l, all);
+                  render();
+                }, "Delete this rule"))
+              );
+            })
+          );
+        }
+        function learnSection() {
+          var L = S.learn;
+          if (!L) {
+            S.learn = { loading: true };
+            api("GET", "/bridge/api/learn").then(function(j) {
+              S.learn = j;
+              if (S.open && S.tab === "negatives" && !isTyping()) render();
+            }).catch(function() {
+              S.learn = { error: true };
+            });
+            L = S.learn;
+          }
+          var body;
+          if (L.loading) body = h("div", { class: "note" }, "Looking at your ratings\u2026");
+          else if (L.error) body = h("div", { class: "note" }, "Could not read your ratings.");
+          else if (!L.enough) body = h("div", { class: "note", style: "color:#a8a29e" }, "Not enough ratings yet: " + L.good + " saved and " + L.bad + " deleted pictures so far (at least " + L.need + " of each needed). Thumbs up saves a picture, thumbs down 
+
+========== api("GET"  @393969 ==========
+ce more. The inspector notes when the fix ran."),
+            row(sbtn("Restore defaults", "#57534e", function() {
+              restore(["pipeline", "detail"]);
+              render();
+            }))
+          );
+        }
+        function gifSection() {
+          var g = function(k) {
+            return ["pipeline", "gif", k];
+          };
+          var ff = S.ffmpeg;
+          if (!ff) {
+            S.ffmpeg = { checking: true };
+            api("GET", "/bridge/api/ffmpeg-check").then(function(j) {
+              S.ffmpeg = j;
+              if (S.open && S.tab === "pipeline" && !isTyping()) render();
+            }).catch(function() {
+              S.ffmpeg = { found: false };
+            });
+            ff = S.ffmpeg;
+          }
+          var promptNow = E(g("prompt")) || "";
+          return sec(
+            "Output GIF",
+            "#fbbf24",
+            (E(g("seconds")) || 3) + " second looping GIF of each still picture (image-to-video in ComfyUI, then ffmpeg).",
+            h("div", { class: "note", style: "color:#fb923c;font-weight:600" }, "Requires the proper ComfyUI workflow (WAN 2.2 image-to-video; your own can go in wayward-bridge-data\\workflows\\gif.json)."),
+      
+
+========== api("GET"  @426930 ==========
+              api("POST", "/bridge/api/game-update/ack").then(function(j) {
+                setState(j.state);
+                say("Noted. The next game update is compared with this version.", true);
+              }).catch(function(e) {
+                say(e.message, false);
+              });
+            }, "This game version becomes the one later updates are compared with"))
+          );
+        }
+        function loadSaved() {
+          return api("GET", "/bridge/api/saved?heroine=" + encodeURIComponent(S.viewHeroine)).then(function(j) {
+            S.saved = j;
+            if (S.open && S.tab === "config" && !isTyping()) render();
+            return j;
+          }).catch(function() {
+          });
+        }
+        var genTimer = null;
+        function pollGenAll() {
+          api("GET", "/bridge/api/gen-all").then(function(j) {
+            S.genAll = j.genAll;
+            var el = overlay.querySelector(".genstatus");
+            if (el) {
+              el.textContent = genLine(j.genAll);
+              el.style.color = j.genAll.running ? "#fbbf24" : j.genAll.failed ? "#f87171" : "#4ade80";
+            }
+            if (!j.genAll.running && genTimer) {
+              clearInterval
+
+========== api("GET"  @427271 ==========
+ne later updates are compared with"))
+          );
+        }
+        function loadSaved() {
+          return api("GET", "/bridge/api/saved?heroine=" + encodeURIComponent(S.viewHeroine)).then(function(j) {
+            S.saved = j;
+            if (S.open && S.tab === "config" && !isTyping()) render();
+            return j;
+          }).catch(function() {
+          });
+        }
+        var genTimer = null;
+        function pollGenAll() {
+          api("GET", "/bridge/api/gen-all").then(function(j) {
+            S.genAll = j.genAll;
+            var el = overlay.querySelector(".genstatus");
+            if (el) {
+              el.textContent = genLine(j.genAll);
+              el.style.color = j.genAll.running ? "#fbbf24" : j.genAll.failed ? "#f87171" : "#4ade80";
+            }
+            if (!j.genAll.running && genTimer) {
+              clearInterval(genTimer);
+              genTimer = null;
+              loadSaved();
+            }
+          }).catch(function() {
+          });
+        }
+        function eta(ms) {
+          var t = Math.round(Math.max(0, ms || 0) / 1e3);
+          if (t < 60) return t + "s";
+          var m = Math.floor(t / 60);
+          t %= 60;
+          if (m < 60)
+
+========== api("GET"  @437526 ==========
+          loadSaved();
+                }).catch(function(e) {
+                  say(e.message, false);
+                });
+              })
+            )
+          );
+        }
+        function browseSection() {
+          var B = S.br = S.br || {};
+          if (!B.heroine) B.heroine = S.viewHeroine;
+          var load = function(what, url, then) {
+            if (B["loading_" + what]) return;
+            B["loading_" + what] = true;
+            api("GET", url).then(function(j) {
+              then(j);
+              B["loading_" + what] = false;
+              if (S.open && S.tab === "config" && !isTyping()) render();
+            }).catch(function() {
+              B["loading_" + what] = false;
+            });
+          };
+          if (!B.heroines) load("h", "/bridge/api/saved/heroines", function(j) {
+            B.heroines = j.heroines || [];
+          });
+          if (!B.scenes || B.scenesFor !== B.heroine) load("s", "/bridge/api/saved/scenes?heroine=" + encodeURIComponent(B.heroine), function(j) {
+            B.scenes = j.scenes || [];
+            B.lists = j.lists || {};
+            B.scenesFor = j.heroine;
+          });
+          if (B.scene && (!B.files || B.filesFor !== B.h
+
+========== /bridge/api/state  @244083 ==========
+miss = Object.keys(tbl).filter(function(k) {
+        return !tbl[k];
+      });
+      if (miss.length) bad.push("не найдено таблиц промптов: " + miss.length + " (" + miss.slice(0, 4).join(", ") + ")");
+    }
+    window.__wbCompatDebug = { hasState: !!d, hasGame: !!g, hooks: g && g.hooks ? g.hooks : null, bad: bad.slice() };
+    if (bad.length && Date.now() - (window.__wbCompatAt || 0) > 2500) {
+      window.__wbCompatAt = Date.now();
+      fetch("/bridge/api/state").then(function(r) {
+        return r.json();
+      }).then(function(j) {
+        if (j && j.diagnostics && typeof S !== "undefined" && S && S.st) S.st.diagnostics = j.diagnostics;
+      }).catch(function() {
+      });
+    }
+    if (bad.length && Date.now() - (window.__wbCompatAt || 0) > 2500) {
+      window.__wbCompatAt = Date.now();
+      fetch("/bridge/api/state").then(function(r) {
+        return r.json();
+      }).then(function(j) {
+        if (j && j.diagnostics && typeof S !== "undefined" && S && S.st) S.st.diagnostics = j.diagnostics;
+      }).catch(function() {
+      });
+    }
+    if (!bad.length) {
+      if (el) el.remove();
+      return;
+    }
+    if (!el) {
+      el = document.createElement("div");
+      el.id 
+
+========== /bridge/api/state  @244451 ==========
+__wbCompatAt || 0) > 2500) {
+      window.__wbCompatAt = Date.now();
+      fetch("/bridge/api/state").then(function(r) {
+        return r.json();
+      }).then(function(j) {
+        if (j && j.diagnostics && typeof S !== "undefined" && S && S.st) S.st.diagnostics = j.diagnostics;
+      }).catch(function() {
+      });
+    }
+    if (bad.length && Date.now() - (window.__wbCompatAt || 0) > 2500) {
+      window.__wbCompatAt = Date.now();
+      fetch("/bridge/api/state").then(function(r) {
+        return r.json();
+      }).then(function(j) {
+        if (j && j.diagnostics && typeof S !== "undefined" && S && S.st) S.st.diagnostics = j.diagnostics;
+      }).catch(function() {
+      });
+    }
+    if (!bad.length) {
+      if (el) el.remove();
+      return;
+    }
+    if (!el) {
+      el = document.createElement("div");
+      el.id = "wb-compat";
+      el.title = "Клик — скрыть. Подробности: wayward-bridge-data/maintainer/latest.md";
+      el.addEventListener("click", function() {
+        el.remove();
+      });
+      (document.body || document.documentElement).appendChild(el);
+      if (!el.getBoundingClientRect().height) (document.documentElement || document.body).appendChild(el);
+    }
+    e
+
+========== /bridge/api/state  @246019 ==========
+tainer/latest.md";
+  } catch (e) {
+    try {
+      console.warn("[wb-compat] ошибка:", e);
+    } catch (_) {
+    }
+  }
+}
+        setInterval(function() {
+          if (S.st) syncCustomWives();
+        }, 3e3);
+        function isTyping() {
+          var a = root.activeElement;
+          return !!(a && (a.tagName === "TEXTAREA" || a.tagName === "INPUT") && a.type !== "checkbox");
+        }
+        function refresh() {
+          return api("GET", "/bridge/api/state").then(setState).catch(function(e) {
+            say(e.message, false);
+          });
+        }
+        function loadModels(rescan) {
+          return api("GET", "/bridge/api/models" + (rescan ? "?rescan=1" : "")).then(function(j) {
+            S.models = j;
+            if (S.open && !isTyping()) render();
+            return j;
+          }).catch(function() {
+          });
+        }
+        function loadPresets() {
+          return api("GET", "/bridge/api/presets").then(function(j) {
+            S.presets = j.presets || {};
+            if (S.open && !isTyping()) render();
+          }).catch(function() {
+          });
+        }
+        var host = document.createElement("div");
+        host.id = "wayward-bridge-ui";
+        
+
+========== /bridge/api/state  @530829 ==========
+     } catch (e) {
+              return;
+            }
+            if (m.type === "settings" && S.st && m.revision > S.st.revision && !count()) refresh();
+            if (m.type === "render") {
+              if (S.open && S.tab === "inspector") loadRenders();
+            }
+          };
+        } catch (e) {
+        }
+        window.addEventListener("wb:generate", function() {
+          setTimeout(function() {
+            if (!S.open) api("GET", "/bridge/api/state").then(function(st) {
+              S.st = st;
+              effCache = {};
+              if (!count()) setViewHeroine(st.activeHeroine || st.live && st.live.heroine || S.viewHeroine);
+              paintButton();
+            }).catch(function() {
+            });
+          }, 400);
+        });
+        refresh();
+        function CSS() {
+          return [
+            ":host{all:initial}",
+            '*{box-sizing:border-box;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}',
+            ".fab{position:fixed;right:16px;bottom:16px;z-index:2;background:#1c1917;color:#c4b5fd;border:1px solid #6d28d9;border-radius:8px;padding:8px 14px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:7px;box-shadow:0 
+
+========== /bridge/api/state  @1742929 ==========
+d: "gone", key };
+      }
+      if (src && !/^data:/.test(src)) return { kind: "other", key };
+      const e = library.latest(key);
+      return e ? { kind: "wb", e, key, fp: library.filePath(e.file) } : { kind: "none", key };
+    }
+    async function handleBridge(req, res, p, url) {
+      if (!trusted(req)) return send(res, 403, { error: "Only the game page served by Wayward Bridge can use this." });
+      const m = req.method;
+      if (p === "/bridge/api/state" && m === "GET") return send(res, 200, stateFor());
+      if (p === "/bridge/api/settings" && m === "PATCH") {
+        const body = await readJson(req);
+        const r = store.patch(body.ops, body.revision);
+        return send(res, 200, Object.assign(r, { state: stateFor(), warnings: store.lastWarnings || [] }));
+      }
+      if (p === "/bridge/api/undo" && m === "POST") return send(res, 200, { ok: store.undo(), state: stateFor() });
+      if (p === "/bridge/api/events" && m === "GET") {
+        res.writeHead(200, { "Content-Type": "text/event-stream", "Cache-Control": "no-store", Connection: "keep-alive" });
+        res.write('data: {"type":"hello"}\n\n');
+        sse.add(res);
+        const ping = setInterval(() => {
+

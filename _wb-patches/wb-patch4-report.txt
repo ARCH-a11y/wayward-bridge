@@ -1,0 +1,3 @@
+OK    B43-B44-ratings  — Ratings не читает файл на каждую оценку и не растёт бесконечно
+OK    B10a-upscaler-live  — опция upscaler перестаёт быть мёртвой
+OK    B10b-upscaler-no-clobber  — апскейлер не затирает результат хайрез-фикса
