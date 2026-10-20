@@ -1,4 +1,4 @@
-# CONTEXT.md — Wayward Bridge
+﻿# CONTEXT.md — Wayward Bridge
 
 ## Что это
 Локальный Node.js мод-сервер. Патчит локальный index.html игры Wayward в памяти,
@@ -44,3 +44,9 @@
 ## Отклонено
 origin/token (B30), хардненинг хрупких regex (B33–B38), профили качества,
 хоткеи, массовое редактирование промптов, ночная очередь.
+
+
+## Репа
+- root: C:\Users\arch4\Downloads\Wayward
+- origin: https://github.com/ARCH-a11y/wayward-bridge (ветка main)
+- baseline: коммит 2bf0611, verify 36/36, tests 19/19
