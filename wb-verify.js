@@ -47,6 +47,8 @@ const CHECKS = [
   ["V2  expandHero: condFires внутри", "const fire = q.mode === \"always\" || condFires((conds || {})[q.when], signals);", 1],
   ["V3  схема: sections + quarantine", "sections: { \"*\": { tags: str(), negative: str(), on: bool() } }, quarantine: { \"*\": { tags: str(), negative: str(), when: str(60), mode: oneOf(\"auto\", \"always\", \"never\") } }", 1],
   ["V3  схема: conditions", "conditions: { \"*\": { sources: tagList(8), keywords: tagList(400) } }", 1],
+  ["V4  карантин-секция в меню", "Карантин", 1],
+  ["V4  conditions в общий слой", "rel[1] === \"conditions\"", 1],
 ];
 
 let bad = 0;

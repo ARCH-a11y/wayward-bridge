@@ -329,7 +329,7 @@ var require_assets_generated = __commonJS({
           return rel[1] === "families" && !(rel[3] === "quality" || rel[3] === "negative");
         }
         function tpath(rel) {
-          if (rel[0] === "prompts" && (rel[1] === "rulesAll" || rel[1] === "negatives" && app("sharedNegatives"))) return ["layer"].concat(rel);
+          if (rel[0] === "prompts" && (rel[1] === "rulesAll" || rel[1] === "conditions" || rel[1] === "negatives" && app("sharedNegatives"))) return ["layer"].concat(rel);
           if (rel[0] === "prompts" && rel[1] === "heroines" && rel[2]) return heroPath(rel[2]).concat(rel);
           return (rel[0] === "prompts" || heroinePipe(rel)) && S.viewHeroine ? heroPath(S.viewHeroine).concat(rel) : ["layer"].concat(rel);
         }
@@ -2095,7 +2095,7 @@ var require_assets_generated = __commonJS({
           );
           charSec.insertBefore(addonRow("character"), charSec.children[1]);
           outSec.insertBefore(addonRow("clothing", "Outfits and exposure presets come from one add-on together."), outSec.children[1]);
-          return [charSec, bodySec(), trigSec, outSec, exposureSec(), partsSection()];
+          return [charSec, bodySec(), quarantineSec(), trigSec, outSec, exposureSec(), partsSection()];
         };
         function exposureSec() {
           var ids = liveIds();
@@ -2993,6 +2993,55 @@ var require_assets_generated = __commonJS({
             }))
           );
           out.setAttribute("data-sec", "body");
+          return out;
+        }
+        function quarantineSec() {
+          var id = S.viewHeroine, rb = ["prompts", "heroines", id];
+          var blocks = E(rb.concat("quarantine")) || {};
+          var conds = Object.keys(E(["prompts", "conditions"]) || {});
+          var out = sec(
+            "Карантин",
+            "#fb923c",
+            "Теги отсюда попадают в промпт только когда сработало условие. Если условие не сработало — блок молчит.",
+            h("div", { class: "pgrid" }, Object.keys(blocks).map(function(k) {
+              var rel = rb.concat("quarantine", k);
+              var curWhen = E(rel.concat("when")) || "";
+              var whenList = conds.indexOf(curWhen) >= 0 ? conds : [curWhen].concat(conds);
+              var whenSel = h("select", { class: "sel xs", title: "Условие (prompts.conditions), при котором блок попадает в промпт", onchange: function() {
+                edit(rel.concat("when"), whenSel.value);
+                whenSel.classList.add("dirty");
+              } }, whenList.map(function(c) {
+                return h("option", { value: c, selected: c === curWhen }, c || "(нет условия)");
+              }));
+              var curMode = E(rel.concat("mode")) || "auto";
+              var modeSel = h("select", { class: "sel xs", title: "auto — по условию, always — всегда, never — никогда", onchange: function() {
+                edit(rel.concat("mode"), modeSel.value);
+                modeSel.classList.add("dirty");
+              } }, ["auto", "always", "never"].map(function(m) {
+                return h("option", { value: m, selected: m === curMode }, m);
+              }));
+              return h(
+                "div",
+                { class: "pcell" },
+                h("div", { class: "phead" }, h("span", { class: "plab" }, k), badgeFor(rel), h("button", { type: "button", class: "link danger", title: "Убрать этот блок (вернуть к игровому умолчанию)", onclick: function() {
+                  restore(rel);
+                  render();
+                } }, "\xD7")),
+                row(whenSel, modeSel),
+                promptBox("теги", rel.concat("tags"), { height: "48px" }),
+                promptBox("негатив", rel.concat("negative"), { height: "36px" })
+              );
+            })),
+            row(sbtn("Добавить блок", "#9a3412", function() {
+              var n = prompt("Имя блока (латиницей, без пробелов):");
+              if (!n) return;
+              n = n.trim().replace(/[^A-Za-z0-9_.-]/g, "");
+              if (!n) return;
+              edit(rb.concat("quarantine", n), { tags: "", negative: "", when: conds[0] || "", mode: "auto" });
+              render();
+            }))
+          );
+          out.setAttribute("data-sec", "quarantine");
           return out;
         }
         function partsSection() {
