@@ -1,6 +1,3 @@
-#!/usr/bin/env node
-// Wayward Bridge 2.0 (single-file build)
-"use strict";
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __commonJS = (cb, mod) => function __require() {
   try {
