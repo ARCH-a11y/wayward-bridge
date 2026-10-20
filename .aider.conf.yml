@@ -1,0 +1,7 @@
+openai-api-base: https://api.venice.ai/api/v1
+model: openai/z-ai-glm-5-3-flash
+weak-model: openai/z-ai-glm-5-3-flash
+auto-commits: true
+map-tokens: 2048
+model-metadata-file: .aider.model.metadata.json
+show-model-warnings: false
