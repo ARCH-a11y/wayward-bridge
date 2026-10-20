@@ -2,7 +2,7 @@
 
 - Game version: 2026-10-04 (index.html c6f38cd4b6)
 - Bridge: 2.0
-- Made: 2026-10-19T20:31:12.342Z
+- Made: 2026-10-20T17:02:42.393Z
 - Result: everything the mod depends on was found
 
 ## Hooks
