@@ -64,3 +64,15 @@ condFires, expandHero. Подключены в compose, composeNegative, synthes
 aider + Venice API (openai/z-ai-glm-5-3-flash), ключ в .env, конфиг в .aider.conf.yml.
 Запуск: aider CONTEXT.md @files, затем /drop 019.
 Файл 019-src_server_assets.generated.js (88k токенов) и src/000-tags-blob.js держим вне контекста.
+
+## Веха: 1.1 код готов (коммиты 6520aa0, 3140c29, 639ce83)
+- схема sections/quarantine/conditions — готово
+- раскрытие в compose/composeNegative/synthesize — готово
+- маркеры V1-V3 в wb-verify.js, функциональный тест в wb-test.js — готово
+- verify 40/40, тесты 28/28, тест в игре пройден
+
+### Следующее: UI-секция «Внешность»
+Файл: src/019-src_server_assets.generated.js (меню). Карточки на семь частей:
+поле тегов, поле негатива, тумблер. Блок карантина: три условия + mode.
+Данные ходят через PATCH /bridge/api/settings, путь layer.prompts.heroines.<id>.sections.<part>.
+
