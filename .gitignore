@@ -4,3 +4,4 @@ wb-test-data/
 *.log
 _wb-patches/_tmp/
 wayward-bridge.pre-split.js
+src/*.bak
