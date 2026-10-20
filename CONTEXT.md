@@ -50,3 +50,15 @@ origin/token (B30), хардненинг хрупких regex (B33–B38), пр�
 - root: C:\Users\arch4\Downloads\Wayward
 - origin: https://github.com/ARCH-a11y/wayward-bridge (ветка main)
 - baseline: коммит 2bf0611, verify 36/36, tests 19/19
+
+## Цикл правки
+1. правим ТОЛЬКО в src/, бандл не трогаем руками
+2. node build.js — пересборка
+3. node -c wayward-bridge.js — синтаксис
+4. node wb-verify.js — 36/36
+5. node wb-test.js — 19/19
+6. тест в игре
+
+Все имена в src/ORDER.txt обязаны существовать (build.js падает с MISSING FILE).
+Блоб TAGS_GZ_B64/ALIASES_GZ_B64 живёт в src/000-tags-blob.js и в контекст агента не грузится.
+
