@@ -5,3 +5,6 @@ auto-commits: true
 map-tokens: 2048
 model-metadata-file: .aider.model.metadata.json
 show-model-warnings: false
+edit-format: diff
+test-cmd: node build.js && node wb-verify.js
+auto-test: true
