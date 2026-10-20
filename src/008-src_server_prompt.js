@@ -54,6 +54,51 @@ var require_prompt = __commonJS({
       if (!r.replaced) return { tags, change: null, id: hit.id, rel };
       return { tags: r.tags, id: hit.id, rel, change: { id: hit.id, from: hit.text, to: next, source: origin([...pathPrefix, hit.id]) } };
     }
+    var SECTION_ORDER = ["head", "mouth", "body", "breasts", "ass", "vagina", "misc"];
+    function orderedKeys(obj) {
+      const keys = Object.keys(obj || {});
+      return [...SECTION_ORDER.filter((k) => keys.includes(k)), ...keys.filter((k) => !SECTION_ORDER.includes(k))];
+    }
+    function sectionSignals(parsed, D, E) {
+      const eo = (E.outfits || {})[parsed.outfit] || {}, dO = (D.outfits || {})[parsed.outfit] || {};
+      const expo = (E.exposure || {})[parsed.exposure] || (D.exposure || {})[parsed.exposure] || "";
+      const mask = exposureMask(parsed.exposure);
+      return {
+        outfit: [eo.tags, dO.tags].filter(Boolean).join(", "),
+        exposure: [expo, mask].filter(Boolean).join(", "),
+        scene: [parsed.scene, parsed.lookFocus, parsed.task, parsed.room].filter(Boolean).join(", ")
+      };
+    }
+    function condFires(cond, signals) {
+      if (!cond || !Array.isArray(cond.keywords) || !cond.keywords.length) return false;
+      const src = (Array.isArray(cond.sources) && cond.sources.length) ? cond.sources : ["outfit", "exposure", "scene"];
+      const hay = src.map((s) => signals[s] || "").join(", ").toLowerCase();
+      if (!hay) return false;
+      return cond.keywords.some((k) => hay.includes(String(k).toLowerCase()));
+    }
+    function expandHero(hero, signals, conds, notes) {
+      if (!hero) return { base: "", negative: "" };
+      const base = [], neg = [];
+      for (const id of orderedKeys(hero.sections)) {
+        const s = hero.sections[id];
+        if (!s || s.on === false) continue;
+        if (String(s.tags || "").trim()) base.push(String(s.tags).trim());
+        if (String(s.negative || "").trim()) neg.push(String(s.negative).trim());
+      }
+      for (const id of orderedKeys(hero.quarantine)) {
+        const q = hero.quarantine[id];
+        if (!q || q.mode === "never") continue;
+        const fire = q.mode === "always" || condFires((conds || {})[q.when], signals);
+        if (!fire) continue;
+        if (String(q.tags || "").trim()) base.push(String(q.tags).trim());
+        if (String(q.negative || "").trim()) neg.push(String(q.negative).trim());
+        if (notes) notes.push("quarantine." + id + " включён (условие " + q.when + ")");
+      }
+      return {
+        base: [String(hero.base || "").trim(), ...base].filter(Boolean).join(", "),
+        negative: [String(hero.negative || "").trim(), ...neg].filter(Boolean).join(", ")
+      };
+    }
     function compose(input) {
       const { parsed, heroine, defaults: D, prompts: E, pipeline: P } = input;
       const origin = input.origin || (() => "your settings");
@@ -64,6 +109,11 @@ var require_prompt = __commonJS({
       const parts = usingParts ? input.parts.map((p) => ({ label: String(p.label || ""), tags: splitTags(p.tags) })) : [{ label: "Prompt", tags: splitTags(input.gamePrompt) }];
       const heroDef = (D.heroines || {})[heroine] || {};
       const heroEff = (E.heroines || {})[heroine] || {};
+      const signals = sectionSignals(parsed, D, E);
+      const conds = E.conditions || D.conditions || {};
+      const notes = [];
+      const heroDefX = expandHero(heroDef, signals, conds, notes);
+      const heroEffX = expandHero(heroEff, signals, conds, notes);
       const outfitId = parsed.outfit;
       const mask = exposureMask(parsed.exposure);
       const partOv = E.parts || {};
@@ -97,11 +147,11 @@ var require_prompt = __commonJS({
         if (label === "Outfit" && outfitId) rel = { path: ["prompts", "outfits", outfitId, "tags"] };
         if (label === "Exposure" && mask) rel = { path: ["prompts", "exposure", mask] };
         if (label === "Base" || all) {
-          if (heroEff.base != null && heroEff.base.trim() !== String(heroDef.base || "").trim()) {
-            const r = replaceTags(tags, heroDef.base || "", heroEff.base, label === "Base");
+          if (heroEffX.base != null && heroEffX.base.trim() !== String(heroDefX.base || "").trim()) {
+            const r = replaceTags(tags, heroDefX.base || "", heroEffX.base, label === "Base");
             if (r.replaced || label === "Base") {
               tags = r.tags;
-              changes.push({ id: heroine, from: heroDef.base, to: heroEff.base, source: origin(["heroines", heroine, "base"]) });
+              changes.push({ id: heroine, from: heroDefX.base, to: heroEffX.base, source: origin(["heroines", heroine, "base"]) });
             }
           }
         }
@@ -247,6 +297,7 @@ var require_prompt = __commonJS({
       if (usingParts) for (const p of out) explain.push({ label: p.label, game: p.game, final: joinTags(p.tags), changes: p.changes, rel: p.rel });
       else for (const c of categorize(out[0] || { tags: [], changes: [], game: "" }, input, heroDef, heroEff)) explain.push(c);
       if (ruleAdded.length) explain.push({ label: "Tag rules", game: "", final: joinTags(ruleAdded), changes: [{ id: "added", to: joinTags(ruleAdded), source: addedSrc.join(", ") || ruleSrc }], rel: { path: ["prompts", "rules"], kind: "rules" } });
+      if (notes.length) explain.push({ label: "Внешность", note: notes.join("; ") });
       explain.unshift({
         label: "Quality tags",
         game: input.gameQuality || "",
@@ -304,6 +355,10 @@ var require_prompt = __commonJS({
     function composeNegative(input, positiveTags, explain, warnings, heroDef, heroEff, yours) {
       const { parsed, defaults: D, prompts: E, pipeline: P } = input;
       const origin = input.origin || (() => "your settings");
+      const signals = sectionSignals(parsed, D, E);
+      const conds = E.conditions || D.conditions || {};
+      const heroDefX = expandHero(heroDef, signals, conds);
+      const heroEffX = expandHero(heroEff, signals, conds);
       const original = splitTags(input.gameNegative);
       const have = new Set(original.map(tagKey));
       const share = (text) => {
@@ -320,7 +375,7 @@ var require_prompt = __commonJS({
         src.push(Object.assign({ label, def, eff, changed, path, keys: new Set(splitTags(def).map(tagKey).filter(Boolean)), present: share(def) >= (opts && opts.always ? 0.5 : 0.75) }, opts || {}));
       };
       put("Game: base negative (every picture)", G.base || DN.base, EN.base, ["prompts", "negatives", "base"], { always: true, yourLabel: "Base negative" });
-      put("Character negative" + (heroEff.negative != null && String(heroEff.negative).trim() !== String(heroDef.negative || "").trim() ? "" : " (game)"), heroDef.negative, heroEff.negative, ["prompts", "heroines", input.heroine, "negative"], { always: true });
+      put("Character negative" + (heroEffX.negative != null && String(heroEffX.negative).trim() !== String(heroDefX.negative || "").trim() ? "" : " (game)"), heroDefX.negative, heroEffX.negative, ["prompts", "heroines", input.heroine, "negative"], { always: true });
       if (parsed.outfit) {
         const d = ((D.outfits || {})[parsed.outfit] || {}).negative || "";
         put("Outfit negative", d, ((E.outfits || {})[parsed.outfit] || {}).negative, ["prompts", "outfits", parsed.outfit, "negative"]);
@@ -451,10 +506,11 @@ var require_prompt = __commonJS({
       E = E || {};
       const v = Number(parsed.variant) || 0;
       const hero = (E.heroines || {})[heroine] || {};
+      const heroX = expandHero(hero, sectionSignals(parsed, {}, E), E.conditions || {});
       const outfit = (E.outfits || {})[parsed.outfit] || {};
       const mask = exposureMask(parsed.exposure);
       const room = (E.rooms || {})[parsed.room] || {};
-      const parts = [{ label: "Base", tags: hero.base || "" }];
+      const parts = [{ label: "Base", tags: heroX.base || "" }];
       if (outfit.tags) parts.push({ label: "Outfit", tags: outfit.tags });
       if (mask && (E.exposure || {})[mask] && !noExposure(parsed)) parts.push({ label: "Exposure", tags: E.exposure[mask] });
       const sid = parsed.scene && parsed.abed && (E.scenes || {})[parsed.scene + "_bed"] ? parsed.scene + "_bed" : parsed.scene;
@@ -469,7 +525,7 @@ var require_prompt = __commonJS({
       else parts.push({ label: "Mood", tags: String(((E.moods || {}).work || {}).content || "") });
       const rm = parsed.abed && (E.rooms || {}).in_bed ? E.rooms.in_bed : room;
       if (parsed.room) parts.push({ label: "Room", tags: (parsed.scene ? rm.short : rm.detail) || rm.detail || rm.short || "" });
-      const negative = [hero.negative, mask ? "" : outfit.negative].filter(Boolean).join(", ");
+      const negative = [heroX.negative, mask ? "" : outfit.negative].filter(Boolean).join(", ");
       return { parts: parts.filter((x) => String(x.tags || "").trim()), negative };
     }
     module2.exports = { synthesize, compose, identify, noExposure };
