@@ -46,6 +46,11 @@ var require_defaults = __commonJS({
             negative: c.patrons && c.patrons.negative || "",
             archetypes: c.patrons && c.patrons.archetypes || [],
             named: {}
+          },
+          conditions: {
+            vagina_visible: { sources: ["outfit", "exposure", "scene"], keywords: ["nude", "pussy", "spread", "no_panties", "see-through", "microskirt", "vaginal"] },
+            ass_visible: { sources: ["outfit", "exposure", "scene"], keywords: ["nude", "ass", "anus", "anal", "bare_hips", "bent_over", "on_side"] },
+            nipples_visible: { sources: ["outfit", "exposure"], keywords: ["nude", "topless", "see-through", "nipples_visible_through_clothes", "wet_clothes"] }
           }
         },
         pipeline: {
