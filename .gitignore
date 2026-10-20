@@ -10,3 +10,8 @@ wayward-bridge-data/library/
 wayward-bridge-data/maintainer/
 wayward-bridge-data/ratings.jsonl
 wayward-bridge-data/game-snapshot.json
+_analysis/tags/
+_analysis/tags2/
+_analysis/tags3/
+_analysis/tags4/
+.env
