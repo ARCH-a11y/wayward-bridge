@@ -1,3 +1,4 @@
+// Аддоны: упорядоченный стек оверлеев, порядок задаёт setAddonStack.
 // src/server/store.js
 var require_store = __commonJS({
   "src/server/store.js"(exports2, module2) {
