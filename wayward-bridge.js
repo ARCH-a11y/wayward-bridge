@@ -4625,6 +4625,7 @@ var require_assets_generated = __commonJS({
         };
         var FAMILIES = [["anima", "Anima / Z-Image (UNET + CLIP + VAE)"], ["illustrious", "Illustrious XL (SDXL checkpoint)"], ["pony", "Pony (SDXL checkpoint)"], ["noobai", "NoobAI (SDXL checkpoint)"]];
         var PART_LABELS = ["Quality", "Arousal", "Aftermath", "Gaze", "Intoxication", "Reaction", "Focus", "Narration", "Gender", "Group", "Pose", "FlashAnatomy"];
+        var BODY_PARTS = [["head", "Голова"], ["mouth", "Рот"], ["body", "Тело"], ["breasts", "Грудь"], ["ass", "Задница"], ["vagina", "Вагина"], ["misc", "Разное"]];
         var SCENE_GROUPS = [
           ["Intimate", /^(kissing|groped_ass|groped_tits|fingered|self_pleasure)$/],
           ["Bath", /bath/],
@@ -4779,7 +4780,7 @@ var require_assets_generated = __commonJS({
           return rel[1] === "families" && !(rel[3] === "quality" || rel[3] === "negative");
         }
         function tpath(rel) {
-          if (rel[0] === "prompts" && (rel[1] === "rulesAll" || rel[1] === "negatives" && app("sharedNegatives"))) return ["layer"].concat(rel);
+          if (rel[0] === "prompts" && (rel[1] === "rulesAll" || rel[1] === "conditions" || rel[1] === "negatives" && app("sharedNegatives"))) return ["layer"].concat(rel);
           if (rel[0] === "prompts" && rel[1] === "heroines" && rel[2]) return heroPath(rel[2]).concat(rel);
           return (rel[0] === "prompts" || heroinePipe(rel)) && S.viewHeroine ? heroPath(S.viewHeroine).concat(rel) : ["layer"].concat(rel);
         }
@@ -6349,6 +6350,8 @@ var require_assets_generated = __commonJS({
             if (sec2 === "heroines") {
               var hp = (P.heroines || {})[S.viewHeroine] || {};
               walk({ base: hp.base, negative: hp.negative }, ["heroines", S.viewHeroine]);
+              walk(hp.sections || {}, ["heroines", S.viewHeroine, "sections"]);
+              walk(hp.quarantine || {}, ["heroines", S.viewHeroine, "quarantine"]);
               return;
             }
             walk(P[sec2], [sec2]);
@@ -6359,7 +6362,10 @@ var require_assets_generated = __commonJS({
         }
         function searchJump(p) {
           var sec2 = p[0], id = p[1];
-          if (sec2 === "heroines") return jump("heroines");
+          if (sec2 === "heroines") {
+            S.scrollTo = "body";
+            return jump("heroines");
+          }
           if (sec2 === "outfits") return jump("heroines", "outfit", id);
           if (sec2 === "exposure") {
             S.sel.exposure = id;
@@ -6540,7 +6546,7 @@ var require_assets_generated = __commonJS({
           );
           charSec.insertBefore(addonRow("character"), charSec.children[1]);
           outSec.insertBefore(addonRow("clothing", "Outfits and exposure presets come from one add-on together."), outSec.children[1]);
-          return [charSec, trigSec, outSec, exposureSec(), partsSection()];
+          return [charSec, bodySec(), quarantineSec(), trigSec, outSec, exposureSec(), partsSection()];
         };
         function exposureSec() {
           var ids = liveIds();
@@ -7409,6 +7415,85 @@ var require_assets_generated = __commonJS({
               }) : null
             )
           );
+        }
+        function bodySec() {
+          var id = S.viewHeroine, rb = ["prompts", "heroines", id];
+          var out = sec(
+            "Внешность",
+            "#f472b6",
+            "Описание героини собирается из частей и уходит в промпт.",
+            h("div", { class: "pgrid" }, BODY_PARTS.map(function(p) {
+              var rel = rb.concat("sections", p[0]);
+              var cb = h("input", { type: "checkbox", checked: E(rel.concat("on")) !== false, onchange: function() {
+                edit(rel.concat("on"), cb.checked);
+                render();
+              } });
+              return h(
+                "div",
+                { class: "pcell" },
+                h("div", { class: "phead" }, h("span", { class: "plab" }, p[1]), badgeFor(rel), cb),
+                promptBox("теги", rel.concat("tags"), { height: "52px" }),
+                promptBox("негатив", rel.concat("negative"), { height: "40px" })
+              );
+            })),
+            row(sbtn("Сбросить внешность", "#57534e", function() {
+              BODY_PARTS.forEach(function(p) {
+                restore(rb.concat("sections", p[0]));
+              });
+              render();
+            }))
+          );
+          out.setAttribute("data-sec", "body");
+          return out;
+        }
+        function quarantineSec() {
+          var id = S.viewHeroine, rb = ["prompts", "heroines", id];
+          var blocks = E(rb.concat("quarantine")) || {};
+          var conds = Object.keys(E(["prompts", "conditions"]) || {});
+          var out = sec(
+            "Карантин",
+            "#fb923c",
+            "Теги отсюда попадают в промпт только когда сработало условие. Если условие не сработало — блок молчит.",
+            h("div", { class: "pgrid" }, Object.keys(blocks).map(function(k) {
+              var rel = rb.concat("quarantine", k);
+              var curWhen = E(rel.concat("when")) || "";
+              var whenList = conds.indexOf(curWhen) >= 0 ? conds : [curWhen].concat(conds);
+              var whenSel = h("select", { class: "sel xs", title: "Условие (prompts.conditions), при котором блок попадает в промпт", onchange: function() {
+                edit(rel.concat("when"), whenSel.value);
+                whenSel.classList.add("dirty");
+              } }, whenList.map(function(c) {
+                return h("option", { value: c, selected: c === curWhen }, c || "(нет условия)");
+              }));
+              var curMode = E(rel.concat("mode")) || "auto";
+              var modeSel = h("select", { class: "sel xs", title: "auto — по условию, always — всегда, never — никогда", onchange: function() {
+                edit(rel.concat("mode"), modeSel.value);
+                modeSel.classList.add("dirty");
+              } }, ["auto", "always", "never"].map(function(m) {
+                return h("option", { value: m, selected: m === curMode }, m);
+              }));
+              return h(
+                "div",
+                { class: "pcell" },
+                h("div", { class: "phead" }, h("span", { class: "plab" }, k), badgeFor(rel), h("button", { type: "button", class: "link danger", title: "Убрать этот блок (вернуть к игровому умолчанию)", onclick: function() {
+                  restore(rel);
+                  render();
+                } }, "\xD7")),
+                row(whenSel, modeSel),
+                promptBox("теги", rel.concat("tags"), { height: "48px" }),
+                promptBox("негатив", rel.concat("negative"), { height: "36px" })
+              );
+            })),
+            row(sbtn("Добавить блок", "#9a3412", function() {
+              var n = prompt("Имя блока (латиницей, без пробелов):");
+              if (!n) return;
+              n = n.trim().replace(/[^A-Za-z0-9_.-]/g, "");
+              if (!n) return;
+              edit(rb.concat("quarantine", n), { tags: "", negative: "", when: conds[0] || "", mode: "auto" });
+              render();
+            }))
+          );
+          out.setAttribute("data-sec", "quarantine");
+          return out;
         }
         function partsSection() {
           var eff = E(["prompts", "parts"]) || {};
