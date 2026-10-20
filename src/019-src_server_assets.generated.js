@@ -174,6 +174,7 @@ var require_assets_generated = __commonJS({
         };
         var FAMILIES = [["anima", "Anima / Z-Image (UNET + CLIP + VAE)"], ["illustrious", "Illustrious XL (SDXL checkpoint)"], ["pony", "Pony (SDXL checkpoint)"], ["noobai", "NoobAI (SDXL checkpoint)"]];
         var PART_LABELS = ["Quality", "Arousal", "Aftermath", "Gaze", "Intoxication", "Reaction", "Focus", "Narration", "Gender", "Group", "Pose", "FlashAnatomy"];
+        var BODY_PARTS = [["head", "Голова"], ["mouth", "Рот"], ["body", "Тело"], ["breasts", "Грудь"], ["ass", "Задница"], ["vagina", "Вагина"], ["misc", "Разное"]];
         var SCENE_GROUPS = [
           ["Intimate", /^(kissing|groped_ass|groped_tits|fingered|self_pleasure)$/],
           ["Bath", /bath/],
@@ -1898,6 +1899,8 @@ var require_assets_generated = __commonJS({
             if (sec2 === "heroines") {
               var hp = (P.heroines || {})[S.viewHeroine] || {};
               walk({ base: hp.base, negative: hp.negative }, ["heroines", S.viewHeroine]);
+              walk(hp.sections || {}, ["heroines", S.viewHeroine, "sections"]);
+              walk(hp.quarantine || {}, ["heroines", S.viewHeroine, "quarantine"]);
               return;
             }
             walk(P[sec2], [sec2]);
@@ -1908,7 +1911,10 @@ var require_assets_generated = __commonJS({
         }
         function searchJump(p) {
           var sec2 = p[0], id = p[1];
-          if (sec2 === "heroines") return jump("heroines");
+          if (sec2 === "heroines") {
+            S.scrollTo = "body";
+            return jump("heroines");
+          }
           if (sec2 === "outfits") return jump("heroines", "outfit", id);
           if (sec2 === "exposure") {
             S.sel.exposure = id;
@@ -2089,7 +2095,7 @@ var require_assets_generated = __commonJS({
           );
           charSec.insertBefore(addonRow("character"), charSec.children[1]);
           outSec.insertBefore(addonRow("clothing", "Outfits and exposure presets come from one add-on together."), outSec.children[1]);
-          return [charSec, trigSec, outSec, exposureSec(), partsSection()];
+          return [charSec, bodySec(), trigSec, outSec, exposureSec(), partsSection()];
         };
         function exposureSec() {
           var ids = liveIds();
@@ -2958,6 +2964,36 @@ var require_assets_generated = __commonJS({
               }) : null
             )
           );
+        }
+        function bodySec() {
+          var id = S.viewHeroine, rb = ["prompts", "heroines", id];
+          var out = sec(
+            "Внешность",
+            "#f472b6",
+            "Описание героини собирается из частей и уходит в промпт.",
+            h("div", { class: "pgrid" }, BODY_PARTS.map(function(p) {
+              var rel = rb.concat("sections", p[0]);
+              var cb = h("input", { type: "checkbox", checked: E(rel.concat("on")) !== false, onchange: function() {
+                edit(rel.concat("on"), cb.checked);
+                render();
+              } });
+              return h(
+                "div",
+                { class: "pcell" },
+                h("div", { class: "phead" }, h("span", { class: "plab" }, p[1]), badgeFor(rel), cb),
+                promptBox("теги", rel.concat("tags"), { height: "52px" }),
+                promptBox("негатив", rel.concat("negative"), { height: "40px" })
+              );
+            })),
+            row(sbtn("Сбросить внешность", "#57534e", function() {
+              BODY_PARTS.forEach(function(p) {
+                restore(rb.concat("sections", p[0]));
+              });
+              render();
+            }))
+          );
+          out.setAttribute("data-sec", "body");
+          return out;
         }
         function partsSection() {
           var eff = E(["prompts", "parts"]) || {};
