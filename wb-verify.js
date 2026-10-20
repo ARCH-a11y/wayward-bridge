@@ -43,6 +43,10 @@ const CHECKS = [
   ["S3  bridgePing", "function bridgePing()", 1],
   ["S3  страховочный опрос", "document.visibilityState === \"visible\"", 1],
   ["S4  офлайн-баннер", "нет связи с бриджем", 1],
+  ["V1  SECTION_ORDER (7 ключей)", "var SECTION_ORDER = [\"head\", \"mouth\", \"body\", \"breasts\", \"ass\", \"vagina\", \"misc\"]", 1],
+  ["V2  expandHero: condFires внутри", "const fire = q.mode === \"always\" || condFires((conds || {})[q.when], signals);", 1],
+  ["V3  схема: sections + quarantine", "sections: { \"*\": { tags: str(), negative: str(), on: bool() } }, quarantine: { \"*\": { tags: str(), negative: str(), when: str(60), mode: oneOf(\"auto\", \"always\", \"never\") } }", 1],
+  ["V3  схема: conditions", "conditions: { \"*\": { sources: tagList(8), keywords: tagList(400) } }", 1],
 ];
 
 let bad = 0;

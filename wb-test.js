@@ -111,6 +111,43 @@ async function waitUp(c) {
   const fresh = after.filter((x) => !before.includes(x));
   ok("бэкапы с уникальными именами", fresh.length >= 3 && new Set(fresh).size === fresh.length, "новых: " + fresh.length + ", уникальных: " + new Set(fresh).size);
 
+  // 5b. секции и карантин героини
+  const st2 = await api("GET", "/bridge/api/state");
+  const heroines2 = (((st2.json || {}).defaults || {}).prompts || {}).heroines || {};
+  const hid = Object.keys(heroines2).find((k) => /^[A-Za-z0-9_.' -]{1,80}$/.test(k));
+  ok("секции: героиня найдена в defaults", !!hid, "героини: " + Object.keys(heroines2).slice(0, 8).join(", "));
+  if (hid) {
+    const outfits2 = (((st2.json || {}).defaults || {}).prompts || {}).outfits || {};
+    const oid = Object.keys(outfits2).find((k) => /^[A-Za-z0-9_.' -]{1,80}$/.test(k));
+    ok("секции: наряд найден в defaults", !!oid, "наряды: " + Object.keys(outfits2).slice(0, 8).join(", "));
+    if (oid) {
+      const keyBase = hid + "__scene-taproom";
+      const keyOut = keyBase + "__outfit-" + oid;
+      const pv = (k) => api("POST", "/bridge/api/preview", { key: k, ops: [] });
+      const pos = (r) => String((r.json || {}).positive || "");
+      const rSec = await patch(["layer", "prompts", "heroines", hid, "sections", "head", "tags"], "zzz_test_head");
+      ok("секции: PATCH принят", rSec.status === 200, "status " + rSec.status + " " + JSON.stringify(W(rSec)).slice(0, 140));
+      const pSec = await pv(keyBase);
+      ok("секции: тег секции попал в positive", pSec.status === 200 && pos(pSec).includes("zzz_test_head"), pos(pSec).slice(0, 140));
+      const rQ = await patch(["layer", "prompts", "heroines", hid, "quarantine", "vagtest"], { tags: "zzz_test_q", when: "vagina_visible", mode: "auto" });
+      ok("карантин: PATCH принят", rQ.status === 200, "status " + rQ.status + " " + JSON.stringify(W(rQ)).slice(0, 140));
+      await patch(["layer", "prompts", "outfits", oid, "tags"], "zzz_outfit_plain");
+      const pOff = await pv(keyOut);
+      ok("карантин: без ключевых слов тега нет", pOff.status === 200 && !pos(pOff).includes("zzz_test_q"), pos(pOff).slice(0, 140));
+      await patch(["layer", "prompts", "outfits", oid, "tags"], "zzz_outfit_plain, nude");
+      const pOn = await pv(keyOut);
+      ok("карантин: при условии тег появился", pOn.status === 200 && pos(pOn).includes("zzz_test_q"), pos(pOn).slice(0, 140));
+      const rBack = await api("PATCH", "/bridge/api/settings", { revision: await rev(), ops: [
+        { path: ["layer", "prompts", "heroines", hid, "sections", "head", "tags"], delete: true },
+        { path: ["layer", "prompts", "heroines", hid, "quarantine", "vagtest"], delete: true },
+        { path: ["layer", "prompts", "outfits", oid, "tags"], delete: true },
+      ] });
+      ok("секции/карантин: откат выполнен", rBack.status === 200, "status " + rBack.status);
+      const pClean = await pv(keyOut);
+      ok("после отката тестовых тегов нет", pClean.status === 200 && !pos(pClean).includes("zzz_test") && !pos(pClean).includes("zzz_outfit"), pos(pClean).slice(0, 140));
+    }
+  }
+
   // 6. --check-game без пути
   let cg = "";
   try { cg = execFileSync(process.execPath, ["wayward-bridge.js", "--check-game"], { encoding: "utf8" }); } catch (e) { cg = "ОШИБКА: " + e.message; }
