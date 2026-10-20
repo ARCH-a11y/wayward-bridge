@@ -3,3 +3,4 @@ wb-test-data/
 *.new.js
 *.log
 _wb-patches/_tmp/
+wayward-bridge.pre-split.js
