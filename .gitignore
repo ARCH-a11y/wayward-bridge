@@ -5,3 +5,8 @@ wb-test-data/
 _wb-patches/_tmp/
 wayward-bridge.pre-split.js
 src/*.bak
+wayward-bridge-data/backups/
+wayward-bridge-data/library/
+wayward-bridge-data/maintainer/
+wayward-bridge-data/ratings.jsonl
+wayward-bridge-data/game-snapshot.json
