@@ -1,2 +1,5 @@
-.env
 node_modules/
+wb-test-data/
+*.new.js
+*.log
+_wb-patches/_tmp/

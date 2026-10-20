@@ -2,53 +2,65 @@
 "use strict";
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
 
-// --- 2. база тегов по темам ---
-const TOUT = "_analysis/tags";
-fs.mkdirSync(TOUT, { recursive: true });
+const A = "_analysis";
+const BR = path.join(A, "bridge");
+const AS = path.join(BR, "assets");
+fs.mkdirSync(BR, { recursive: true });
 
-if (fs.existsSync("_analysis/tags.txt")) {
-  const tags = fs.readFileSync("_analysis/tags.txt", "utf8").split("\n").map((s) => s.trim()).filter(Boolean);
-  const RULES = [
-    ["01-clothes", /\b(dress|skirt|shirt|blouse|jacket|coat|apron|corset|bra|panties|underwear|shorts|pants|jeans|stocking|thighhigh|socks|boots|shoes|heels|gloves|hat|cap|bonnet|ribbon|bow|scarf|cloak|cape|robe|kimono|yukata|swimsuit|bikini|leotard|bodysuit|vest|sweater|cardigan|hoodie|uniform|armor|belt|sash|jewelry|necklace|earring|choker|bracelet|veil|collar|frill|lace|silk|velvet|denim|plaid|striped|polka)/],
-    ["02-body", /\b(hair|eye|breast|nipple|thigh|leg|arm|hand|finger|face|skin|navel|ass|hip|waist|shoulder|collarbone|neck|back|stomach|abs|muscular|plump|petite|tall|pale|tan|freckle|mole|blush|sweat|pube)/],
-    ["03-pose", /\b(standing|sitting|kneeling|lying|on_back|on_side|on_stomach|crouch|squat|bend|lean|walk|run|jump|danc|spread|cross|stretch|reach|holding|hug|kiss|look|gaze|smil|frown|expression|cry|laugh|arms|hands)/],
-    ["04-sex", /\b(sex|cum|penis|pussy|vagina|anal|oral|fellatio|cunnilingus|paizuri|handjob|fingering|masturbat|orgasm|penetrat|creampie|nude|topless|bottomless|areola|clitoris|testicl|erection|precum|semen|dildo|vibrator|condom|bukkake|gangbang|threesome|nsfw)/],
-    ["05-place", /\b(room|tavern|inn|bar|kitchen|bath|bed|chair|table|window|door|floor|wall|street|garden|forest|field|mountain|sea|beach|sky|night|day|sunset|dawn|rain|snow|fire|lantern|candle)/],
-    ["06-style", /\b(style|art|painting|sketch|anime|realistic|photo|render|lighting|shading|lineart|monochrome|greyscale|sepia|watercolor|oil|cel|chibi|retro|vintage|pixel)/],
-  ];
-  const buckets = new Map(RULES.map(([n]) => [n, []]));
-  const other = [];
-  for (const t of tags) {
-    let hit = false;
-    for (const [n, re] of RULES) if (re.test(t)) { buckets.get(n).push(t); hit = true; break; }
-    if (!hit) other.push(t);
+const rep = [];
+const hash = (s) => crypto.createHash("sha256").update(s).digest("hex").slice(0, 16);
+
+const src = fs.readFileSync("wayward-bridge.js", "utf8");
+const marks = [...src.matchAll(/^\/\/ src\/([^\r\n]+)$/gm)].map((m) => ({ name: m[1], at: m.index }));
+rep.push("модулей: " + marks.length);
+
+const parts = [];
+for (let i = 0; i < marks.length; i++) {
+  const from = marks[i].at;
+  const to = i + 1 < marks.length ? marks[i + 1].at : src.length;
+  const body = src.slice(from, to);
+  const safe = marks[i].name.replace(/[\\/]/g, "__");
+  const file = path.join(BR, String(i + 1).padStart(2, "0") + "-" + safe);
+  parts.push({ name: marks[i].name, size: body.length, file, body });
+  fs.writeFileSync(file, body);
+}
+parts.sort((a, b) => b.size - a.size);
+rep.push("");
+rep.push("=== модули ===");
+for (const p of parts) rep.push(String(p.size).padStart(9) + "  " + p.name);
+
+// база тегов и UI внутри assets.generated.js — разложить по переменным верхнего уровня
+const big = parts.find((p) => p.size > 1e6);
+if (big) {
+  const s = big.body;
+  const decls = [...s.matchAll(/^ {2,6}var ([A-Za-z_$][\w$]*) = /gm)].map((m) => ({ name: m[1], at: m.index }));
+  fs.mkdirSync(AS, { recursive: true });
+  const sub = [];
+  for (let i = 0; i < decls.length; i++) {
+    const from = decls[i].at;
+    const to = i + 1 < decls.length ? decls[i + 1].at : s.length;
+    const body = s.slice(from, to);
+    const file = path.join(AS, String(i + 1).padStart(2, "0") + "-" + decls[i].name + ".js");
+    fs.writeFileSync(file, body);
+    sub.push({ name: decls[i].name, size: body.length, file });
   }
-  for (const [n, list] of buckets) fs.writeFileSync(path.join(TOUT, n + ".txt"), list.join("\n") + "\n");
-  // остаток режем по 60k
-  for (let i = 0; i * 60000 < other.length; i++) {
-    fs.writeFileSync(path.join(TOUT, "99-other-" + (i + 1) + ".txt"), other.slice(i * 60000, (i + 1) * 60000).join("\n") + "\n");
-  }
-  console.log("теги разложены, всего " + tags.length);
-  for (const [n, list] of buckets) console.log("  " + n + ": " + list.length);
-  console.log("  остаток: " + other.length);
+  sub.sort((a, b) => b.size - a.size);
+  rep.push("");
+  rep.push("=== " + big.name + " разобран на части ===");
+  for (const p of sub) rep.push(String(p.size).padStart(9) + "  " + p.name);
+  if (sub.length > 1) fs.rmSync(big.file);
 }
 
-// --- 3. таблицы игры ---
-const MDIR = "wayward-bridge-data/maintainer";
-const GOUT = "_analysis/game-tables";
-fs.mkdirSync(GOUT, { recursive: true });
-if (fs.existsSync(MDIR)) {
-  const cand = fs.readdirSync(MDIR).filter((f) => f.endsWith("-tables.json"));
-  if (cand.length) {
-    const src = path.join(MDIR, cand.sort().pop());
-    const data = JSON.parse(fs.readFileSync(src, "utf8"));
-    console.log("");
-    console.log("таблицы из " + src);
-    for (const [k, v] of Object.entries(data)) {
-      const body = typeof v === "string" ? v : JSON.stringify(v, null, 2);
-      fs.writeFileSync(path.join(GOUT, k.replace(/[^a-zA-Z0-9_-]/g, "_") + ".json"), body + "\n");
-      console.log("  " + k + ": " + body.length + " символов");
-    }
-  } else console.log("файл *-tables.json не найден в " + MDIR);
-} else console.log("нет папки " + MDIR + " — запусти bridge --check-game хотя бы раз");
+// самопроверка: склеить обратно в исходном порядке и сверить хеш
+const order = [...parts].sort((a, b) => (a.file < b.file ? -1 : 1));
+const rebuilt = order.map((p) => fs.readFileSync(p.file, "utf8")).join("");
+rep.push("");
+rep.push("хеш исходника: " + hash(src));
+rep.push("хеш склейки:   " + hash(rebuilt));
+rep.push(hash(src) === hash(rebuilt) ? "разбор без потерь" : "РАСХОЖДЕНИЕ — разбор неверен");
+
+fs.writeFileSync(path.join(A, "MAP.md"), "# Карта проекта\n\n" + rep.join("\n") + "\n");
+fs.writeFileSync(path.join(A, "REPORT2.txt"), rep.join("\n"));
+console.log(rep.join("\n"));
