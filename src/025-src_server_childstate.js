@@ -129,6 +129,21 @@ var require_childstate = __commonJS({
       return milk ? { stage: "none", milk: true } : null;
     }
 
-    module2.exports = { empty: empty, forPlaythrough: forPlaythrough, tick: tick, phase: phase, chance: chance, stageOf: stageOf, prompt: prompt };
+    function current(dir) { return load(dir); }
+
+    function set(dir, pt, patch) {
+      var s = forPlaythrough(dir, pt);
+      for (var k in patch) {
+        if (patch[k] && typeof patch[k] === "object" && !Array.isArray(patch[k]) && s[k] && typeof s[k] === "object" && !Array.isArray(s[k])) {
+          for (var j in patch[k]) s[k][j] = patch[k][j];
+        } else {
+          s[k] = patch[k];
+        }
+      }
+      save(dir, s);
+      return s;
+    }
+
+    module2.exports = { empty: empty, forPlaythrough: forPlaythrough, tick: tick, phase: phase, chance: chance, stageOf: stageOf, prompt: prompt, current: current, set: set };
   }
 });

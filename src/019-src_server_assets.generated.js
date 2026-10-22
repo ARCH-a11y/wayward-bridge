@@ -174,7 +174,7 @@ var require_assets_generated = __commonJS({
         };
         var FAMILIES = [["anima", "Anima / Z-Image (UNET + CLIP + VAE)"], ["illustrious", "Illustrious XL (SDXL checkpoint)"], ["pony", "Pony (SDXL checkpoint)"], ["noobai", "NoobAI (SDXL checkpoint)"]];
         var PART_LABELS = ["Quality", "Arousal", "Aftermath", "Gaze", "Intoxication", "Reaction", "Focus", "Narration", "Gender", "Group", "Pose", "FlashAnatomy"];
-        var BODY_PARTS = [["head", "Голова"], ["mouth", "Рот"], ["body", "Тело"], ["breasts", "Грудь"], ["ass", "Задница"], ["vagina", "Вагина"], ["misc", "Разное"]];
+        var BODY_PARTS = [["head", "Голова"], ["mouth", "Рот"], ["body", "Тело"], ["breasts", "Грудь"], ["ass", "Задница"], ["vagina", "Вагина"], ["misc", "Разное"]["belly", "Живот"], ];
         var SCENE_GROUPS = [
           ["Intimate", /^(kissing|groped_ass|groped_tits|fingered|self_pleasure)$/],
           ["Bath", /bath/],
@@ -2126,7 +2126,7 @@ var require_assets_generated = __commonJS({
           );
           charSec.insertBefore(addonRow("character"), charSec.children[1]);
           outSec.insertBefore(addonRow("clothing", "Outfits and exposure presets come from one add-on together."), outSec.children[1]);
-          return [charSec, bodySec(), quarantineSec(), trigSec, outSec, exposureSec(), partsSection()];
+          return [charSec, stateSec(), bodySec(), quarantineSec(), trigSec, outSec, exposureSec(), partsSection()];
         };
         function exposureSec() {
           var ids = liveIds();
@@ -2995,6 +2995,49 @@ var require_assets_generated = __commonJS({
               }) : null
             )
           );
+        }
+        function stateSec() {
+          var her = activeHer();
+          var pt = her && her.save || "";
+          var cs = (S.st && S.st.childstate) || null;
+          var preg = cs && cs.pregnancy || { active: false, day: 0, fatherId: "", known: false };
+          var post = cs && cs.postpartum || { blockUntilDay: 0, milkUntilDay: 0 };
+          var kids = cs && cs.children || [];
+          var stage = !preg.active ? "нет" : preg.day < 10 ? "не видно" : preg.day < 20 ? "слегка" : preg.day < 30 ? "заметно" : "большой";
+          function set(patch) {
+            api("POST", "/bridge/api/childstate/set", { playthrough: pt, patch: patch }).then(function(j) {
+              if (j && j.state) S.st.childstate = j.state;
+              render();
+            });
+          }
+          function cell(label, val) {
+            return h("div", { class: "pcell" },
+              h("div", { class: "phead" }, h("span", { class: "plab" }, label)),
+              h("div", { style: "padding:2px 4px;font-size:12px" }, val));
+          }
+          var out = sec(
+            "Состояние",
+            "#a78bfa",
+            "Беременность, цикл и дети. Живёт отдельно от промптов.",
+            h("div", { class: "pgrid" },
+              cell("Стадия", stage),
+              cell("Срок", preg.active ? preg.day + " / 40" : "—"),
+              cell("Отец", preg.fatherId || "неизвестен"),
+              cell("Знает", preg.known ? "да" : "нет"),
+              cell("Цикл", cs && cs.cycle ? cs.cycle.day + " / " + cs.cycle.length : "—"),
+              cell("Дети", String(kids.length)),
+              cell("Молоко", post.milkUntilDay > ((cs && cs.lastDay) || 0) ? "да" : "нет"),
+              cell("Желание", cs && cs.childWish ? (cs.childWish.mode || "нет") : "—")
+            ),
+            row(
+              sbtn("Зачать", "#7c3aed", function() { set({ pregnancy: { active: true, day: 0, fatherId: "", known: false } }); }),
+              sbtn("Прервать", "#57534e", function() { set({ pregnancy: { active: false, day: 0 } }); }),
+              sbtn("+7 дней", "#0369a1", function() { set({ pregnancy: { day: Math.min(40, (preg.day || 0) + 7) } }); }),
+              sbtn("Раскрыть", "#0f766e", function() { set({ pregnancy: { known: true } }); })
+            )
+          );
+          out.setAttribute("data-sec", "state");
+          return out;
         }
         function bodySec() {
           var id = S.viewHeroine, rb = ["prompts", "heroines", id];

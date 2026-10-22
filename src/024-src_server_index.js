@@ -23,7 +23,7 @@ var require_server = __commonJS({
     var { UpdateCheck, flatten: flattenPrompts } = require_updates();
     var { addonItems } = require_items();
     var { clean: cleanSchema, LAYER: LAYER_SCHEMA } = require_schema();
-    var { forPlaythrough: childstateFor, tick: childstateTick, prompt: childstatePrompt } = require_childstate();
+    var { forPlaythrough: childstateFor, tick: childstateTick, prompt: childstatePrompt, current: childstateCurrent, set: childstateSet } = require_childstate();
     var { Ratings, suggestions } = require_learn();
     var maintainer = require_maintainer();
     var VERSION = assets.VERSION || "dev";
@@ -883,6 +883,7 @@ var require_server = __commonJS({
       const heroine = currentHeroine();
       const addons = store.listAddons().map((a) => Object.assign(a, { layer: (store.readAddon(a.file) || {}).layer || {}, heroine: (store.readAddon(a.file) || {}).heroine || {}, items: [...store.itemsOf(a.file)] }));
       return {
+      childstate: childstateCurrent(store.dataDir),
         revision: store.revision,
         app: store.settings.app,
         defaults: defaultLayer(),
@@ -945,6 +946,11 @@ var require_server = __commonJS({
         const body = await readJson(req);
         const cs = childstateTick(store.dataDir, String(body.playthrough || ""), Number(body.day) || 0, body.ctx || {});
         return send(res, 200, { ok: true, state: cs });
+      }
+      if (p === "/bridge/api/childstate/set" && m === "POST") {
+        const body = await readJson(req);
+        const cs2 = childstateSet(store.dataDir, String(body.playthrough || ""), body.patch || {});
+        return send(res, 200, { ok: true, state: cs2 });
       }
       if (p === "/bridge/api/settings" && m === "PATCH") {
         const body = await readJson(req);

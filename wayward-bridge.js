@@ -4656,7 +4656,7 @@ var require_assets_generated = __commonJS({
         };
         var FAMILIES = [["anima", "Anima / Z-Image (UNET + CLIP + VAE)"], ["illustrious", "Illustrious XL (SDXL checkpoint)"], ["pony", "Pony (SDXL checkpoint)"], ["noobai", "NoobAI (SDXL checkpoint)"]];
         var PART_LABELS = ["Quality", "Arousal", "Aftermath", "Gaze", "Intoxication", "Reaction", "Focus", "Narration", "Gender", "Group", "Pose", "FlashAnatomy"];
-        var BODY_PARTS = [["head", "Голова"], ["mouth", "Рот"], ["body", "Тело"], ["breasts", "Грудь"], ["ass", "Задница"], ["vagina", "Вагина"], ["misc", "Разное"]];
+        var BODY_PARTS = [["head", "Голова"], ["mouth", "Рот"], ["body", "Тело"], ["breasts", "Грудь"], ["ass", "Задница"], ["vagina", "Вагина"], ["misc", "Разное"]["belly", "Живот"], ];
         var SCENE_GROUPS = [
           ["Intimate", /^(kissing|groped_ass|groped_tits|fingered|self_pleasure)$/],
           ["Bath", /bath/],
@@ -6608,7 +6608,7 @@ var require_assets_generated = __commonJS({
           );
           charSec.insertBefore(addonRow("character"), charSec.children[1]);
           outSec.insertBefore(addonRow("clothing", "Outfits and exposure presets come from one add-on together."), outSec.children[1]);
-          return [charSec, bodySec(), quarantineSec(), trigSec, outSec, exposureSec(), partsSection()];
+          return [charSec, stateSec(), bodySec(), quarantineSec(), trigSec, outSec, exposureSec(), partsSection()];
         };
         function exposureSec() {
           var ids = liveIds();
@@ -7477,6 +7477,49 @@ var require_assets_generated = __commonJS({
               }) : null
             )
           );
+        }
+        function stateSec() {
+          var her = activeHer();
+          var pt = her && her.save || "";
+          var cs = (S.st && S.st.childstate) || null;
+          var preg = cs && cs.pregnancy || { active: false, day: 0, fatherId: "", known: false };
+          var post = cs && cs.postpartum || { blockUntilDay: 0, milkUntilDay: 0 };
+          var kids = cs && cs.children || [];
+          var stage = !preg.active ? "нет" : preg.day < 10 ? "не видно" : preg.day < 20 ? "слегка" : preg.day < 30 ? "заметно" : "большой";
+          function set(patch) {
+            api("POST", "/bridge/api/childstate/set", { playthrough: pt, patch: patch }).then(function(j) {
+              if (j && j.state) S.st.childstate = j.state;
+              render();
+            });
+          }
+          function cell(label, val) {
+            return h("div", { class: "pcell" },
+              h("div", { class: "phead" }, h("span", { class: "plab" }, label)),
+              h("div", { style: "padding:2px 4px;font-size:12px" }, val));
+          }
+          var out = sec(
+            "Состояние",
+            "#a78bfa",
+            "Беременность, цикл и дети. Живёт отдельно от промптов.",
+            h("div", { class: "pgrid" },
+              cell("Стадия", stage),
+              cell("Срок", preg.active ? preg.day + " / 40" : "—"),
+              cell("Отец", preg.fatherId || "неизвестен"),
+              cell("Знает", preg.known ? "да" : "нет"),
+              cell("Цикл", cs && cs.cycle ? cs.cycle.day + " / " + cs.cycle.length : "—"),
+              cell("Дети", String(kids.length)),
+              cell("Молоко", post.milkUntilDay > ((cs && cs.lastDay) || 0) ? "да" : "нет"),
+              cell("Желание", cs && cs.childWish ? (cs.childWish.mode || "нет") : "—")
+            ),
+            row(
+              sbtn("Зачать", "#7c3aed", function() { set({ pregnancy: { active: true, day: 0, fatherId: "", known: false } }); }),
+              sbtn("Прервать", "#57534e", function() { set({ pregnancy: { active: false, day: 0 } }); }),
+              sbtn("+7 дней", "#0369a1", function() { set({ pregnancy: { day: Math.min(40, (preg.day || 0) + 7) } }); }),
+              sbtn("Раскрыть", "#0f766e", function() { set({ pregnancy: { known: true } }); })
+            )
+          );
+          out.setAttribute("data-sec", "state");
+          return out;
         }
         function bodySec() {
           var id = S.viewHeroine, rb = ["prompts", "heroines", id];
@@ -11491,7 +11534,7 @@ var require_server = __commonJS({
     var { UpdateCheck, flatten: flattenPrompts } = require_updates();
     var { addonItems } = require_items();
     var { clean: cleanSchema, LAYER: LAYER_SCHEMA } = require_schema();
-    var { forPlaythrough: childstateFor, tick: childstateTick, prompt: childstatePrompt } = require_childstate();
+    var { forPlaythrough: childstateFor, tick: childstateTick, prompt: childstatePrompt, current: childstateCurrent, set: childstateSet } = require_childstate();
     var { Ratings, suggestions } = require_learn();
     var maintainer = require_maintainer();
     var VERSION = assets.VERSION || "dev";
@@ -12351,6 +12394,7 @@ var require_server = __commonJS({
       const heroine = currentHeroine();
       const addons = store.listAddons().map((a) => Object.assign(a, { layer: (store.readAddon(a.file) || {}).layer || {}, heroine: (store.readAddon(a.file) || {}).heroine || {}, items: [...store.itemsOf(a.file)] }));
       return {
+      childstate: childstateCurrent(store.dataDir),
         revision: store.revision,
         app: store.settings.app,
         defaults: defaultLayer(),
@@ -12413,6 +12457,11 @@ var require_server = __commonJS({
         const body = await readJson(req);
         const cs = childstateTick(store.dataDir, String(body.playthrough || ""), Number(body.day) || 0, body.ctx || {});
         return send(res, 200, { ok: true, state: cs });
+      }
+      if (p === "/bridge/api/childstate/set" && m === "POST") {
+        const body = await readJson(req);
+        const cs2 = childstateSet(store.dataDir, String(body.playthrough || ""), body.patch || {});
+        return send(res, 200, { ok: true, state: cs2 });
       }
       if (p === "/bridge/api/settings" && m === "PATCH") {
         const body = await readJson(req);
@@ -13283,7 +13332,22 @@ var require_childstate = __commonJS({
       return milk ? { stage: "none", milk: true } : null;
     }
 
-    module2.exports = { empty: empty, forPlaythrough: forPlaythrough, tick: tick, phase: phase, chance: chance, stageOf: stageOf, prompt: prompt };
+    function current(dir) { return load(dir); }
+
+    function set(dir, pt, patch) {
+      var s = forPlaythrough(dir, pt);
+      for (var k in patch) {
+        if (patch[k] && typeof patch[k] === "object" && !Array.isArray(patch[k]) && s[k] && typeof s[k] === "object" && !Array.isArray(s[k])) {
+          for (var j in patch[k]) s[k][j] = patch[k][j];
+        } else {
+          s[k] = patch[k];
+        }
+      }
+      save(dir, s);
+      return s;
+    }
+
+    module2.exports = { empty: empty, forPlaythrough: forPlaythrough, tick: tick, phase: phase, chance: chance, stageOf: stageOf, prompt: prompt, current: current, set: set };
   }
 });
 // src/main.js
