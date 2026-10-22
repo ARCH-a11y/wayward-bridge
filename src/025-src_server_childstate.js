@@ -118,6 +118,17 @@ var require_childstate = __commonJS({
       return s;
     }
 
-    module2.exports = { empty: empty, forPlaythrough: forPlaythrough, tick: tick, phase: phase, chance: chance, stageOf: stageOf };
+    function prompt(dir) {
+      var s = load(dir);
+      var milk = (s.postpartum.milkUntilDay || 0) > (s.lastDay || 0);
+      if (s.pregnancy && s.pregnancy.active) {
+        var d = s.pregnancy.day;
+        var stage = d < 10 ? "none" : d < 20 ? "slight" : d < 30 ? "visible" : "large";
+        return { stage: stage, milk: milk };
+      }
+      return milk ? { stage: "none", milk: true } : null;
+    }
+
+    module2.exports = { empty: empty, forPlaythrough: forPlaythrough, tick: tick, phase: phase, chance: chance, stageOf: stageOf, prompt: prompt };
   }
 });

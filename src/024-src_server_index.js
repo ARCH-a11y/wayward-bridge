@@ -23,7 +23,7 @@ var require_server = __commonJS({
     var { UpdateCheck, flatten: flattenPrompts } = require_updates();
     var { addonItems } = require_items();
     var { clean: cleanSchema, LAYER: LAYER_SCHEMA } = require_schema();
-    var { forPlaythrough: childstateFor, tick: childstateTick } = require_childstate();
+    var { forPlaythrough: childstateFor, tick: childstateTick, prompt: childstatePrompt } = require_childstate();
     var { Ratings, suggestions } = require_learn();
     var maintainer = require_maintainer();
     var VERSION = assets.VERSION || "dev";
@@ -229,7 +229,8 @@ var require_server = __commonJS({
       });
       if (req.pipeOverride) applyPipeOverride(pipe, req.pipeOverride);
       const d = defaultLayer();
-      const synth = !req.prompt && !(Array.isArray(req.parts) && req.parts.length) && parsed.kind !== "patron" ? synthesize(parsed, heroine, eff.prompts) : null;
+      const child = childstatePrompt(store.dataDir);
+      const synth = !req.prompt && !(Array.isArray(req.parts) && req.parts.length) && parsed.kind !== "patron" ? synthesize(parsed, heroine, eff.prompts, child) : null;
       const r = compose({
         parsed,
         heroine,
@@ -242,7 +243,8 @@ var require_server = __commonJS({
         pipeline: pipe,
         gameQuality: game.catalog && game.catalog.quality || "",
         gameNegatives: game.catalog && game.catalog.negatives || null,
-        origin: originFn(heroine)
+        origin: originFn(heroine),
+        child
       });
       if (scopedOn.length && parsed.kind !== "patron") {
         const words = [...new Set(scopedOn.flatMap((l) => loraWords(l)))];

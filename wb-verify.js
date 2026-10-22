@@ -7,6 +7,12 @@ const src = fs.readFileSync(FILE, "utf8");
 
 // [название, подстрока, минимум вхождений]
 const CHECKS = [
+  ["F2 belly в SECTION_ORDER", "\"misc\", \"belly\"]", 1],
+  ["F2 таблица стадий", "BELLY_TAGS", 1],
+  ["F2 инъекция живота", "bellyTag", 1],
+  ["F2 молоко", "lactating breasts, milk", 1],
+  ["F2 стадия из childstate", "function prompt(dir)", 1],
+  ["F2 передача в compose", "childstatePrompt(store.dataDir)", 1],
   ["F1 клиент: encounters", "dayEncounters", 1],
   ["F1 клиент: сброс счётчика", "dayEncounters = 0;", 1],
   ["F1 клиент: checkDay", "function checkDay()", 1],
@@ -59,7 +65,7 @@ const CHECKS = [
   ["S3  bridgePing", "function bridgePing()", 1],
   ["S3  страховочный опрос", "document.visibilityState === \"visible\"", 1],
   ["S4  офлайн-баннер", "нет связи с бриджем", 1],
-  ["V1  SECTION_ORDER (7 ключей)", "var SECTION_ORDER = [\"head\", \"mouth\", \"body\", \"breasts\", \"ass\", \"vagina\", \"misc\"]", 1],
+  ["V1  SECTION_ORDER (8 ключей)", "var SECTION_ORDER = [\"head\", \"mouth\", \"body\", \"breasts\", \"ass\", \"vagina\", \"misc\", \"belly\"]", 1],
   ["V2  expandHero: condFires внутри", "const fire = q.mode === \"always\" || condFires((conds || {})[q.when], signals);", 1],
   ["V3  схема: sections + quarantine", "sections: { \"*\": { tags: str(), negative: str(), on: bool() } }, quarantine: { \"*\": { tags: str(), negative: str(), when: str(60), mode: oneOf(\"auto\", \"always\", \"never\") } }", 1],
   ["V3  схема: conditions", "conditions: { \"*\": { sources: tagList(8), keywords: tagList(400) } }", 1],

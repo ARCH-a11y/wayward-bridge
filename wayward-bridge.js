@@ -1431,7 +1431,8 @@ var require_prompt = __commonJS({
       if (!r.replaced) return { tags, change: null, id: hit.id, rel };
       return { tags: r.tags, id: hit.id, rel, change: { id: hit.id, from: hit.text, to: next, source: origin([...pathPrefix, hit.id]) } };
     }
-    var SECTION_ORDER = ["head", "mouth", "body", "breasts", "ass", "vagina", "misc"];
+    var SECTION_ORDER = ["head", "mouth", "body", "breasts", "ass", "vagina", "misc", "belly"];
+    var BELLY_TAGS = { slight: "slightly rounded belly", visible: "small pregnant belly, navel showing", large: "large pregnant belly, near term" };
     function orderedKeys(obj) {
       const keys = Object.keys(obj || {});
       return [...SECTION_ORDER.filter((k) => keys.includes(k)), ...keys.filter((k) => !SECTION_ORDER.includes(k))];
@@ -1453,15 +1454,26 @@ var require_prompt = __commonJS({
       if (!hay) return false;
       return cond.keywords.some((k) => hay.includes(String(k).toLowerCase()));
     }
-    function expandHero(hero, signals, conds, notes) {
+    function expandHero(hero, signals, conds, notes, child) {
       if (!hero) return { base: "", negative: "" };
       const base = [], neg = [];
+      const bellyTag = child && child.stage && child.stage !== "none" ? BELLY_TAGS[child.stage] || "" : "";
+      let sawBelly = false;
       for (const id of orderedKeys(hero.sections)) {
         const s = hero.sections[id];
         if (!s || s.on === false) continue;
+        if (id === "belly") {
+          sawBelly = true;
+          if (bellyTag) base.push(bellyTag);
+          if (String(s.tags || "").trim()) base.push(String(s.tags).trim());
+          if (String(s.negative || "").trim()) neg.push(String(s.negative).trim());
+          continue;
+        }
         if (String(s.tags || "").trim()) base.push(String(s.tags).trim());
         if (String(s.negative || "").trim()) neg.push(String(s.negative).trim());
       }
+      if (!sawBelly && bellyTag) base.push(bellyTag);
+      if (child && child.milk) base.push("lactating breasts, milk");
       for (const id of orderedKeys(hero.quarantine)) {
         const q = hero.quarantine[id];
         if (!q || q.mode === "never") continue;
@@ -1489,8 +1501,9 @@ var require_prompt = __commonJS({
       const signals = sectionSignals(parsed, D, E);
       const conds = E.conditions || D.conditions || {};
       const notes = [];
-      const heroDefX = expandHero(heroDef, signals, conds, notes);
-      const heroEffX = expandHero(heroEff, signals, conds, notes);
+      const child = input.child || null;
+      const heroDefX = expandHero(heroDef, signals, conds, notes, child);
+      const heroEffX = expandHero(heroEff, signals, conds, notes, child);
       const outfitId = parsed.outfit;
       const mask = exposureMask(parsed.exposure);
       const partOv = E.parts || {};
@@ -1734,8 +1747,8 @@ var require_prompt = __commonJS({
       const origin = input.origin || (() => "your settings");
       const signals = sectionSignals(parsed, D, E);
       const conds = E.conditions || D.conditions || {};
-      const heroDefX = expandHero(heroDef, signals, conds);
-      const heroEffX = expandHero(heroEff, signals, conds);
+      const heroDefX = expandHero(heroDef, signals, conds, null, input.child || null);
+      const heroEffX = expandHero(heroEff, signals, conds, null, input.child || null);
       const original = splitTags(input.gameNegative);
       const have = new Set(original.map(tagKey));
       const share = (text) => {
@@ -1879,11 +1892,11 @@ var require_prompt = __commonJS({
       const outfit = String(parsed.outfit || ""), scene = String(parsed.scene || "");
       return outfit === "naked" || outfit === "nude" || String(parsed.finishOutfit || "") === "nude" || NUDE_SCENES.has(scene) || BATH_SCENES.has(scene);
     }
-    function synthesize(parsed, heroine, E) {
+    function synthesize(parsed, heroine, E, child) {
       E = E || {};
       const v = Number(parsed.variant) || 0;
       const hero = (E.heroines || {})[heroine] || {};
-      const heroX = expandHero(hero, sectionSignals(parsed, {}, E), E.conditions || {});
+      const heroX = expandHero(hero, sectionSignals(parsed, {}, E), E.conditions || {}, null, child || null);
       const outfit = (E.outfits || {})[parsed.outfit] || {};
       const mask = exposureMask(parsed.exposure);
       const room = (E.rooms || {})[parsed.room] || {};
@@ -11478,7 +11491,7 @@ var require_server = __commonJS({
     var { UpdateCheck, flatten: flattenPrompts } = require_updates();
     var { addonItems } = require_items();
     var { clean: cleanSchema, LAYER: LAYER_SCHEMA } = require_schema();
-    var { forPlaythrough: childstateFor, tick: childstateTick } = require_childstate();
+    var { forPlaythrough: childstateFor, tick: childstateTick, prompt: childstatePrompt } = require_childstate();
     var { Ratings, suggestions } = require_learn();
     var maintainer = require_maintainer();
     var VERSION = assets.VERSION || "dev";
@@ -11684,7 +11697,8 @@ var require_server = __commonJS({
       });
       if (req.pipeOverride) applyPipeOverride(pipe, req.pipeOverride);
       const d = defaultLayer();
-      const synth = !req.prompt && !(Array.isArray(req.parts) && req.parts.length) && parsed.kind !== "patron" ? synthesize(parsed, heroine, eff.prompts) : null;
+      const child = childstatePrompt(store.dataDir);
+      const synth = !req.prompt && !(Array.isArray(req.parts) && req.parts.length) && parsed.kind !== "patron" ? synthesize(parsed, heroine, eff.prompts, child) : null;
       const r = compose({
         parsed,
         heroine,
@@ -11697,7 +11711,8 @@ var require_server = __commonJS({
         pipeline: pipe,
         gameQuality: game.catalog && game.catalog.quality || "",
         gameNegatives: game.catalog && game.catalog.negatives || null,
-        origin: originFn(heroine)
+        origin: originFn(heroine),
+        child
       });
       if (scopedOn.length && parsed.kind !== "patron") {
         const words = [...new Set(scopedOn.flatMap((l) => loraWords(l)))];
@@ -13257,7 +13272,18 @@ var require_childstate = __commonJS({
       return s;
     }
 
-    module2.exports = { empty: empty, forPlaythrough: forPlaythrough, tick: tick, phase: phase, chance: chance, stageOf: stageOf };
+    function prompt(dir) {
+      var s = load(dir);
+      var milk = (s.postpartum.milkUntilDay || 0) > (s.lastDay || 0);
+      if (s.pregnancy && s.pregnancy.active) {
+        var d = s.pregnancy.day;
+        var stage = d < 10 ? "none" : d < 20 ? "slight" : d < 30 ? "visible" : "large";
+        return { stage: stage, milk: milk };
+      }
+      return milk ? { stage: "none", milk: true } : null;
+    }
+
+    module2.exports = { empty: empty, forPlaythrough: forPlaythrough, tick: tick, phase: phase, chance: chance, stageOf: stageOf, prompt: prompt };
   }
 });
 // src/main.js
