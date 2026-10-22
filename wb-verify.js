@@ -7,6 +7,12 @@ const src = fs.readFileSync(FILE, "utf8");
 
 // [название, подстрока, минимум вхождений]
 const CHECKS = [
+  ["F3 секция Состояние", "function stateSec()", 1],
+  ["F3 вызов секции", "stateSec(), bodySec()", 1],
+  ["F3 живот в UI", "[\"belly\", \"Живот\"]", 1],
+  ["F3 роут childstate/set", "/bridge/api/childstate/set", 1],
+  ["F3 childstate в stateFor", "childstate: childstateCurrent", 1],
+  ["F3 модуль set", "function set(dir, pt, patch)", 1],
   ["F2 belly в SECTION_ORDER", "\"misc\", \"belly\"]", 1],
   ["F2 таблица стадий", "BELLY_TAGS", 1],
   ["F2 инъекция живота", "bellyTag", 1],
