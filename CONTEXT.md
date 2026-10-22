@@ -18,7 +18,7 @@
 - src/server/assets.generated.js (1 462 600) — 82% бандла; TAGS_GZ_B64 1 114 218 (62%)
 - TAGS_GZ_B64 → 1 426 888 символов / 81 218 тегов
 - src/ORDER.txt + build.js — конкат-сборка, побайтово идентична
-- wb-verify.js (36 проверок), wb-test.js (19 тестов, порт 8799, данные wb-test-data)
+- wb-verify.js (70 проверок), wb-test.js (43 теста, порт 8799, данные wb-test-data)
 - цепочка пересборки: wb-apply-all.js → wb-apply-all-fix.js → wb-patchS.js
 
 ## Ловушки (уже наступали)
@@ -31,10 +31,10 @@
 - hooks: parts / store / customWives / partsBroken
 
 ## Задачи
-- [ ] git init + baseline-42 (в работе)
+- [x] git init + baseline-42
 - [ ] починка таксономии тегов (91.4% в other)
-- [ ] wb-split.js → src/, побайтовая проверка
-- [ ] Aider + Venice GLM 5.3 Flash
+- [x] wb-split.js → src/, побайтовая проверка
+- [x] Aider + Venice GLM 5.3 Flash
 - [ ] список багов от юзера
 - [ ] волна 1: лок внешности, автоизбранное, индикатор стоимости
 - [ ] волна 2: карточки патронов/архетипы через joinedPatronIds, гардероб со слотами
@@ -49,7 +49,7 @@ origin/token (B30), хардненинг хрупких regex (B33–B38), пр�
 ## Репа
 - root: C:\Users\arch4\Downloads\Wayward
 - origin: https://github.com/ARCH-a11y/wayward-bridge (ветка main)
-- baseline: коммит 2bf0611, verify 36/36, tests 19/19
+- baseline: коммит 2bf0611; текущее verify 70/70, tests 43/43
 
 ## Цикл правки
 1. правим ТОЛЬКО в src/, бандл не трогаем руками
@@ -62,3 +62,9 @@ origin/token (B30), хардненинг хрупких regex (B33–B38), пр�
 Все имена в src/ORDER.txt обязаны существовать (build.js падает с MISSING FILE).
 Блоб TAGS_GZ_B64/ALIASES_GZ_B64 живёт в src/000-tags-blob.js и в контекст агента не грузится.
 
+
+## Сейчас
+Блок «беременность и дети»: Ф1–Ф3 готовы (схема childstate, модуль src/025, тик дня, живот 8-й частью, секция «Состояние»), Ф4–Ф5 в работе.
+Идём вне очереди — пункты 1–6 плана (инспектор, превью частей, баг pipeline, гардероб, слой событий, стирка/печати/магия) ждут.
+Первый в очереди при возврате: строка «Внешность» в инспекторе (решение в HANDOFF).
+verify 70/70, тесты 43/43.
