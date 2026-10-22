@@ -16,3 +16,4 @@ _analysis/tags3/
 _analysis/tags4/
 .env
 .aider*
+wayward-bridge-data/childstate.json
