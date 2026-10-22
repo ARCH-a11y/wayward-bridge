@@ -5245,7 +5245,7 @@ var require_assets_generated = __commonJS({
             lastArch = null;
           });
         }
-        var lastTickDay = 0;
+        var lastTickDay = 0, dayEncounters = 0, prevPatron = false;
         function checkDay() {
           try {
             var s = window.__WB_STORE__;
@@ -5253,6 +5253,9 @@ var require_assets_generated = __commonJS({
             var st = s.getState();
             if (!st || !st.started) return;
             var g = st.state || {};
+            var has = !!(g.activeScene && g.activeScene.patron);
+            if (has && !prevPatron) dayEncounters++;
+            prevPatron = has;
             var ds = g.dailyState;
             var day = ds && typeof ds.day === "number" ? ds.day : 0;
             if (!day && typeof g.slot === "number") day = Math.floor(g.slot / 1440) + 1;
@@ -5264,8 +5267,10 @@ var require_assets_generated = __commonJS({
             var sc = g.activeScene || {}, pat = sc.patron || {};
             var ctx = {
               patronId: String(pat.customerId || ""),
-              group: Array.isArray(pat.joinedPatronIds) && pat.joinedPatronIds.length > 0
+              group: Array.isArray(pat.joinedPatronIds) && pat.joinedPatronIds.length > 0,
+              encounters: dayEncounters
             };
+            dayEncounters = 0;
             api("POST", "/bridge/api/childstate/tick", { playthrough: pt, day: day, ctx: ctx }).catch(function() {});
           } catch (e) {}
         }
