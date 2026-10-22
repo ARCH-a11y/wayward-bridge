@@ -22,6 +22,15 @@ var require_defaults = __commonJS({
       const listMap = (m) => Object.fromEntries(Object.entries(m || {}).map(([k, v]) => [k, Array.isArray(v) ? v.map(String) : [String(v || "")]]));
       const strMap = (m) => Object.fromEntries(Object.entries(m || {}).filter(([, v]) => typeof v === "string"));
       return {
+        childstate: {
+          playthrough: "",
+          lastDay: 0,
+          cycle:      { on: true, day: 0, length: 28, window: 4 },
+          pregnancy:  { active: false, day: 0, fatherId: "", known: false },
+          childWish:  { mode: "none", targetId: "" },
+          children:   [],
+          postpartum: { blockUntilDay: 0, milkUntilDay: 0 },
+        },
         prompts: {
           heroines,
           outfits,
