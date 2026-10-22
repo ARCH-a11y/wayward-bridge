@@ -203,6 +203,19 @@ async function waitUp(c) {
     ok("F2: после родов живот ушёл", !posMilk.includes("small pregnant belly"));
   }
 
+  // --- F3: роут set (кнопки меню) ---
+  if (hid) {
+    const setR = await api("POST", "/bridge/api/childstate/set", { playthrough: "pt-set", patch: { pregnancy: { active: true, day: 22 } } });
+    ok("F3: set зачинает", safe(setR.json, ["state", "pregnancy", "active"]) === true && safe(setR.json, ["state", "pregnancy", "day"]) === 22);
+    const pvS = await api("POST", "/bridge/api/preview", { key: hid + "__scene-taproom", ops: [] });
+    ok("F3: set -> живот в positive", String((pvS.json || {}).positive || "").includes("small pregnant belly"));
+    const setK = await api("POST", "/bridge/api/childstate/set", { playthrough: "pt-set", patch: { pregnancy: { known: true } } });
+    ok("F3: set known", safe(setK.json, ["state", "pregnancy", "known"]) === true);
+    const setOff = await api("POST", "/bridge/api/childstate/set", { playthrough: "pt-set", patch: { pregnancy: { active: false } } });
+    const pvOff = await api("POST", "/bridge/api/preview", { key: hid + "__scene-taproom", ops: [] });
+    ok("F3: прервать убирает живот", safe(setOff.json, ["state", "pregnancy", "active"]) === false && !String((pvOff.json || {}).positive || "").includes("small pregnant belly"));
+  }
+
   c.kill();
   await sleep(300);
   fs.rmSync(DATA, { recursive: true, force: true });
