@@ -7,6 +7,10 @@ const src = fs.readFileSync(FILE, "utf8");
 
 // [название, подстрока, минимум вхождений]
 const CHECKS = [
+  ["F1 клиент: checkDay", "function checkDay()", 1],
+  ["F1 клиент: антидубль", "lastTickDay = day", 1],
+  ["F1 клиент: день из store", "g.dailyState", 1],
+  ["F1 клиент: интервал дня", "setInterval(checkDay, 3e3)", 1],
   ["F1 модуль-обёртка", "var require_childstate = __commonJS", 1],
   ["F1 тик: сдвиг цикла", "s.cycle.day = (s.cycle.day + delta) % s.cycle.length", 1],
   ["F1 тик: бросок", "typeof ctx.force === \"boolean\"", 1],
