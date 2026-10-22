@@ -23,6 +23,7 @@ var require_server = __commonJS({
     var { UpdateCheck, flatten: flattenPrompts } = require_updates();
     var { addonItems } = require_items();
     var { clean: cleanSchema, LAYER: LAYER_SCHEMA } = require_schema();
+    var { forPlaythrough: childstateFor, tick: childstateTick } = require_childstate();
     var { Ratings, suggestions } = require_learn();
     var maintainer = require_maintainer();
     var VERSION = assets.VERSION || "dev";
@@ -935,6 +936,14 @@ var require_server = __commonJS({
       const m = req.method;
       if (p === "/bridge/api/state" && m === "GET") return send(res, 200, stateFor());
       if (p === "/bridge/api/ping" && m === "GET") return send(res, 200, { ok: true, revision: store.revision });
+      if (p === "/bridge/api/childstate" && m === "GET") {
+        return send(res, 200, childstateFor(store.dataDir, String(url.searchParams.get("playthrough") || "")));
+      }
+      if (p === "/bridge/api/childstate/tick" && m === "POST") {
+        const body = await readJson(req);
+        const cs = childstateTick(store.dataDir, String(body.playthrough || ""), Number(body.day) || 0, body.ctx || {});
+        return send(res, 200, { ok: true, state: cs });
+      }
       if (p === "/bridge/api/settings" && m === "PATCH") {
         const body = await readJson(req);
         const r = store.patch(body.ops, body.revision);

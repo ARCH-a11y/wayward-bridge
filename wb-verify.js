@@ -7,9 +7,14 @@ const src = fs.readFileSync(FILE, "utf8");
 
 // [название, подстрока, минимум вхождений]
 const CHECKS = [
-  ["F1 childstate-модуль", "function childstateTick", 1],
+  ["F1 модуль-обёртка", "var require_childstate = __commonJS", 1],
+  ["F1 тик: сдвиг цикла", "s.cycle.day = (s.cycle.day + delta) % s.cycle.length", 1],
+  ["F1 тик: бросок", "typeof ctx.force === \"boolean\"", 1],
+  ["F1 роут childstate/tick", "/bridge/api/childstate/tick", 1],
+  ["F1 роут childstate", "\"/bridge/api/childstate\" && m === \"GET\"", 1],
+  ["F1 childstate-модуль", "function tick(dir, pt, day, ctx)", 1],
   ["F1 файл состояния", "childstate.json", 1],
-  ["F1 привязка к прохождению", "s.playthrough !== playthrough", 1],
+  ["F1 привязка к прохождению", "s.playthrough !== pt", 1],
   ["F1 childstate в схеме", "var CHILDSTATE", 1],
   ["F1 childstate в LAYER", "childstate: CHILDSTATE", 1],
   ["B2  лимит 32000", "max = 32e3", 1],

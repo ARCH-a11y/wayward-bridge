@@ -162,6 +162,31 @@ async function waitUp(c) {
   const hp2 = safe(readSettings(), ["layer", "prompts", "heroines"]);
   ok("__proto__ пережил перезапуск", !!(hp2 && Object.prototype.hasOwnProperty.call(hp2, "__proto__") && hp2["__proto__"] && hp2["__proto__"].base === "zzz"));
 
+  // --- F1: childstate tick ---
+  const csId = "pt-test-1";
+  const rDay1 = await api("POST", "/bridge/api/childstate/tick", { playthrough: csId, day: 1, ctx: {} });
+  ok("childstate: роут отвечает", rDay1.status === 200 && !!rDay1.json && !!rDay1.json.state);
+  ok("childstate: lastDay записан", safe(rDay1.json, ["state", "lastDay"]) === 1);
+  const cycA = safe(rDay1.json, ["state", "cycle", "day"]);
+  await api("POST", "/bridge/api/childstate/tick", { playthrough: csId, day: 8, ctx: {} });
+  const rDay15 = await api("POST", "/bridge/api/childstate/tick", { playthrough: csId, day: 15, ctx: {} });
+  const cycB = safe(rDay15.json, ["state", "cycle", "day"]);
+  ok("childstate: цикл сдвигается по дням", typeof cycB === "number" && cycB !== cycA);
+
+  const chNo = await api("POST", "/bridge/api/childstate/tick", { playthrough: "pt-no", day: 1, ctx: { encounters: 1, force: false } });
+  ok("childstate: force=false -> нет беременности", safe(chNo.json, ["state", "pregnancy", "active"]) === false);
+
+  const chYes = await api("POST", "/bridge/api/childstate/tick", { playthrough: "pt-yes", day: 1, ctx: { encounters: 1, force: true, patronId: "p1" } });
+  ok("childstate: force=true -> беременность и отец", safe(chYes.json, ["state", "pregnancy", "active"]) === true && safe(chYes.json, ["state", "pregnancy", "fatherId"]) === "p1");
+  let rBirth;
+  for (let d = 2; d <= 41; d++) rBirth = await api("POST", "/bridge/api/childstate/tick", { playthrough: "pt-yes", day: d, ctx: { encounters: 0 } });
+  const birthKids = safe(rBirth.json, ["state", "children"]) || [];
+  ok("childstate: роды дали ребёнка", birthKids.length >= 1 && safe(rBirth.json, ["state", "pregnancy", "active"]) === false);
+  ok("childstate: послеродовой блок выставлен", (safe(rBirth.json, ["state", "postpartum", "blockUntilDay"]) || 0) > 41);
+
+  const chGrp = await api("POST", "/bridge/api/childstate/tick", { playthrough: "pt-grp", day: 1, ctx: { encounters: 1, force: true, patronId: "p1", group: true } });
+  ok("childstate: группа -> отец пуст", safe(chGrp.json, ["state", "pregnancy", "fatherId"]) === "");
+
   c.kill();
   await sleep(300);
   fs.rmSync(DATA, { recursive: true, force: true });
