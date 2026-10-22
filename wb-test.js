@@ -187,6 +187,22 @@ async function waitUp(c) {
   const chGrp = await api("POST", "/bridge/api/childstate/tick", { playthrough: "pt-grp", day: 1, ctx: { encounters: 1, force: true, patronId: "p1", group: true } });
   ok("childstate: группа -> отец пуст", safe(chGrp.json, ["state", "pregnancy", "fatherId"]) === "");
 
+  // --- F2: живот и молоко в промпте ---
+  if (hid) {
+    const f2Id = "pt-f2";
+    await api("POST", "/bridge/api/childstate/tick", { playthrough: f2Id, day: 1, ctx: { encounters: 1, force: true, patronId: "p1" } });
+    await api("POST", "/bridge/api/childstate/tick", { playthrough: f2Id, day: 21, ctx: { encounters: 0 } });
+    const keyF2 = hid + "__scene-taproom";
+    const pBelly = await api("POST", "/bridge/api/preview", { key: keyF2, ops: [] });
+    const posBelly = String((pBelly.json || {}).positive || "");
+    ok("F2: тег живота (visible) в positive", pBelly.status === 200 && posBelly.includes("small pregnant belly"), posBelly.slice(0, 140));
+    for (let d = 22; d <= 41; d++) await api("POST", "/bridge/api/childstate/tick", { playthrough: f2Id, day: d, ctx: { encounters: 0 } });
+    const pMilk = await api("POST", "/bridge/api/preview", { key: keyF2, ops: [] });
+    const posMilk = String((pMilk.json || {}).positive || "");
+    ok("F2: тег молока после родов", pMilk.status === 200 && posMilk.includes("lactating breasts, milk"), posMilk.slice(0, 140));
+    ok("F2: после родов живот ушёл", !posMilk.includes("small pregnant belly"));
+  }
+
   c.kill();
   await sleep(300);
   fs.rmSync(DATA, { recursive: true, force: true });
