@@ -7,6 +7,8 @@ const src = fs.readFileSync(FILE, "utf8");
 
 // [название, подстрока, минимум вхождений]
 const CHECKS = [
+  ["F1 клиент: encounters", "dayEncounters", 1],
+  ["F1 клиент: сброс счётчика", "dayEncounters = 0;", 1],
   ["F1 клиент: checkDay", "function checkDay()", 1],
   ["F1 клиент: антидубль", "lastTickDay = day", 1],
   ["F1 клиент: день из store", "g.dailyState", 1],
