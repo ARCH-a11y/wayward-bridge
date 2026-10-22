@@ -121,3 +121,26 @@ aider + Venice API (openai/z-ai-glm-5-3-flash), ключ в .env, конфиг �
 9. LLM
 слухи и арки — после п.5
 
+
+## Прогресс: беременность и дети (Ф1–Ф3 готовы)
+
+### Сделано
+- **Ф1** — состояние: схема `childstate`, модуль `src/025-src_server_childstate.js`, тик дня (цикл 28/окно 4, срок 40, роды, послеродовой блок 20, лактация 25), бросок зачатия с модификаторами, роуты `/bridge/api/childstate`, `/childstate/tick`, подписка клиента на `dailyState.day` (checkDay), счётчик актов (encounters).
+- **Ф2** — промпт: `belly` 8-м ключом в SECTION_ORDER, таблица стадий, инъекция в expandHero, молоко по условию, стадия из `childstate` в compose/synthesize.
+- **Ф3** — UI: секция «Состояние» (стадия, срок, отец, знает, цикл, дети, молоко, желание), кнопки Зачать/Прервать/+7/Раскрыть, роут `/childstate/set`, живот в BODY_PARTS.
+
+### Файлы
+- src/025-src_server_childstate.js — состояние (в ORDER.txt после 024)
+- src/024-src_server_index.js — роуты childstate, childstate в stateFor
+- src/019-src_server_assets.generated.js — checkDay, stateSec
+- src/008-src_server_prompt.js — belly, BELLY_TAGS, child
+- схема/дефолты: узел childstate
+
+### Проверки
+- wb-verify.js: 70/70
+- wb-test.js: 43/43
+
+### Осталось
+- Ф4 — роды с риском (гладко/тяжело/плохо), детская как апгрейд таверны, рост по стадиям
+- Ф5 — сокрытие (wz), желание цели (childWish)
+- не подключено из реальной игры: inside/contraceptives/boost, выбор цели childWish
