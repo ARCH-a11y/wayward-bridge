@@ -107,7 +107,7 @@ var require_game = __commonJS({
           html = pickHtml;
           hooks.customWives = true;
         } else hooks.customWives = false;
-        const nurseryHtml = addNursery(html);
+        const nurseryHtml = addNurseryNav(addNurseryRoom(addNursery(html)));
         if (nurseryHtml !== html && stillCompiles(original, nurseryHtml)) {
           html = nurseryHtml;
           hooks.nursery = true;
@@ -199,9 +199,39 @@ var require_game = __commonJS({
       if (!re.test(html)) return html;
       return html.replace(re, 'const AP=[{id:"nursery",label:"Build a nursery",description:"A warm room off the landing: cribs, a rug, a small stove. Somewhere for a child to sleep.",cost:150,qualityBoost:0,logText:"The nursery is ready \u2014 cribs along the wall, a rug, a small stove. Now there is somewhere for a child to sleep."},{id:"upgrade_interior"');
     }
+    function addNurseryRoom(html) {
+      const R = [
+        ['const hl=["taproom","back_room","bedroom","elena_room",', 'const hl=["taproom","back_room","bedroom","elena_room","nursery",'],
+        ['elena_room:"her room",', 'elena_room:"her room",nursery:"the nursery",'],
+        ['elena_room:"Her Room",', 'elena_room:"Her Room",nursery:"Nursery",'],
+        ['elena_room:new Set(["bed","seating","shut_door"]),', 'elena_room:new Set(["bed","seating","shut_door"]),nursery:new Set(["bed","seating","shut_door"]),'],
+        ['je=["taproom","back_room","upstairs_hall","upstairs_room_2","bedroom","bathhouse"]', 'je=["taproom","back_room","upstairs_hall","upstairs_room_2","bedroom","bathhouse","nursery"]'],
+        ['De=["taproom","back_room","upstairs_hall","upstairs_room_2","bedroom","bathhouse"]', 'De=["taproom","back_room","upstairs_hall","upstairs_room_2","bedroom","bathhouse","nursery"]'],
+        ['H==="elena_room"?g?{type:"knock_on_door"}:null:', 'H==="elena_room"?g?{type:"knock_on_door"}:null:H==="nursery"?nn?{type:"go_to_nursery"}:null:'],
+        ['j=bt(e),E=H8(e);function R(H)', 'j=bt(e),E=H8(e),nn=!!(d&&d.qualityUpgrades&&d.qualityUpgrades.includes("nursery"));function R(H)'],
+        [',g&&u.jsx("div",{className:"flex-1 min-w-[5.5rem]",children:W("elena_room")})', ',g&&u.jsx("div",{className:"flex-1 min-w-[5.5rem]",children:W("elena_room")}),nn&&u.jsx("div",{className:"flex-1 min-w-[5.5rem]",children:W("nursery")})'],
+        ['case"go_to_bedroom":return L8(e);', 'case"go_to_bedroom":return L8(e);case"go_to_nursery":return N(Pt(e,fe,"nursery"),"You step into the nursery.");'],
+        ['go_to_bedroom:2,', 'go_to_bedroom:2,go_to_nursery:1,'],
+      ];
+      let out = html, miss = 0;
+      for (const [a, b] of R) { if (out.includes(a)) out = out.replace(a, b); else miss++; }
+      if (miss) console.log("[bridge]   nursery: не найдено якорей " + miss + " из " + R.length);
+      return out;
+    }
+    function addNurseryNav(html) {
+      const R = [
+        ['"bathroom","kitchen"]),wb=new Set(', '"bathroom","kitchen","nursery"]),wb=new Set('],
+        ['taproom:new Set(["back_room","upstairs_hall","upstairs_room_2","bathroom","kitchen"])', 'taproom:new Set(["back_room","upstairs_hall","upstairs_room_2","bathroom","kitchen","nursery"])'],
+        ['upstairs_room_2:new Set(["taproom"])}', 'upstairs_room_2:new Set(["taproom"]),nursery:new Set(["taproom"])}'],
+      ];
+      let out = html, miss = 0;
+      for (const [a, b] of R) { if (out.includes(a)) out = out.replace(a, b); else miss++; }
+      if (miss) console.log("[bridge]   nursery nav: не найдено якорей " + miss + " из " + R.length);
+      return out;
+    }
     var STORE_RE = /const ([A-Za-z0-9_$]+)=([A-Za-z0-9_$]+)\(\)\(([A-Za-z0-9_$]+)\(\(e,t\)=>\(\{state:/;
     Game.addCustomWives = addCustomWives;
-    module2.exports = { Game, findGameDir, MIME, PARTS_RE, addCustomWives, addNursery };
+    module2.exports = { Game, findGameDir, MIME, PARTS_RE, addCustomWives, addNursery, addNurseryRoom, addNurseryNav };
   }
 });
 

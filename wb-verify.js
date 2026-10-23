@@ -7,6 +7,14 @@ const src = fs.readFileSync(FILE, "utf8");
 
 // [название, подстрока, минимум вхождений]
 const CHECKS = [
+  ["F4 детская: возврат", "\"kitchen\",\"nursery\"]),wb=new Set(", 1],
+  ["F4 детская: смежность", "nursery:new Set([\"taproom\"])", 1],
+  ["F4 детская: nav цепочка", "addNurseryNav(addNurseryRoom(", 1],
+  ["F4 детская: локация", "elena_room\",\"nursery\",", 1],
+  ["F4 детская: подпись", "nursery:\"the nursery\"", 1],
+  ["F4 детская: переход", "go_to_nursery", 1],
+  ["F4 детская: плитка", "W(\"nursery\")", 1],
+  ["F4 детская: цепочка", "addNurseryRoom(addNursery(html))", 1],
   ["F4 детская в AP", "addNursery", 1],
   ["F4 AP nursery", "id:\"nursery\"", 1],
   ["F4 автовыдача детской", "function grantNursery()", 1],
