@@ -777,6 +777,20 @@ var require_assets_generated = __commonJS({
           });
         }
         var lastTickDay = 0, dayEncounters = 0, prevPatron = false;
+        function grantNursery() {
+          try {
+            window.__WB_STORE__.setState(function(x) {
+              var st = x.state || {}, tav = st.tavern || {};
+              var q = (tav.qualityUpgrades || []).slice();
+              if (q.indexOf("nursery") >= 0) return {};
+              q.push("nursery");
+              var ns = {};
+              for (var k in st) ns[k] = st[k];
+              ns.tavern = Object.assign({}, tav, { qualityUpgrades: q });
+              return { state: ns };
+            });
+          } catch (e) {}
+        }
         function checkDay() {
           try {
             var s = window.__WB_STORE__;
@@ -802,7 +816,9 @@ var require_assets_generated = __commonJS({
               encounters: dayEncounters
             };
             dayEncounters = 0;
-            api("POST", "/bridge/api/childstate/tick", { playthrough: pt, day: day, ctx: ctx }).catch(function() {});
+            api("POST", "/bridge/api/childstate/tick", { playthrough: pt, day: day, ctx: ctx }).then(function(j) {
+              if (j && j.state && j.state.children && j.state.children.length) grantNursery();
+            }).catch(function() {});
           } catch (e) {}
         }
         (function hookStore(tries) {
@@ -3029,6 +3045,10 @@ var require_assets_generated = __commonJS({
               cell("Молоко", post.milkUntilDay > ((cs && cs.lastDay) || 0) ? "да" : "нет"),
               cell("Желание", cs && cs.childWish ? (cs.childWish.mode || "нет") : "—")
             ),
+            kids.length ? h("div", { class: "pgrid" }, kids.map(function(c, i) {
+              var age = ((cs && cs.lastDay) || 0) - (c.bornDay || 0);
+              return cell("#" + (i + 1) + " " + (c.sex === "f" ? "девочка" : "мальчик"), (c.stage || "?") + ", " + age + " дн" + (c.fatherId ? ", отец " + c.fatherId : ""));
+            })) : null,
             row(
               sbtn("Зачать", "#7c3aed", function() { set({ pregnancy: { active: true, day: 0, fatherId: "", known: false } }); }),
               sbtn("Прервать", "#57534e", function() { set({ pregnancy: { active: false, day: 0 } }); }),

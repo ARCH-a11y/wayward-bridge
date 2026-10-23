@@ -147,7 +147,8 @@ var require_schema = __commonJS({
       pregnancy: { active: bool(), day: num(0, 1e5), fatherId: str(), known: bool() },
       childWish: { mode: str(), targetId: str() },
       children: (v) => Array.isArray(v) ? v : void 0,
-      postpartum: { blockUntilDay: num(0, 1e9), milkUntilDay: num(0, 1e9) }
+      postpartum: { blockUntilDay: num(0, 1e9), milkUntilDay: num(0, 1e9) },
+      lastBirth: { day: num(0, 1e9), outcome: str(), count: num(0, 10) }
     };
     var LAYER = { prompts: PROMPTS, pipeline: PIPELINE, childstate: CHILDSTATE };
     var SCHEMA = {

@@ -216,6 +216,16 @@ async function waitUp(c) {
     ok("F3: прервать убирает живот", safe(setOff.json, ["state", "pregnancy", "active"]) === false && !String((pvOff.json || {}).positive || "").includes("small pregnant belly"));
   }
 
+  // --- F4: роды с риском ---
+  let rHard;
+  await api("POST", "/bridge/api/childstate/tick", { playthrough: "pt-hard", day: 1, ctx: { encounters: 1, force: true } });
+  for (let d = 2; d <= 41; d++) rHard = await api("POST", "/bridge/api/childstate/tick", { playthrough: "pt-hard", day: d, ctx: { encounters: 0, birthForce: "hard" } });
+  ok("F4: исход родов записан", safe(rHard.json, ["state", "lastBirth", "outcome"]) === "hard");
+  ok("F4: тяжёлые роды — длиннее блок", (safe(rHard.json, ["state", "postpartum", "blockUntilDay"]) || 0) >= 76);
+  let rSmooth;
+  await api("POST", "/bridge/api/childstate/tick", { playthrough: "pt-smooth", day: 1, ctx: { encounters: 1, force: true } });
+  for (let d = 2; d <= 41; d++) rSmooth = await api("POST", "/bridge/api/childstate/tick", { playthrough: "pt-smooth", day: d, ctx: { encounters: 0, birthForce: "smooth" } });
+  ok("F4: гладкие роды — короткий блок", (safe(rSmooth.json, ["state", "postpartum", "blockUntilDay"]) || 0) === 61);
   c.kill();
   await sleep(300);
   fs.rmSync(DATA, { recursive: true, force: true });
