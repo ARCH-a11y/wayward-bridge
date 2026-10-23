@@ -30,6 +30,7 @@ var require_defaults = __commonJS({
           childWish:  { mode: "none", targetId: "" },
           children:   [],
           postpartum: { blockUntilDay: 0, milkUntilDay: 0 },
+  lastBirth: { day: 0, outcome: "", count: 0 },
         },
         prompts: {
           heroines,

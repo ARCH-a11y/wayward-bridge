@@ -23,7 +23,8 @@ var require_childstate = __commonJS({
         pregnancy: { active: false, day: 0, fatherId: "", known: false },
         childWish: { mode: "none", targetId: "" },
         children: [],
-        postpartum: { blockUntilDay: 0, milkUntilDay: 0 }
+        postpartum: { blockUntilDay: 0, milkUntilDay: 0 },
+        lastBirth: { day: 0, outcome: "", count: 0 }
       };
     }
 
@@ -70,19 +71,31 @@ var require_childstate = __commonJS({
       return age < 30 ? "infant" : age < 75 ? "child" : age < 135 ? "teen" : "youth";
     }
 
-    function birth(s, day, boost) {
-      var n = Math.random() < TWINS * (1 + (boost || 0)) ? 2 : 1;
+    function birth(s, day, ctx) {
+      ctx = ctx || {};
+      var risk = 0.30;
+      if (ctx.healer) risk -= 0.12;
+      if (Number(ctx.trust) > 60) risk -= 0.08;
+      risk = Math.max(0.05, Math.min(0.6, risk));
+      var outcome = ctx.birthForce;
+      if (outcome !== "smooth" && outcome !== "hard" && outcome !== "bad") {
+        outcome = Math.random() < risk ? (Math.random() < 0.35 ? "bad" : "hard") : "smooth";
+      }
+      var block = outcome === "smooth" ? BLOCK : outcome === "hard" ? 35 : 50;
+      var milk = outcome === "smooth" ? MILK : outcome === "hard" ? 30 : 40;
+      var n = Math.random() < TWINS * (1 + (ctx.boost || 0)) ? 2 : 1;
       for (var i = 0; i < n; i++) {
         s.children.push({
           id: "c" + day.toString(36) + i + Math.random().toString(36).slice(2, 6),
           sex: Math.random() < 0.5 ? "f" : "m",
           fatherId: s.pregnancy.fatherId || "",
-          bornDay: day, stage: "infant"
+          bornDay: day, stage: "infant", birth: outcome
         });
       }
       s.pregnancy = { active: false, day: 0, fatherId: "", known: false };
-      s.postpartum.blockUntilDay = day + BLOCK;
-      s.postpartum.milkUntilDay = day + MILK;
+      s.postpartum.blockUntilDay = day + block;
+      s.postpartum.milkUntilDay = day + milk;
+      s.lastBirth = { day: day, outcome: outcome, count: n };
       return n;
     }
 
@@ -98,7 +111,7 @@ var require_childstate = __commonJS({
 
       if (s.pregnancy.active) {
         s.pregnancy.day += delta;
-        if (s.pregnancy.day >= TERM) birth(s, day, ctx.boost);
+        if (s.pregnancy.day >= TERM) birth(s, day, ctx);
       }
 
       for (var i = 0; i < s.children.length; i++) s.children[i].stage = stageOf(day - s.children[i].bornDay);

@@ -84,7 +84,7 @@ var require_game = __commonJS({
         if (this.cache && this.cache.mtime === mtime) return this.cache;
         const original = fs.readFileSync(file, "utf8");
         const catalog = extractCatalog(original);
-        const hooks = { parts: false };
+        const hooks = { parts: false, nursery: false };
         let html = original;
         if (PARTS_RE.test(html)) {
           html = html.replace(PARTS_RE, (m, k, p, n, parts) => "return{key:" + k + ",prompt:" + p + ",negativePrompt:" + n + ",parts:(window.__WB_PARTS__&&window.__WB_PARTS__(" + k + "," + parts + ")," + parts + ")");
@@ -107,6 +107,11 @@ var require_game = __commonJS({
           html = pickHtml;
           hooks.customWives = true;
         } else hooks.customWives = false;
+        const nurseryHtml = addNursery(html);
+        if (nurseryHtml !== html && stillCompiles(original, nurseryHtml)) {
+          html = nurseryHtml;
+          hooks.nursery = true;
+        } else hooks.nursery = false;
         const tag = '<script id="wayward-bridge">' + this.bootstrap + '</script>\n<script src="' + this.menuUrl + '" defer></script>';
         const firstScript = html.search(/<script\b/i);
         html = firstScript >= 0 ? html.slice(0, firstScript) + tag + "\n    " + html.slice(firstScript) : html.replace(/<\/head>/i, () => tag + "</head>");
@@ -189,9 +194,14 @@ var require_game = __commonJS({
       const at = start + hole + "},k.id)}),".length;
       return html.slice(0, at) + code + html.slice(at + "!1,!1".length);
     }
+    function addNursery(html) {
+      const re = /const AP=\[\{id:"upgrade_interior"/;
+      if (!re.test(html)) return html;
+      return html.replace(re, 'const AP=[{id:"nursery",label:"Build a nursery",description:"A warm room off the landing: cribs, a rug, a small stove. Somewhere for a child to sleep.",cost:150,qualityBoost:0,logText:"The nursery is ready \u2014 cribs along the wall, a rug, a small stove. Now there is somewhere for a child to sleep."},{id:"upgrade_interior"');
+    }
     var STORE_RE = /const ([A-Za-z0-9_$]+)=([A-Za-z0-9_$]+)\(\)\(([A-Za-z0-9_$]+)\(\(e,t\)=>\(\{state:/;
     Game.addCustomWives = addCustomWives;
-    module2.exports = { Game, findGameDir, MIME, PARTS_RE, addCustomWives };
+    module2.exports = { Game, findGameDir, MIME, PARTS_RE, addCustomWives, addNursery };
   }
 });
 
