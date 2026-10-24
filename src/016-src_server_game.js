@@ -114,7 +114,8 @@ var require_game = __commonJS({
         } else hooks.nursery = false;
         const kinHtml = html.replace('Fle={same_town:.7,day_ride:.35,far:.1}', 'Fle={home:.9,same_town:.7,day_ride:.35,far:.1}')
           .replace('UCe={', 'UCe={home:.8,')
-          .replace('GCe={', 'GCe={home:.5,');
+          .replace('GCe={', 'GCe={home:.5,')
+          .replace('function qD(){jm=null,Ya=null,zs=null}', 'function qD(){jm=null,Ya=null,zs=null;I_=null;window.__WB_PACK_RESET__=qD}');
         if (kinHtml !== html && stillCompiles(original, kinHtml)) {
           html = kinHtml;
           hooks.kin = true;
