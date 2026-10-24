@@ -7,6 +7,13 @@ const src = fs.readFileSync(FILE, "utf8");
 
 // [название, подстрока, минимум вхождений]
 const CHECKS = [
+  ["F5 схема pregnancy", "known: bool(), revealDay: num(0, 1e9)", 1],
+  ["F5 сокрытие: вынужденное", "s.pregnancy.day >= 16", 1],
+  ["F5 сокрытие: порог доверия", "known = Number(ctx.trust || 0) >= 50", 1],
+  ["F5 желание цели", "s.childWish.mode = \"target\"; s.childWish.targetId = \"player\"", 1],
+  ["F5 шанс желания", "if (s.childWish.mode === \"target\") base *= 1.1;", 1],
+  ["F5 клиент trust", "Number(ch.relationship.trust)", 1],
+  ["F5 UI желание", "цель: player или id", 1],
   ["F4 детская: возврат", "\"kitchen\",\"nursery\"]),wb=new Set(", 1],
   ["F4 детская: смежность", "nursery:new Set([\"taproom\"])", 1],
   ["F4 детская: nav цепочка", "addNurseryNav(addNurseryRoom(", 1],

@@ -20,7 +20,7 @@ var require_childstate = __commonJS({
       return {
         playthrough: "", lastDay: 0,
         cycle: { on: true, day: 0, length: CYCLE, window: WINDOW },
-        pregnancy: { active: false, day: 0, fatherId: "", known: false },
+        pregnancy: { active: false, day: 0, fatherId: "", known: false, revealDay: 0, forced: false },
         childWish: { mode: "none", targetId: "" },
         children: [],
         postpartum: { blockUntilDay: 0, milkUntilDay: 0 },
@@ -63,6 +63,7 @@ var require_childstate = __commonJS({
       if (ctx.inside === false) base *= 0.35;
       if (ctx.contraceptives) base *= 0.25;
       if (ctx.boost) base *= 1 + Number(ctx.boost || 0);
+      if (s.childWish.mode === "target") base *= 1.1;
       if (s.childWish.targetId && ctx.patronId) base *= ctx.patronId === s.childWish.targetId ? 1.5 : 0.6;
       return Math.max(0, Math.min(0.95, base));
     }
@@ -92,7 +93,7 @@ var require_childstate = __commonJS({
           bornDay: day, stage: "infant", birth: outcome
         });
       }
-      s.pregnancy = { active: false, day: 0, fatherId: "", known: false };
+      s.pregnancy = { active: false, day: 0, fatherId: "", known: false, revealDay: 0, forced: false };
       s.postpartum.blockUntilDay = day + block;
       s.postpartum.milkUntilDay = day + milk;
       s.lastBirth = { day: day, outcome: outcome, count: n };
@@ -116,13 +117,26 @@ var require_childstate = __commonJS({
 
       for (var i = 0; i < s.children.length; i++) s.children[i].stage = stageOf(day - s.children[i].bornDay);
 
+      if (s.pregnancy.active && !s.pregnancy.known) {
+        var tr = Number(ctx.trust || 0);
+        if (s.pregnancy.day >= 16) {
+          s.pregnancy.known = true; s.pregnancy.forced = true; s.pregnancy.revealDay = day;
+        } else if (typeof ctx.revealForce === "boolean" ? ctx.revealForce : Math.random() < (0.12 + tr / 200)) {
+          s.pregnancy.known = true; s.pregnancy.revealDay = day;
+        }
+      }
+
+      if (s.childWish.mode === "none" && s.children.length === 0 && !s.pregnancy.active && Number(ctx.trust || 0) >= 60) {
+        s.childWish.mode = "target"; s.childWish.targetId = "player";
+      }
+
       if (!s.pregnancy.active && day > (s.postpartum.blockUntilDay || 0) && ctx.encounters) {
         var p = chance(s, ctx);
         var hit = typeof ctx.force === "boolean" ? ctx.force : Math.random() < p;
         if (hit) {
           s.pregnancy.active = true;
           s.pregnancy.day = 0;
-          s.pregnancy.known = false;
+          s.pregnancy.known = Number(ctx.trust || 0) >= 50;
           s.pregnancy.fatherId = ctx.patronId && !ctx.group ? String(ctx.patronId) : "";
         }
       }

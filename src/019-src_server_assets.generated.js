@@ -810,10 +810,13 @@ var require_assets_generated = __commonJS({
             if (!pt) return;
             lastTickDay = day;
             var sc = g.activeScene || {}, pat = sc.patron || {};
+            var ch = g.characters && g.characters[g.primaryCharacterId];
+            var trust = ch && ch.relationship ? Number(ch.relationship.trust) : 0;
             var ctx = {
               patronId: String(pat.customerId || ""),
               group: Array.isArray(pat.joinedPatronIds) && pat.joinedPatronIds.length > 0,
-              encounters: dayEncounters
+              encounters: dayEncounters,
+              trust: trust
             };
             dayEncounters = 0;
             api("POST", "/bridge/api/childstate/tick", { playthrough: pt, day: day, ctx: ctx }).then(function(j) {
@@ -3049,6 +3052,13 @@ var require_assets_generated = __commonJS({
               var age = ((cs && cs.lastDay) || 0) - (c.bornDay || 0);
               return cell("#" + (i + 1) + " " + (c.sex === "f" ? "девочка" : "мальчик"), (c.stage || "?") + ", " + age + " дн" + (c.fatherId ? ", отец " + c.fatherId : ""));
             })) : null,
+            row((function() {
+              var cur = cs && cs.childWish ? cs.childWish.mode : "none";
+              var sel = h("select", { class: "sel xs", onchange: function() { set({ childWish: { mode: sel.value } }); } },
+                ["none", "target"].map(function(mm2) { return h("option", { value: mm2, selected: mm2 === cur }, mm2); }));
+              var ti = h("input", { class: "sel xs", value: cs && cs.childWish ? (cs.childWish.targetId || "") : "", placeholder: "цель: player или id", onchange: function() { set({ childWish: { targetId: ti.value } }); } });
+              return h("span", {}, sel, " ", ti);
+            })()),
             row(
               sbtn("Зачать", "#7c3aed", function() { set({ pregnancy: { active: true, day: 0, fatherId: "", known: false } }); }),
               sbtn("Прервать", "#57534e", function() { set({ pregnancy: { active: false, day: 0 } }); }),

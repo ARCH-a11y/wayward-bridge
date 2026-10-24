@@ -144,7 +144,7 @@ var require_schema = __commonJS({
       playthrough: str(),
       lastDay: num(0, 1e4),
       cycle: { on: bool(), day: num(0, 1e5), length: num(0, 400), window: num(0, 400) },
-      pregnancy: { active: bool(), day: num(0, 1e5), fatherId: str(), known: bool() },
+      pregnancy: { active: bool(), day: num(0, 1e5), fatherId: str(), known: bool(), revealDay: num(0, 1e9), forced: bool() },
       childWish: { mode: str(), targetId: str() },
       children: (v) => Array.isArray(v) ? v : void 0,
       postpartum: { blockUntilDay: num(0, 1e9), milkUntilDay: num(0, 1e9) },
