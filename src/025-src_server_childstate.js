@@ -5,6 +5,7 @@ var require_childstate = __commonJS({
     var fs = require("fs");
     var path = require("path");
     var { writeAtomic } = require_store();
+    var looks = require_looks();
 
     var FILE = "childstate.json";
     var TERM = 40;   // срок беременности, дней
@@ -64,7 +65,8 @@ var require_childstate = __commonJS({
       if (ctx.contraceptives) base *= 0.25;
       if (ctx.boost) base *= 1 + Number(ctx.boost || 0);
       if (s.childWish.mode === "target") base *= 1.1;
-      if (s.childWish.targetId && ctx.patronId) base *= ctx.patronId === s.childWish.targetId ? 1.5 : 0.6;
+      var fk = ctx.father || ctx.patronId;
+      if (s.childWish.targetId && fk) base *= fk === s.childWish.targetId ? 1.5 : 0.6;
       return Math.max(0, Math.min(0.95, base));
     }
 
@@ -90,7 +92,8 @@ var require_childstate = __commonJS({
           id: "c" + day.toString(36) + i + Math.random().toString(36).slice(2, 6),
           sex: Math.random() < 0.5 ? "f" : "m",
           fatherId: s.pregnancy.fatherId || "",
-          bornDay: day, stage: "infant", birth: outcome
+          bornDay: day, stage: "infant", birth: outcome,
+          look: looks.child(s.pregnancy.motherLook, s.pregnancy.fatherLook)
         });
       }
       s.pregnancy = { active: false, day: 0, fatherId: "", known: false, revealDay: 0, forced: false };
@@ -137,7 +140,9 @@ var require_childstate = __commonJS({
           s.pregnancy.active = true;
           s.pregnancy.day = 0;
           s.pregnancy.known = Number(ctx.trust || 0) >= 50;
-          s.pregnancy.fatherId = ctx.patronId && !ctx.group ? String(ctx.patronId) : "";
+          s.pregnancy.fatherId = (ctx.father || ctx.patronId) && !ctx.group ? String(ctx.father || ctx.patronId) : "";
+          s.pregnancy.motherLook = ctx.motherLook || looks.random();
+          s.pregnancy.fatherLook = ctx.fatherLook || null;
         }
       }
 
