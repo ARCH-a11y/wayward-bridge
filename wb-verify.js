@@ -7,6 +7,11 @@ const src = fs.readFileSync(FILE, "utf8");
 
 // [название, подстрока, минимум вхождений]
 const CHECKS = [
+  ["G6b: кнопка дом в карточке", "\"дом\") : null),", 1],
+  ["G6b: ребёнок живёт в детской", "function syncChildHome(c)", 1],
+  ["G6b: запись visitingPeople", "leaveAtSlot: slot + 1e6", 1],
+  ["G6b: поселение в детскую", "occ.nursery", 1],
+  ["G6b: кнопка дом", "\"дом\"", 1],
   ["G6b: вес home в визитах", "UCe={home:", 1],
   ["G6b: переезд по стадии", "function moveOutIfGrown(c)", 1],
   ["G6b: домашний живёт дома", "c.movedOut ? (c.home || \"same_town\") : \"home\"", 1],
