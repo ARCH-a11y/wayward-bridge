@@ -4553,13 +4553,19 @@
           "mode": "donut"
         }
       }
-    }
+    },
+    "wbchild_c880apn9.17qhigs1l00zv0": {}
   },
   "saveInfo": {
     "pippa.17qhigs1l00zv0": {
       "heroine": "pippa",
       "name": "Zenit",
-      "at": 1792869828926
+      "at": 1792873311971
+    },
+    "wbchild_c880apn9.17qhigs1l00zv0": {
+      "heroine": "wbchild_c880apn9",
+      "name": "Майя",
+      "at": 1792872392328
     }
   },
   "addons": [],
