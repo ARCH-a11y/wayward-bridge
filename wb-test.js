@@ -226,6 +226,15 @@ async function waitUp(c) {
   await api("POST", "/bridge/api/childstate/tick", { playthrough: "pt-smooth", day: 1, ctx: { encounters: 1, force: true } });
   for (let d = 2; d <= 41; d++) rSmooth = await api("POST", "/bridge/api/childstate/tick", { playthrough: "pt-smooth", day: d, ctx: { encounters: 0, birthForce: "smooth" } });
   ok("F4: гладкие роды — короткий блок", (safe(rSmooth.json, ["state", "postpartum", "blockUntilDay"]) || 0) === 61);
+  // --- F5: сокрытие и желание цели ---
+  const cLow = await api("POST", "/bridge/api/childstate/tick", { playthrough: "pt-low", day: 1, ctx: { encounters: 1, force: true, trust: 20 } });
+  ok("F5: низкое доверие -> скрывает", safe(cLow.json, ["state", "pregnancy", "known"]) === false);
+  let cR;
+  for (let d = 2; d <= 17; d++) cR = await api("POST", "/bridge/api/childstate/tick", { playthrough: "pt-low", day: d, ctx: { encounters: 0, trust: 20, revealForce: false } });
+  ok("F5: на 16 дне вынужденное раскрытие", safe(cR.json, ["state", "pregnancy", "known"]) === true && safe(cR.json, ["state", "pregnancy", "forced"]) === true);
+  const cHi = await api("POST", "/bridge/api/childstate/tick", { playthrough: "pt-hi", day: 1, ctx: { encounters: 1, force: true, trust: 80 } });
+  ok("F5: высокое доверие -> знает сразу", safe(cHi.json, ["state", "pregnancy", "known"]) === true);
+  ok("F5: желание цели при доверии", safe(cHi.json, ["state", "childWish", "targetId"]) === "player");
   c.kill();
   await sleep(300);
   fs.rmSync(DATA, { recursive: true, force: true });

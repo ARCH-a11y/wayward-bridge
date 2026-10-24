@@ -26,7 +26,7 @@ var require_defaults = __commonJS({
           playthrough: "",
           lastDay: 0,
           cycle:      { on: true, day: 0, length: 28, window: 4 },
-          pregnancy:  { active: false, day: 0, fatherId: "", known: false },
+          pregnancy:  { active: false, day: 0, fatherId: "", known: false, revealDay: 0, forced: false },
           childWish:  { mode: "none", targetId: "" },
           children:   [],
           postpartum: { blockUntilDay: 0, milkUntilDay: 0 },
