@@ -4700,7 +4700,7 @@ var require_assets_generated = __commonJS({
         };
         var FAMILIES = [["anima", "Anima / Z-Image (UNET + CLIP + VAE)"], ["illustrious", "Illustrious XL (SDXL checkpoint)"], ["pony", "Pony (SDXL checkpoint)"], ["noobai", "NoobAI (SDXL checkpoint)"]];
         var PART_LABELS = ["Quality", "Arousal", "Aftermath", "Gaze", "Intoxication", "Reaction", "Focus", "Narration", "Gender", "Group", "Pose", "FlashAnatomy"];
-        var BODY_PARTS = [["head", "Голова"], ["mouth", "Рот"], ["body", "Тело"], ["breasts", "Грудь"], ["ass", "Задница"], ["vagina", "Вагина"], ["misc", "Разное"]["belly", "Живот"], ];
+        var BODY_PARTS = [["head", "Голова"], ["mouth", "Рот"], ["body", "Тело"], ["breasts", "Грудь"], ["ass", "Задница"], ["vagina", "Вагина"], ["misc", "Разное"], ["belly", "Живот"], ];
         var SCENE_GROUPS = [
           ["Intimate", /^(kissing|groped_ass|groped_tits|fingered|self_pleasure)$/],
           ["Bath", /bath/],
@@ -6672,7 +6672,7 @@ var require_assets_generated = __commonJS({
           );
           charSec.insertBefore(addonRow("character"), charSec.children[1]);
           outSec.insertBefore(addonRow("clothing", "Outfits and exposure presets come from one add-on together."), outSec.children[1]);
-          return [charSec, stateSec(), bodySec(), quarantineSec(), trigSec, outSec, exposureSec(), partsSection()];
+          return [charSec, stateSec(), passportSec(), bodySec(), quarantineSec(), trigSec, outSec, exposureSec(), partsSection()];
         };
         function exposureSec() {
           var ids = liveIds();
@@ -7577,7 +7577,9 @@ var require_assets_generated = __commonJS({
             ),
             kids.length ? h("div", { class: "pgrid" }, kids.map(function(c, i) {
               var age = ((cs && cs.lastDay) || 0) - (c.bornDay || 0);
-              return cell("#" + (i + 1) + " " + (c.sex === "f" ? "девочка" : "мальчик"), (c.stage || "?") + ", " + age + " дн" + (c.fatherId ? ", отец " + c.fatherId : ""));
+              return h("div", { class: "pcell" },
+                h("div", { class: "phead" }, h("span", { class: "plab" }, "#" + (i + 1) + " " + (c.sex === "f" ? "девочка" : "мальчик")), h("button", { type: "button", class: "link", title: "Перебросить внешность", onclick: function() { api("POST", "/bridge/api/childstate/reroll", { playthrough: pt, childId: c.id }).then(function(j) { if (j && j.state) S.st.childstate = j.state; render(); }); } }, "↻")),
+                h("div", { style: "padding:2px 4px;font-size:12px" }, (c.stage || "?") + ", " + age + " дн" + (c.lookText ? " — " + c.lookText : "")));
             })) : null,
             row((function() {
               var cur = cs && cs.childWish ? cs.childWish.mode : "none";
@@ -7594,6 +7596,29 @@ var require_assets_generated = __commonJS({
             )
           );
           out.setAttribute("data-sec", "state");
+          return out;
+        }
+        function passportSec() {
+          var rb = ["player", "look"];
+          var V = (S.st && S.st.lookVocab) || { scale: {}, free: {} };
+          var ALL = Object.assign({}, V.scale, V.free);
+          var F = [["hair", "волосы"], ["hairType", "тип волос"], ["eyes", "глаза"], ["skin", "кожа"], ["face", "лицо"], ["build", "телосложение"], ["bust", "грудь"], ["hips", "бёдра"]];
+          var out = sec(
+            "ГГ (вы)",
+            "#22d3ee",
+            "Внешность игрока: наследуется детьми и уходит в промпт, когда вы в кадре.",
+            h("div", { class: "pgrid" }, F.map(function(f) {
+              var rel = rb.concat(f[0]);
+              var cur = E(rel) || "";
+              var sel = h("select", { class: "sel xs", onchange: function() { if (sel.value) edit(rel, sel.value); else restore(rel); } },
+                [""].concat(ALL[f[0]] || []).map(function(v2) { return h("option", { value: v2, selected: v2 === cur }, v2 || "—"); }));
+              return h("div", { class: "pcell" }, h("div", { class: "phead" }, h("span", { class: "plab" }, f[1]), badgeFor(rel)), sel);
+            })),
+            row(sbtn("Случайно", "#0e7490", function() {
+              api("POST", "/bridge/api/player/random", {}).then(function() { return api("GET", "/bridge/api/state"); }).then(function(r) { if (r && r.json) setState(r.json); render(); });
+            }))
+          );
+          out.setAttribute("data-sec", "passport");
           return out;
         }
         function bodySec() {
@@ -11609,8 +11634,8 @@ var require_server = __commonJS({
     var { UpdateCheck, flatten: flattenPrompts } = require_updates();
     var { addonItems } = require_items();
     var { clean: cleanSchema, LAYER: LAYER_SCHEMA } = require_schema();
-    var { forPlaythrough: childstateFor, tick: childstateTick, prompt: childstatePrompt, current: childstateCurrent, set: childstateSet } = require_childstate();
-    var { extract: looksExtract, describe: looksDescribe, random: looksRandom } = require_looks();
+    var { forPlaythrough: childstateFor, tick: childstateTick, prompt: childstatePrompt, current: childstateCurrent, set: childstateSet, rerollLook: childstateReroll } = require_childstate();
+    var { extract: looksExtract, describe: looksDescribe, random: looksRandom, SCALE: LOOKS_SCALE, FREE: LOOKS_FREE } = require_looks();
     var { Ratings, suggestions } = require_learn();
     var maintainer = require_maintainer();
     var VERSION = assets.VERSION || "dev";
@@ -12470,6 +12495,7 @@ var require_server = __commonJS({
       const heroine = currentHeroine();
       const addons = store.listAddons().map((a) => Object.assign(a, { layer: (store.readAddon(a.file) || {}).layer || {}, heroine: (store.readAddon(a.file) || {}).heroine || {}, items: [...store.itemsOf(a.file)] }));
       return {
+      lookVocab: { scale: LOOKS_SCALE, free: LOOKS_FREE },
       childstate: (function () { var c = childstateCurrent(store.dataDir); if (c && c.children) c = Object.assign({}, c, { children: c.children.map(function (k) { return Object.assign({}, k, { lookText: looksDescribe(k.look, k.stage, k.sex) }); }) }); return c; })(),
         revision: store.revision,
         app: store.settings.app,
@@ -12550,6 +12576,16 @@ var require_server = __commonJS({
         const body = await readJson(req);
         const cs2 = childstateSet(store.dataDir, String(body.playthrough || ""), body.patch || {});
         return send(res, 200, { ok: true, state: cs2 });
+      }
+      if (p === "/bridge/api/childstate/reroll" && m === "POST") {
+        const body = await readJson(req);
+        const cs3 = childstateReroll(store.dataDir, String(body.playthrough || ""), String(body.childId || ""));
+        return send(res, 200, { ok: true, state: cs3 });
+      }
+      if (p === "/bridge/api/player/random" && m === "POST") {
+        const l = looksRandom(); l.set = true;
+        try { store.patch([{ path: ["layer", "player", "look"], value: l }], store.revision); } catch (e) {}
+        return send(res, 200, { ok: true, look: l });
       }
       if (p === "/bridge/api/settings" && m === "PATCH") {
         const body = await readJson(req);
@@ -13467,7 +13503,16 @@ var require_childstate = __commonJS({
       return s;
     }
 
-    module2.exports = { empty: empty, forPlaythrough: forPlaythrough, tick: tick, phase: phase, chance: chance, stageOf: stageOf, prompt: prompt, current: current, set: set };
+    function rerollLook(dir, pt, childId) {
+      var s = forPlaythrough(dir, pt);
+      for (var i = 0; i < s.children.length; i++) {
+        if (s.children[i].id === childId) { s.children[i].look = looks.child(s.pregnancy.motherLook, s.pregnancy.fatherLook); }
+      }
+      save(dir, s);
+      return s;
+    }
+
+    module2.exports = { empty: empty, forPlaythrough: forPlaythrough, tick: tick, phase: phase, chance: chance, stageOf: stageOf, prompt: prompt, current: current, set: set, rerollLook: rerollLook };
   }
 });
 // src/server/looks.js
@@ -13533,7 +13578,7 @@ var require_looks = __commonJS({
       }
       return t.join(", ");
     }
-    module2.exports = { random: random, extract: extract, child: child, describe: describe };
+    module2.exports = { random: random, extract: extract, child: child, describe: describe, SCALE: SCALE, FREE: FREE };
   }
 });
 // src/main.js

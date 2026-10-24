@@ -7,6 +7,13 @@ const src = fs.readFileSync(FILE, "utf8");
 
 // [название, подстрока, минимум вхождений]
 const CHECKS = [
+  ["G3 BODY_PARTS: запятая", "\"Разное\"], [\"belly\"", 1],
+  ["G3 секция паспорт", "function passportSec()", 1],
+  ["G3 вызов паспорта", "stateSec(), passportSec(), bodySec()", 1],
+  ["G3 роут random", "/bridge/api/player/random", 1],
+  ["G3 роут reroll", "/bridge/api/childstate/reroll", 1],
+  ["G3 lookVocab", "lookVocab: { scale: LOOKS_SCALE", 1],
+  ["G3 карточка ребёнка", "Перебросить внешность", 1],
   ["G модуль looks", "var require_looks = __commonJS", 1],
   ["G гены: смешение", "function inherit(a, b, list)", 1],
   ["G фильтр стадии", "small budding breasts", 1],
@@ -37,7 +44,7 @@ const CHECKS = [
   ["F4 lastBirth", "s.lastBirth = { day: day, outcome: outcome, count: n };", 1],
   ["F4 схема lastBirth", "lastBirth: { day: num(0, 1e9)", 1],
   ["F3 секция Состояние", "function stateSec()", 1],
-  ["F3 вызов секции", "stateSec(), bodySec()", 1],
+  ["F3 вызов секции", "stateSec(), passportSec(), bodySec()", 1],
   ["F3 живот в UI", "[\"belly\", \"Живот\"]", 1],
   ["F3 роут childstate/set", "/bridge/api/childstate/set", 1],
   ["F3 childstate в stateFor", "childstate: (function () { var c = childstateCurrent", 1],

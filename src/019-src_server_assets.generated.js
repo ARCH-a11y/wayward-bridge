@@ -174,7 +174,7 @@ var require_assets_generated = __commonJS({
         };
         var FAMILIES = [["anima", "Anima / Z-Image (UNET + CLIP + VAE)"], ["illustrious", "Illustrious XL (SDXL checkpoint)"], ["pony", "Pony (SDXL checkpoint)"], ["noobai", "NoobAI (SDXL checkpoint)"]];
         var PART_LABELS = ["Quality", "Arousal", "Aftermath", "Gaze", "Intoxication", "Reaction", "Focus", "Narration", "Gender", "Group", "Pose", "FlashAnatomy"];
-        var BODY_PARTS = [["head", "Голова"], ["mouth", "Рот"], ["body", "Тело"], ["breasts", "Грудь"], ["ass", "Задница"], ["vagina", "Вагина"], ["misc", "Разное"]["belly", "Живот"], ];
+        var BODY_PARTS = [["head", "Голова"], ["mouth", "Рот"], ["body", "Тело"], ["breasts", "Грудь"], ["ass", "Задница"], ["vagina", "Вагина"], ["misc", "Разное"], ["belly", "Живот"], ];
         var SCENE_GROUPS = [
           ["Intimate", /^(kissing|groped_ass|groped_tits|fingered|self_pleasure)$/],
           ["Bath", /bath/],
@@ -2146,7 +2146,7 @@ var require_assets_generated = __commonJS({
           );
           charSec.insertBefore(addonRow("character"), charSec.children[1]);
           outSec.insertBefore(addonRow("clothing", "Outfits and exposure presets come from one add-on together."), outSec.children[1]);
-          return [charSec, stateSec(), bodySec(), quarantineSec(), trigSec, outSec, exposureSec(), partsSection()];
+          return [charSec, stateSec(), passportSec(), bodySec(), quarantineSec(), trigSec, outSec, exposureSec(), partsSection()];
         };
         function exposureSec() {
           var ids = liveIds();
@@ -3051,7 +3051,9 @@ var require_assets_generated = __commonJS({
             ),
             kids.length ? h("div", { class: "pgrid" }, kids.map(function(c, i) {
               var age = ((cs && cs.lastDay) || 0) - (c.bornDay || 0);
-              return cell("#" + (i + 1) + " " + (c.sex === "f" ? "девочка" : "мальчик"), (c.stage || "?") + ", " + age + " дн" + (c.fatherId ? ", отец " + c.fatherId : ""));
+              return h("div", { class: "pcell" },
+                h("div", { class: "phead" }, h("span", { class: "plab" }, "#" + (i + 1) + " " + (c.sex === "f" ? "девочка" : "мальчик")), h("button", { type: "button", class: "link", title: "Перебросить внешность", onclick: function() { api("POST", "/bridge/api/childstate/reroll", { playthrough: pt, childId: c.id }).then(function(j) { if (j && j.state) S.st.childstate = j.state; render(); }); } }, "↻")),
+                h("div", { style: "padding:2px 4px;font-size:12px" }, (c.stage || "?") + ", " + age + " дн" + (c.lookText ? " — " + c.lookText : "")));
             })) : null,
             row((function() {
               var cur = cs && cs.childWish ? cs.childWish.mode : "none";
@@ -3068,6 +3070,29 @@ var require_assets_generated = __commonJS({
             )
           );
           out.setAttribute("data-sec", "state");
+          return out;
+        }
+        function passportSec() {
+          var rb = ["player", "look"];
+          var V = (S.st && S.st.lookVocab) || { scale: {}, free: {} };
+          var ALL = Object.assign({}, V.scale, V.free);
+          var F = [["hair", "волосы"], ["hairType", "тип волос"], ["eyes", "глаза"], ["skin", "кожа"], ["face", "лицо"], ["build", "телосложение"], ["bust", "грудь"], ["hips", "бёдра"]];
+          var out = sec(
+            "ГГ (вы)",
+            "#22d3ee",
+            "Внешность игрока: наследуется детьми и уходит в промпт, когда вы в кадре.",
+            h("div", { class: "pgrid" }, F.map(function(f) {
+              var rel = rb.concat(f[0]);
+              var cur = E(rel) || "";
+              var sel = h("select", { class: "sel xs", onchange: function() { if (sel.value) edit(rel, sel.value); else restore(rel); } },
+                [""].concat(ALL[f[0]] || []).map(function(v2) { return h("option", { value: v2, selected: v2 === cur }, v2 || "—"); }));
+              return h("div", { class: "pcell" }, h("div", { class: "phead" }, h("span", { class: "plab" }, f[1]), badgeFor(rel)), sel);
+            })),
+            row(sbtn("Случайно", "#0e7490", function() {
+              api("POST", "/bridge/api/player/random", {}).then(function() { return api("GET", "/bridge/api/state"); }).then(function(r) { if (r && r.json) setState(r.json); render(); });
+            }))
+          );
+          out.setAttribute("data-sec", "passport");
           return out;
         }
         function bodySec() {
