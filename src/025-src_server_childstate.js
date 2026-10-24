@@ -117,7 +117,7 @@ var require_childstate = __commonJS({
           name: pickName(s, sx),
           fatherId: s.pregnancy.fatherId || "",
           bornDay: day, stage: "infant", birth: outcome,
-          promoted: false, movedOut: false, home: "",
+          promoted: true, movedOut: false, home: "",
           look: looks.child(s.pregnancy.motherLook, s.pregnancy.fatherLook)
         });
       }

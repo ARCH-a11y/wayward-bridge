@@ -805,6 +805,11 @@ var require_assets_generated = __commonJS({
                 var st = {};
                 for (var k in g) st[k] = g[k];
                 st.visitingPeople = (g.visitingPeople || []).filter(function(e) { return e.personId !== key; });
+                if (g.characters && g.characters[c.id]) {
+                  var chars = Object.assign({}, g.characters);
+                  delete chars[c.id];
+                  st.characters = chars;
+                }
                 if (g.locations) {
                   var locs = {};
                   Object.keys(g.locations).forEach(function(k2) {
@@ -847,6 +852,49 @@ var require_assets_generated = __commonJS({
           return (g.phase || "") + "|" + (cs.children || []).map(function(c) { return c.id + c.stage + (c.movedOut ? "1" : "0"); }).join(",");
         }
         // дети живут в детской, днём (service) играют в таверне; уехавшие — вне дома
+        // ребёнок — персонаж игры: своя запись, свой shortname и imageBase из генов
+        function childImageBase(c) {
+          var t = [];
+          if (c.sex === "m") t.push("1boy");
+          t.push(c.stage === "infant" ? "baby, 1 year old" : c.stage === "child" ? "child, 7 years old" : c.stage === "teen" ? "teenager, 14 years old" : "young adult");
+          if (c.lookText) t.push(c.lookText);
+          t.push("medieval tavern background");
+          return t.join(", ");
+        }
+        function syncChildCharacter() {
+          var s = window.__WB_STORE__;
+          if (!s || !s.getState) return;
+          var cs = S.st && S.st.childstate;
+          if (!cs || !(cs.children || []).length) return;
+          var g0 = s.getState().state || {};
+          var her = g0.primaryCharacterId;
+          var tmpl = her && g0.characters && g0.characters[her];
+          if (!tmpl) return;
+          var kids = (cs.children || []).filter(function(c) { return !g0.characters || !g0.characters[c.id]; });
+          if (!kids.length) return;
+          s.setState(function(x) {
+            var g = x.state || {};
+            var chars = Object.assign({}, g.characters || {});
+            kids.forEach(function(c) {
+              if (chars[c.id]) return;
+              var ch = JSON.parse(JSON.stringify(tmpl));
+              ch.id = c.id;
+              ch.name = c.name || (c.sex === "f" ? "Дочь" : "Сын");
+              ch.archetypeId = "";
+              ch.generatedArchetype = { id: "wbchild_" + c.id, shortname: "wbchild_" + c.id, name: ch.name, imageBase: childImageBase(c), imageNegative: "" };
+              ch.outfit = "modest";
+              ch.currentTask = "idle";
+              ch.busyUntilSlot = 0;
+              ch.relationship = { trust: 60, patronInteractionsEncouraged: 0 };
+              ch.wbChild = true;
+              chars[c.id] = ch;
+            });
+            var st = {};
+            for (var k in g) st[k] = g[k];
+            st.characters = chars;
+            return { state: st };
+          });
+        }
         function syncChildHome(force) {
           var s = window.__WB_STORE__;
           if (!s || !s.getState) { if (force) say("Игра не отдала стор.", false); return; }
@@ -972,6 +1020,7 @@ var require_assets_generated = __commonJS({
               });
               if (j.state) S.st.childstate = j.state;
               syncChildHome(true);
+              syncChildCharacter();
               say((c.name || "Ребёнок") + " теперь " + (c.sex === "f" ? "дочь" : "сын") + " в игре.", true);
               render();
             } catch (e) { say("Стор не принял: " + e.message, false); }
@@ -996,6 +1045,7 @@ var require_assets_generated = __commonJS({
             loadChildFromSave(pt);
             mirrorChild();
             syncChildHome();
+            syncChildCharacter();
             checkBelly();
             if (!day || day === lastTickDay) return;
             lastTickDay = day;

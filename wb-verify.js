@@ -7,6 +7,10 @@ const src = fs.readFileSync(FILE, "utf8");
 
 // [название, подстрока, минимум вхождений]
 const CHECKS = [
+  ["H1: ребёнок персонаж с рождения", "promoted: true, movedOut: false", 1],
+  ["H1: запись в characters", "function syncChildCharacter()", 1],
+  ["H1: свой imageBase", "function childImageBase(c)", 1],
+  ["H1: удаление персонажа", "delete chars[c.id];", 1],
   ["G7: удаление ребёнка", "function removeChild(dir, pt, childId)", 1],
   ["G7: роут удаления", "/bridge/api/childstate/remove-child", 1],
   ["G7: кнопка удаления", "Удалить ребёнка", 1],
