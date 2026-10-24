@@ -61,6 +61,6 @@ var require_looks = __commonJS({
       }
       return t.join(", ");
     }
-    module2.exports = { random: random, extract: extract, child: child, describe: describe };
+    module2.exports = { random: random, extract: extract, child: child, describe: describe, SCALE: SCALE, FREE: FREE };
   }
 });

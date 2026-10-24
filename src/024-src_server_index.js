@@ -23,8 +23,8 @@ var require_server = __commonJS({
     var { UpdateCheck, flatten: flattenPrompts } = require_updates();
     var { addonItems } = require_items();
     var { clean: cleanSchema, LAYER: LAYER_SCHEMA } = require_schema();
-    var { forPlaythrough: childstateFor, tick: childstateTick, prompt: childstatePrompt, current: childstateCurrent, set: childstateSet } = require_childstate();
-    var { extract: looksExtract, describe: looksDescribe, random: looksRandom } = require_looks();
+    var { forPlaythrough: childstateFor, tick: childstateTick, prompt: childstatePrompt, current: childstateCurrent, set: childstateSet, rerollLook: childstateReroll } = require_childstate();
+    var { extract: looksExtract, describe: looksDescribe, random: looksRandom, SCALE: LOOKS_SCALE, FREE: LOOKS_FREE } = require_looks();
     var { Ratings, suggestions } = require_learn();
     var maintainer = require_maintainer();
     var VERSION = assets.VERSION || "dev";
@@ -884,6 +884,7 @@ var require_server = __commonJS({
       const heroine = currentHeroine();
       const addons = store.listAddons().map((a) => Object.assign(a, { layer: (store.readAddon(a.file) || {}).layer || {}, heroine: (store.readAddon(a.file) || {}).heroine || {}, items: [...store.itemsOf(a.file)] }));
       return {
+      lookVocab: { scale: LOOKS_SCALE, free: LOOKS_FREE },
       childstate: (function () { var c = childstateCurrent(store.dataDir); if (c && c.children) c = Object.assign({}, c, { children: c.children.map(function (k) { return Object.assign({}, k, { lookText: looksDescribe(k.look, k.stage, k.sex) }); }) }); return c; })(),
         revision: store.revision,
         app: store.settings.app,
@@ -964,6 +965,16 @@ var require_server = __commonJS({
         const body = await readJson(req);
         const cs2 = childstateSet(store.dataDir, String(body.playthrough || ""), body.patch || {});
         return send(res, 200, { ok: true, state: cs2 });
+      }
+      if (p === "/bridge/api/childstate/reroll" && m === "POST") {
+        const body = await readJson(req);
+        const cs3 = childstateReroll(store.dataDir, String(body.playthrough || ""), String(body.childId || ""));
+        return send(res, 200, { ok: true, state: cs3 });
+      }
+      if (p === "/bridge/api/player/random" && m === "POST") {
+        const l = looksRandom(); l.set = true;
+        try { store.patch([{ path: ["layer", "player", "look"], value: l }], store.revision); } catch (e) {}
+        return send(res, 200, { ok: true, look: l });
       }
       if (p === "/bridge/api/settings" && m === "PATCH") {
         const body = await readJson(req);
