@@ -7,6 +7,14 @@ const src = fs.readFileSync(FILE, "utf8");
 
 // [название, подстрока, минимум вхождений]
 const CHECKS = [
+  ["G6: имена детей", "function pickName(", 1],
+  ["G6: имя при рождении", "name: pickName(s, sx),", 1],
+  ["G6: человек для ребёнка", "function personFor(dir, pt, childId, her)", 1],
+  ["G6: пометка promoted", "c.promoted = { at:", 1],
+  ["G6: роут person", "/bridge/api/childstate/person", 1],
+  ["G6: роут promote", "/bridge/api/childstate/promote", 1],
+  ["G6: кнопка в персонажа", "Сделать персонажем игры", 1],
+  ["G6: имя в карточке", "c.name ? c.name", 1],
   ["G5: сброс портрета при reroll", "s.children[i].img = null;", 1],
   ["G5: промпт в ответе роута", "positive: ip.positive, negative: ip.negative", 1],
   ["G5: промпт портрета ребёнка", "function portraitPrompt(", 1],

@@ -5317,6 +5317,33 @@ var require_assets_generated = __commonJS({
             });
           } catch (e) {}
         }
+        function promoteChild(c, pt) {
+          var store = window.__WB_STORE__;
+          if (!store || !store.getState) { say("Игра не отдала стор — обнови страницу.", false); return; }
+          api("POST", "/bridge/api/childstate/promote", { playthrough: pt, childId: c.id }).then(function(j) {
+            if (!j || !j.person) { say((j && j.error) || "Не вышло.", false); return; }
+            try {
+              store.setState(function(x) {
+                var g = x.state || {}, her = g.primaryCharacterId;
+                if (!her) return {};
+                var circles = Object.assign({}, g.circles || {});
+                var base = circles[her] ? Object.assign({}, circles[her]) : { of: her, home: "same_town", persons: [], links: [] };
+                var persons = (base.persons || []).slice(), links = (base.links || []).slice();
+                if (!persons.some(function(p) { return p.id === j.person.id; })) persons.push(j.person);
+                var lk = { kind: j.link.kind, from: "char:" + her, to: j.link.to };
+                if (!links.some(function(l) { return l.kind === lk.kind && l.from === lk.from && l.to === lk.to; })) links.push(lk);
+                circles[her] = Object.assign({}, base, { persons: persons, links: links });
+                var st = {};
+                for (var k in g) st[k] = g[k];
+                st.circles = circles;
+                return { state: st };
+              });
+              if (j.state) S.st.childstate = j.state;
+              say((c.name || "Ребёнок") + " теперь " + (c.sex === "f" ? "дочь" : "сын") + " в игре.", true);
+              render();
+            } catch (e) { say("Стор не принял: " + e.message, false); }
+          });
+        }
         function checkDay() {
           try {
             var s = window.__WB_STORE__;
@@ -7575,7 +7602,7 @@ var require_assets_generated = __commonJS({
             kids.length ? h("div", { class: "pgrid" }, kids.map(function(c, i) {
               var age = ((cs && cs.lastDay) || 0) - (c.bornDay || 0);
               return h("div", { class: "pcell" },
-                h("div", { class: "phead" }, h("span", { class: "plab" }, "#" + (i + 1) + " " + (c.sex === "f" ? "девочка" : "мальчик")), h("button", { type: "button", class: "link", title: "Перебросить внешность", onclick: function() { api("POST", "/bridge/api/childstate/reroll", { playthrough: pt, childId: c.id }).then(function(j) { if (j && j.state) S.st.childstate = j.state; say("Внешность переброшена"); render(); }); } }, "↻"), h("button", { type: "button", class: "link", title: "Нарисовать портрет", onclick: function() { say("Рисую портрет…"); api("POST", "/bridge/api/childstate/image", { playthrough: pt, childId: c.id, wait: true }).then(function(j) { if (j && j.state) S.st.childstate = j.state; say(j && j.error ? j.error : "Портрет готов"); render(); }); } }, "портрет")),
+                h("div", { class: "phead" }, h("span", { class: "plab" }, "#" + (i + 1) + " " + (c.name ? c.name + " — " : "") + (c.sex === "f" ? "девочка" : "мальчик")), h("button", { type: "button", class: "link", title: "Перебросить внешность", onclick: function() { api("POST", "/bridge/api/childstate/reroll", { playthrough: pt, childId: c.id }).then(function(j) { if (j && j.state) S.st.childstate = j.state; say("Внешность переброшена"); render(); }); } }, "↻"), h("button", { type: "button", class: "link", title: "Нарисовать портрет", onclick: function() { say("Рисую портрет…"); api("POST", "/bridge/api/childstate/image", { playthrough: pt, childId: c.id, wait: true }).then(function(j) { if (j && j.state) S.st.childstate = j.state; say(j && j.error ? j.error : "Портрет готов"); render(); }); } }, "портрет"), (c.stage === "teen" || c.stage === "youth") ? h("button", { type: "button", class: "link", title: "Сделать персонажем игры", onclick: function() { promoteChild(c, pt); } }, c.promoted ? "персонаж" : "в персонажа") : null),
                 h("div", { style: "padding:2px 4px;font-size:12px" }, (c.stage || "?") + ", " + age + " дн" + (c.lookText ? " — " + c.lookText : "")), c.img && c.img.url ? h("img", { src: c.img.url, style: "display:block;width:100%;border-radius:6px;margin-top:4px" }) : null);
             })) : null,
             row((function() {
@@ -11631,7 +11658,7 @@ var require_server = __commonJS({
     var { UpdateCheck, flatten: flattenPrompts } = require_updates();
     var { addonItems } = require_items();
     var { clean: cleanSchema, LAYER: LAYER_SCHEMA } = require_schema();
-    var { forPlaythrough: childstateFor, tick: childstateTick, prompt: childstatePrompt, current: childstateCurrent, set: childstateSet, rerollLook: childstateReroll, imagePrompt: childstateImagePrompt, setImage: childstateSetImage } = require_childstate();
+    var { forPlaythrough: childstateFor, tick: childstateTick, prompt: childstatePrompt, current: childstateCurrent, set: childstateSet, rerollLook: childstateReroll, imagePrompt: childstateImagePrompt, setImage: childstateSetImage, personFor: childstatePerson, promote: childstatePromote } = require_childstate();
     var { extract: looksExtract, describe: looksDescribe, random: looksRandom, SCALE: LOOKS_SCALE, FREE: LOOKS_FREE } = require_looks();
     var { Ratings, suggestions } = require_learn();
     var maintainer = require_maintainer();
@@ -12599,6 +12626,23 @@ var require_server = __commonJS({
         const cs = childstateSetImage(store.dataDir, pt, id, { file: e.file, url: "/images/wb/" + e.file.split("/").map(encodeURIComponent).join("/"), at: Date.now(), seed: e.seed, prompt: e.prompt });
         return send(res, 200, { ok: true, image: "/images/wb/" + e.file, state: withChildLook(cs) });
       }
+      if (p === "/bridge/api/childstate/person" && m === "GET") {
+        const pt = String(url.searchParams.get("playthrough") || "");
+        const id = String(url.searchParams.get("childId") || "");
+        const her = String(url.searchParams.get("her") || "");
+        const pl = childstatePerson(store.dataDir, pt, id, her);
+        if (!pl) return send(res, 404, { error: "Нет такого ребёнка." });
+        return send(res, 200, pl);
+      }
+      if (p === "/bridge/api/childstate/promote" && m === "POST") {
+        const body = await readJson(req);
+        const pt = String(body.playthrough || "");
+        const id = String(body.childId || "");
+        const her = String(body.her || "");
+        const pl = childstatePromote(store.dataDir, pt, id, her);
+        if (!pl) return send(res, 404, { error: "Нет такого ребёнка." });
+        return send(res, 200, Object.assign({ ok: true }, pl, { state: withChildLook(pl.state) }));
+      }
       if (p === "/bridge/api/player/random" && m === "POST") {
         const l = looksRandom(); l.set = true;
         try { store.patch([{ path: ["layer", "player", "look"], value: l }], store.revision); } catch (e) {}
@@ -13418,6 +13462,15 @@ var require_childstate = __commonJS({
       return age < 30 ? "infant" : age < 75 ? "child" : age < 135 ? "teen" : "youth";
     }
 
+    var NAMES_F = ["Анна", "Марта", "Эльза", "Грета", "Лиза", "Майя", "Роза", "Хельга", "Ингрид", "Беата", "Клара", "Соня"];
+    var NAMES_M = ["Ганс", "Петер", "Клаус", "Отто", "Ларс", "Матс", "Эрик", "Юрген", "Дитер", "Бруно", "Феликс", "Томас"];
+    function pickName(s, sex) {
+      var pool = sex === "f" ? NAMES_F : NAMES_M, used = {};
+      for (var i = 0; i < s.children.length; i++) used[s.children[i].name] = 1;
+      for (var t = 0; t < 40; t++) { var n = pool[Math.floor(Math.random() * pool.length)]; if (!used[n]) return n; }
+      return pool[0];
+    }
+
     function birth(s, day, ctx) {
       ctx = ctx || {};
       var risk = 0.30;
@@ -13432,11 +13485,14 @@ var require_childstate = __commonJS({
       var milk = outcome === "smooth" ? MILK : outcome === "hard" ? 30 : 40;
       var n = Math.random() < TWINS * (1 + (ctx.boost || 0)) ? 2 : 1;
       for (var i = 0; i < n; i++) {
+        var sx = Math.random() < 0.5 ? "f" : "m";
         s.children.push({
           id: "c" + day.toString(36) + i + Math.random().toString(36).slice(2, 6),
-          sex: Math.random() < 0.5 ? "f" : "m",
+          sex: sx,
+          name: pickName(s, sx),
           fatherId: s.pregnancy.fatherId || "",
           bornDay: day, stage: "infant", birth: outcome,
+          promoted: false,
           look: looks.child(s.pregnancy.motherLook, s.pregnancy.fatherLook)
         });
       }
@@ -13555,7 +13611,51 @@ var require_childstate = __commonJS({
       return s;
     }
 
-    module2.exports = { empty: empty, forPlaythrough: forPlaythrough, tick: tick, phase: phase, chance: chance, stageOf: stageOf, prompt: prompt, current: current, set: set, rerollLook: rerollLook, imagePrompt: imagePrompt, setImage: setImage };
+    // человек для круга героини: ребро parent_of от char:<her> к person:<id>
+    function personFor(dir, pt, childId, her) {
+      var s = forPlaythrough(dir, pt);
+      var c = childById(s, childId);
+      if (!c) return null;
+      var pid = "wb" + c.id;
+      var person = {
+        id: pid,
+        name: c.name || (c.sex === "f" ? "Дочь" : "Сын"),
+        sex: c.sex === "m" ? "m" : "f",
+        generation: 1,
+        alive: true,
+        lives: "same_town",
+        circle: 0.7,
+        warmth: 0.8,
+        strictness: 0.4,
+        past: "good",
+        presence: 0.6,
+        regard: 0.6,
+        belief: { rung: "nothing", sinceDay: 0, thinksHeKnows: false },
+        attributes: { strength: 30, deftness: 40, vigor: 45, wit: 45, composure: 40, charm: 50, openness: 50, confidence: 50 },
+        wbChild: true,
+        wbBornDay: c.bornDay
+      };
+      return {
+        person: person,
+        personId: pid,
+        name: person.name,
+        stage: c.stage,
+        link: { kind: "parent_of", from: "char:" + (her || pt), to: "person:" + pid }
+      };
+    }
+
+    function promote(dir, pt, childId, her) {
+      var s = forPlaythrough(dir, pt);
+      var c = childById(s, childId);
+      if (!c) return null;
+      var pl = personFor(dir, pt, childId, her);
+      c.promoted = { at: s.lastDay || 0, personId: pl.personId };
+      save(dir, s);
+      pl.state = s;
+      return pl;
+    }
+
+    module2.exports = { empty: empty, forPlaythrough: forPlaythrough, tick: tick, phase: phase, chance: chance, stageOf: stageOf, prompt: prompt, current: current, set: set, rerollLook: rerollLook, imagePrompt: imagePrompt, setImage: setImage, personFor: personFor, promote: promote };
   }
 });
 // src/server/looks.js
