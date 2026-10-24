@@ -48,6 +48,7 @@ var require_childstate = __commonJS({
     function forPlaythrough(dir, pt) {
       var s = load(dir);
       if (s.playthrough !== pt) { var f = empty(); f.playthrough = pt; save(dir, f); return f; }
+      if (ensureNames(s)) save(dir, s);
       return s;
     }
 
@@ -76,6 +77,16 @@ var require_childstate = __commonJS({
 
     var NAMES_F = ["Анна", "Марта", "Эльза", "Грета", "Лиза", "Майя", "Роза", "Хельга", "Ингрид", "Беата", "Клара", "Соня"];
     var NAMES_M = ["Ганс", "Петер", "Клаус", "Отто", "Ларс", "Матс", "Эрик", "Юрген", "Дитер", "Бруно", "Феликс", "Томас"];
+    // у детей, рождённых до появления имён, имя добирается при первом же обращении
+    function ensureNames(s) {
+      var changed = false;
+      for (var i = 0; i < s.children.length; i++) {
+        var c = s.children[i];
+        if (c && !c.name) { c.name = pickName(s, c.sex); changed = true; }
+      }
+      return changed;
+    }
+
     function pickName(s, sex) {
       var pool = sex === "f" ? NAMES_F : NAMES_M, used = {};
       for (var i = 0; i < s.children.length; i++) used[s.children[i].name] = 1;
@@ -267,6 +278,23 @@ var require_childstate = __commonJS({
       return pl;
     }
 
-    module2.exports = { empty: empty, forPlaythrough: forPlaythrough, tick: tick, phase: phase, chance: chance, stageOf: stageOf, prompt: prompt, current: current, set: set, rerollLook: rerollLook, imagePrompt: imagePrompt, setImage: setImage, personFor: personFor, promote: promote };
+    var STAGE_AGE = { infant: 15, child: 50, teen: 100, youth: 160 };
+    // правка одного ребёнка: имя, стадия, возраст (стадия и bornDay держатся согласованно)
+    function patchChild(dir, pt, childId, patch) {
+      var s = forPlaythrough(dir, pt);
+      var c = childById(s, childId);
+      if (!c) return null;
+      patch = patch || {};
+      if (typeof patch.name === "string" && patch.name.trim()) c.name = patch.name.trim().slice(0, 24);
+      if (typeof patch.stage === "string" && STAGE_AGE[patch.stage] != null) c.bornDay = (s.lastDay || 0) - STAGE_AGE[patch.stage];
+      if (typeof patch.bornDay === "number" && isFinite(patch.bornDay)) c.bornDay = Math.round(patch.bornDay);
+      if (c.bornDay > (s.lastDay || 0)) c.bornDay = s.lastDay || 0;
+      c.stage = stageOf((s.lastDay || 0) - c.bornDay);
+      if (!c.name) c.name = pickName(s, c.sex);
+      save(dir, s);
+      return s;
+    }
+
+    module2.exports = { empty: empty, forPlaythrough: forPlaythrough, tick: tick, phase: phase, chance: chance, stageOf: stageOf, prompt: prompt, current: current, set: set, rerollLook: rerollLook, imagePrompt: imagePrompt, setImage: setImage, personFor: personFor, promote: promote, patchChild: patchChild };
   }
 });
