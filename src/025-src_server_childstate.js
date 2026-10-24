@@ -182,12 +182,35 @@ var require_childstate = __commonJS({
     function rerollLook(dir, pt, childId) {
       var s = forPlaythrough(dir, pt);
       for (var i = 0; i < s.children.length; i++) {
-        if (s.children[i].id === childId) { s.children[i].look = looks.child(s.pregnancy.motherLook, s.pregnancy.fatherLook); }
+        if (s.children[i].id === childId) { s.children[i].look = looks.child(s.pregnancy.motherLook, s.pregnancy.fatherLook); s.children[i].img = null; }
       }
       save(dir, s);
       return s;
     }
 
-    module2.exports = { empty: empty, forPlaythrough: forPlaythrough, tick: tick, phase: phase, chance: chance, stageOf: stageOf, prompt: prompt, current: current, set: set, rerollLook: rerollLook };
+    function childById(s, id) {
+      for (var i = 0; i < s.children.length; i++) if (s.children[i].id === id) return s.children[i];
+      return null;
+    }
+
+    // промпт портрета: ключ child_<id>, гены и стадия ребёнка
+    function imagePrompt(dir, pt, childId) {
+      var s = forPlaythrough(dir, pt);
+      var c = childById(s, childId);
+      if (!c) return null;
+      var p = looks.portraitPrompt(c.look, { sex: c.sex, stage: c.stage });
+      return { key: "child_" + c.id, positive: p.positive, negative: p.negative, sex: c.sex, stage: c.stage };
+    }
+
+    function setImage(dir, pt, childId, rec) {
+      var s = forPlaythrough(dir, pt);
+      var c = childById(s, childId);
+      if (!c) return null;
+      c.img = rec;
+      save(dir, s);
+      return s;
+    }
+
+    module2.exports = { empty: empty, forPlaythrough: forPlaythrough, tick: tick, phase: phase, chance: chance, stageOf: stageOf, prompt: prompt, current: current, set: set, rerollLook: rerollLook, imagePrompt: imagePrompt, setImage: setImage };
   }
 });

@@ -23,7 +23,7 @@ var require_server = __commonJS({
     var { UpdateCheck, flatten: flattenPrompts } = require_updates();
     var { addonItems } = require_items();
     var { clean: cleanSchema, LAYER: LAYER_SCHEMA } = require_schema();
-    var { forPlaythrough: childstateFor, tick: childstateTick, prompt: childstatePrompt, current: childstateCurrent, set: childstateSet, rerollLook: childstateReroll } = require_childstate();
+    var { forPlaythrough: childstateFor, tick: childstateTick, prompt: childstatePrompt, current: childstateCurrent, set: childstateSet, rerollLook: childstateReroll, imagePrompt: childstateImagePrompt, setImage: childstateSetImage } = require_childstate();
     var { extract: looksExtract, describe: looksDescribe, random: looksRandom, SCALE: LOOKS_SCALE, FREE: LOOKS_FREE } = require_looks();
     var { Ratings, suggestions } = require_learn();
     var maintainer = require_maintainer();
@@ -230,7 +230,7 @@ var require_server = __commonJS({
       });
       if (req.pipeOverride) applyPipeOverride(pipe, req.pipeOverride);
       const d = defaultLayer();
-      const child = childstatePrompt(store.dataDir);
+      const child = req.noBelly ? null : childstatePrompt(store.dataDir);
       const synth = !req.prompt && !(Array.isArray(req.parts) && req.parts.length) && parsed.kind !== "patron" ? synthesize(parsed, heroine, eff.prompts, child) : null;
       const r = compose({
         parsed,
@@ -974,6 +974,22 @@ var require_server = __commonJS({
         const body = await readJson(req);
         const cs3 = childstateReroll(store.dataDir, String(body.playthrough || ""), String(body.childId || ""));
         return send(res, 200, { ok: true, state: withChildLook(cs3) });
+      }
+      if (p === "/bridge/api/childstate/image" && m === "POST") {
+        const body = await readJson(req);
+        const pt = String(body.playthrough || "");
+        const id = String(body.childId || "");
+        const ip = childstateImagePrompt(store.dataDir, pt, id);
+        if (!ip) return send(res, 404, { error: "Нет такого ребёнка." });
+        if (body.wait && !comfy.online) return send(res, 503, { error: "ComfyUI выключен." });
+        const job = jobs.create({ talentId: ip.key, prompt: ip.positive, negativePrompt: ip.negative, width: 512, height: 512, bypassCache: true, noBelly: true, seed: body.seed }, "interactive");
+        if (!body.wait) return send(res, 200, { ok: true, id: job.id, key: ip.key, positive: ip.positive, negative: ip.negative });
+        await waitFor(job, 10 * 60 * 1e3);
+        if (job.status !== "completed") return send(res, 500, { error: job.error || "Не удалось нарисовать портрет." });
+        const e = library.latest(ip.key);
+        if (!e) return send(res, 500, { error: "Картинка не сохранилась." });
+        const cs = childstateSetImage(store.dataDir, pt, id, { file: e.file, url: "/images/wb/" + e.file.split("/").map(encodeURIComponent).join("/"), at: Date.now(), seed: e.seed, prompt: e.prompt });
+        return send(res, 200, { ok: true, image: "/images/wb/" + e.file, state: withChildLook(cs) });
       }
       if (p === "/bridge/api/player/random" && m === "POST") {
         const l = looksRandom(); l.set = true;

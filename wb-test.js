@@ -255,6 +255,24 @@ async function waitUp(c) {
   ok("G4: молоко у срока в positive", String((stMilk.json || {}).positive || "").includes("lactating breasts, milk"));
   const stBirth = await api("POST", "/bridge/api/childstate/set", { playthrough: "pt-setb", patch: { pregnancy: { day: 40 } } });
   ok("G4: set доводит до родов", (safe(stBirth.json, ["state", "children"]) || []).length >= 1 && safe(stBirth.json, ["state", "pregnancy", "active"]) === false);
+  // --- G5: портрет ребёнка ---
+  await api("POST", "/bridge/api/childstate/set", { playthrough: "pt-img", patch: { children: [
+    { id: "p1", sex: "f", bornDay: 100, stage: "infant", look: LOOK },
+    { id: "p2", sex: "m", bornDay: 100, stage: "teen", look: LOOK }
+  ] } });
+  const imInf = await api("POST", "/bridge/api/childstate/image", { playthrough: "pt-img", childId: "p1" });
+  ok("G5: роут портрета даёт ключ", imInf.status === 200 && String(safe(imInf.json, ["key"]) || "").startsWith("child_"));
+  const pInf = String(safe(imInf.json, ["positive"]) || "");
+  ok("G5: младенец — 1girl, baby, без груди", pInf.includes("1girl") && pInf.includes("baby") && !pInf.includes("breasts"));
+  const imTeen = await api("POST", "/bridge/api/childstate/image", { playthrough: "pt-img", childId: "p2" });
+  const pTeen = String(safe(imTeen.json, ["positive"]) || "");
+  ok("G5: мальчик-подросток — 1boy, teenager", pTeen.includes("1boy") && pTeen.includes("teenager"));
+  ok("G5: гены в промпте", pTeen.includes("black wavy hair") && pTeen.includes("green eyes"));
+  const imNo = await api("POST", "/bridge/api/childstate/image", { playthrough: "pt-img", childId: "нет" });
+  ok("G5: нет ребёнка -> 404", imNo.status === 404);
+  await api("POST", "/bridge/api/childstate/set", { playthrough: "pt-img", patch: { children: [{ id: "p1", sex: "f", stage: "infant", look: LOOK, img: { file: "x.png" } }] } });
+  const stImg = await api("POST", "/bridge/api/childstate/reroll", { playthrough: "pt-img", childId: "p1" });
+  ok("G5: переброс сбрасывает старый портрет", safe(stImg.json, ["state", "children", 0, "img"]) === null);
   c.kill();
   await sleep(300);
   fs.rmSync(DATA, { recursive: true, force: true });

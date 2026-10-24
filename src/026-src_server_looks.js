@@ -61,6 +61,26 @@ var require_looks = __commonJS({
       }
       return t.join(", ");
     }
-    module2.exports = { random: random, extract: extract, child: child, describe: describe, SCALE: SCALE, FREE: FREE };
+    var AGE_TAGS = {
+      infant: "baby, 1 year old, chubby cheeks, big round eyes",
+      child: "child, 7 years old",
+      teen: "teenager, 14 years old",
+      youth: "young adult",
+      adult: "adult"
+    };
+    // промпт портрета ребёнка: пол, возрастная стадия и его гены
+    function portraitPrompt(look, opts) {
+      opts = opts || {};
+      var sex = opts.sex === "m" ? "m" : "f";
+      var stage = opts.stage || "child";
+      var t = [];
+      t.push("masterpiece, best quality, " + (sex === "f" ? "1girl" : "1boy") + ", solo, portrait, upper body, looking at viewer");
+      t.push(AGE_TAGS[stage] || AGE_TAGS.child);
+      var d = describe(look, stage, sex);
+      if (d) t.push(d);
+      t.push("medieval tavern interior background, warm candlelight, soft focus");
+      return { positive: t.join(", "), negative: "lowres, bad anatomy, bad hands, extra fingers, fewer fingers, text, watermark, signature, blurry, worst quality, low quality" };
+    }
+    module2.exports = { random: random, extract: extract, child: child, describe: describe, portraitPrompt: portraitPrompt, SCALE: SCALE, FREE: FREE };
   }
 });

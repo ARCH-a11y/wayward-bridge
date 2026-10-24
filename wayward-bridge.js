@@ -7575,8 +7575,8 @@ var require_assets_generated = __commonJS({
             kids.length ? h("div", { class: "pgrid" }, kids.map(function(c, i) {
               var age = ((cs && cs.lastDay) || 0) - (c.bornDay || 0);
               return h("div", { class: "pcell" },
-                h("div", { class: "phead" }, h("span", { class: "plab" }, "#" + (i + 1) + " " + (c.sex === "f" ? "девочка" : "мальчик")), h("button", { type: "button", class: "link", title: "Перебросить внешность", onclick: function() { api("POST", "/bridge/api/childstate/reroll", { playthrough: pt, childId: c.id }).then(function(j) { if (j && j.state) S.st.childstate = j.state; say("Внешность переброшена"); render(); }); } }, "↻")),
-                h("div", { style: "padding:2px 4px;font-size:12px" }, (c.stage || "?") + ", " + age + " дн" + (c.lookText ? " — " + c.lookText : "")));
+                h("div", { class: "phead" }, h("span", { class: "plab" }, "#" + (i + 1) + " " + (c.sex === "f" ? "девочка" : "мальчик")), h("button", { type: "button", class: "link", title: "Перебросить внешность", onclick: function() { api("POST", "/bridge/api/childstate/reroll", { playthrough: pt, childId: c.id }).then(function(j) { if (j && j.state) S.st.childstate = j.state; say("Внешность переброшена"); render(); }); } }, "↻"), h("button", { type: "button", class: "link", title: "Нарисовать портрет", onclick: function() { say("Рисую портрет…"); api("POST", "/bridge/api/childstate/image", { playthrough: pt, childId: c.id, wait: true }).then(function(j) { if (j && j.state) S.st.childstate = j.state; say(j && j.error ? j.error : "Портрет готов"); render(); }); } }, "портрет")),
+                h("div", { style: "padding:2px 4px;font-size:12px" }, (c.stage || "?") + ", " + age + " дн" + (c.lookText ? " — " + c.lookText : "")), c.img && c.img.url ? h("img", { src: c.img.url, style: "display:block;width:100%;border-radius:6px;margin-top:4px" }) : null);
             })) : null,
             row((function() {
               var cur = cs && cs.childWish ? cs.childWish.mode : "none";
@@ -11631,7 +11631,7 @@ var require_server = __commonJS({
     var { UpdateCheck, flatten: flattenPrompts } = require_updates();
     var { addonItems } = require_items();
     var { clean: cleanSchema, LAYER: LAYER_SCHEMA } = require_schema();
-    var { forPlaythrough: childstateFor, tick: childstateTick, prompt: childstatePrompt, current: childstateCurrent, set: childstateSet, rerollLook: childstateReroll } = require_childstate();
+    var { forPlaythrough: childstateFor, tick: childstateTick, prompt: childstatePrompt, current: childstateCurrent, set: childstateSet, rerollLook: childstateReroll, imagePrompt: childstateImagePrompt, setImage: childstateSetImage } = require_childstate();
     var { extract: looksExtract, describe: looksDescribe, random: looksRandom, SCALE: LOOKS_SCALE, FREE: LOOKS_FREE } = require_looks();
     var { Ratings, suggestions } = require_learn();
     var maintainer = require_maintainer();
@@ -11838,7 +11838,7 @@ var require_server = __commonJS({
       });
       if (req.pipeOverride) applyPipeOverride(pipe, req.pipeOverride);
       const d = defaultLayer();
-      const child = childstatePrompt(store.dataDir);
+      const child = req.noBelly ? null : childstatePrompt(store.dataDir);
       const synth = !req.prompt && !(Array.isArray(req.parts) && req.parts.length) && parsed.kind !== "patron" ? synthesize(parsed, heroine, eff.prompts, child) : null;
       const r = compose({
         parsed,
@@ -12582,6 +12582,22 @@ var require_server = __commonJS({
         const body = await readJson(req);
         const cs3 = childstateReroll(store.dataDir, String(body.playthrough || ""), String(body.childId || ""));
         return send(res, 200, { ok: true, state: withChildLook(cs3) });
+      }
+      if (p === "/bridge/api/childstate/image" && m === "POST") {
+        const body = await readJson(req);
+        const pt = String(body.playthrough || "");
+        const id = String(body.childId || "");
+        const ip = childstateImagePrompt(store.dataDir, pt, id);
+        if (!ip) return send(res, 404, { error: "Нет такого ребёнка." });
+        if (body.wait && !comfy.online) return send(res, 503, { error: "ComfyUI выключен." });
+        const job = jobs.create({ talentId: ip.key, prompt: ip.positive, negativePrompt: ip.negative, width: 512, height: 512, bypassCache: true, noBelly: true, seed: body.seed }, "interactive");
+        if (!body.wait) return send(res, 200, { ok: true, id: job.id, key: ip.key, positive: ip.positive, negative: ip.negative });
+        await waitFor(job, 10 * 60 * 1e3);
+        if (job.status !== "completed") return send(res, 500, { error: job.error || "Не удалось нарисовать портрет." });
+        const e = library.latest(ip.key);
+        if (!e) return send(res, 500, { error: "Картинка не сохранилась." });
+        const cs = childstateSetImage(store.dataDir, pt, id, { file: e.file, url: "/images/wb/" + e.file.split("/").map(encodeURIComponent).join("/"), at: Date.now(), seed: e.seed, prompt: e.prompt });
+        return send(res, 200, { ok: true, image: "/images/wb/" + e.file, state: withChildLook(cs) });
       }
       if (p === "/bridge/api/player/random" && m === "POST") {
         const l = looksRandom(); l.set = true;
@@ -13510,13 +13526,36 @@ var require_childstate = __commonJS({
     function rerollLook(dir, pt, childId) {
       var s = forPlaythrough(dir, pt);
       for (var i = 0; i < s.children.length; i++) {
-        if (s.children[i].id === childId) { s.children[i].look = looks.child(s.pregnancy.motherLook, s.pregnancy.fatherLook); }
+        if (s.children[i].id === childId) { s.children[i].look = looks.child(s.pregnancy.motherLook, s.pregnancy.fatherLook); s.children[i].img = null; }
       }
       save(dir, s);
       return s;
     }
 
-    module2.exports = { empty: empty, forPlaythrough: forPlaythrough, tick: tick, phase: phase, chance: chance, stageOf: stageOf, prompt: prompt, current: current, set: set, rerollLook: rerollLook };
+    function childById(s, id) {
+      for (var i = 0; i < s.children.length; i++) if (s.children[i].id === id) return s.children[i];
+      return null;
+    }
+
+    // промпт портрета: ключ child_<id>, гены и стадия ребёнка
+    function imagePrompt(dir, pt, childId) {
+      var s = forPlaythrough(dir, pt);
+      var c = childById(s, childId);
+      if (!c) return null;
+      var p = looks.portraitPrompt(c.look, { sex: c.sex, stage: c.stage });
+      return { key: "child_" + c.id, positive: p.positive, negative: p.negative, sex: c.sex, stage: c.stage };
+    }
+
+    function setImage(dir, pt, childId, rec) {
+      var s = forPlaythrough(dir, pt);
+      var c = childById(s, childId);
+      if (!c) return null;
+      c.img = rec;
+      save(dir, s);
+      return s;
+    }
+
+    module2.exports = { empty: empty, forPlaythrough: forPlaythrough, tick: tick, phase: phase, chance: chance, stageOf: stageOf, prompt: prompt, current: current, set: set, rerollLook: rerollLook, imagePrompt: imagePrompt, setImage: setImage };
   }
 });
 // src/server/looks.js
@@ -13582,7 +13621,27 @@ var require_looks = __commonJS({
       }
       return t.join(", ");
     }
-    module2.exports = { random: random, extract: extract, child: child, describe: describe, SCALE: SCALE, FREE: FREE };
+    var AGE_TAGS = {
+      infant: "baby, 1 year old, chubby cheeks, big round eyes",
+      child: "child, 7 years old",
+      teen: "teenager, 14 years old",
+      youth: "young adult",
+      adult: "adult"
+    };
+    // промпт портрета ребёнка: пол, возрастная стадия и его гены
+    function portraitPrompt(look, opts) {
+      opts = opts || {};
+      var sex = opts.sex === "m" ? "m" : "f";
+      var stage = opts.stage || "child";
+      var t = [];
+      t.push("masterpiece, best quality, " + (sex === "f" ? "1girl" : "1boy") + ", solo, portrait, upper body, looking at viewer");
+      t.push(AGE_TAGS[stage] || AGE_TAGS.child);
+      var d = describe(look, stage, sex);
+      if (d) t.push(d);
+      t.push("medieval tavern interior background, warm candlelight, soft focus");
+      return { positive: t.join(", "), negative: "lowres, bad anatomy, bad hands, extra fingers, fewer fingers, text, watermark, signature, blurry, worst quality, low quality" };
+    }
+    module2.exports = { random: random, extract: extract, child: child, describe: describe, portraitPrompt: portraitPrompt, SCALE: SCALE, FREE: FREE };
   }
 });
 // src/main.js
