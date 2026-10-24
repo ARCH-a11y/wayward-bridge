@@ -258,7 +258,7 @@ var require_childstate = __commonJS({
         strictness: 0.4,
         past: "good",
         presence: 0.6,
-        regard: 0.6,
+        regard: 0.1,
         belief: { rung: "nothing", sinceDay: 0, thinksHeKnows: false },
         attributes: { strength: 30, deftness: 40, vigor: 45, wit: 45, composure: 40, charm: 50, openness: 50, confidence: 50 },
         wbChild: true,
