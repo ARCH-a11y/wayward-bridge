@@ -7,6 +7,10 @@ const src = fs.readFileSync(FILE, "utf8");
 
 // [название, подстрока, минимум вхождений]
 const CHECKS = [
+  ["G6b: вес home в визитах", "UCe={home:", 1],
+  ["G6b: переезд по стадии", "function moveOutIfGrown(c)", 1],
+  ["G6b: домашний живёт дома", "c.movedOut ? (c.home || \"same_town\") : \"home\"", 1],
+  ["G6b: вес home", "home:.9,same_town:.7", 1],
   ["G6: pt в правке ребёнка", "function patchChild(id, patch, pt)", 1],
   ["G6: добор имён", "function ensureNames(s)", 1],
   ["G6: правка ребёнка", "function patchChild(dir, pt, childId, patch)", 1],

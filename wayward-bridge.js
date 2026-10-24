@@ -3884,6 +3884,14 @@ var require_game = __commonJS({
           html = nurseryHtml;
           hooks.nursery = true;
         } else hooks.nursery = false;
+        const kinHtml = html.replace('Fle={same_town:.7,day_ride:.35,far:.1}', 'Fle={home:.9,same_town:.7,day_ride:.35,far:.1}')
+          .replace('UCe={', 'UCe={home:.8,')
+          .replace('GCe={', 'GCe={home:.5,');
+        if (kinHtml !== html && stillCompiles(original, kinHtml)) {
+          html = kinHtml;
+          hooks.kin = true;
+        } else hooks.kin = false;
+        console.log("[bridge]   kin home weight:", hooks.kin ? "installed" : "NOT FOUND");
         const tag = '<script id="wayward-bridge">' + this.bootstrap + '</script>\n<script src="' + this.menuUrl + '" defer></script>';
         const firstScript = html.search(/<script\b/i);
         html = firstScript >= 0 ? html.slice(0, firstScript) + tag + "\n    " + html.slice(firstScript) : html.replace(/<\/head>/i, () => tag + "</head>");
@@ -13515,7 +13523,7 @@ var require_childstate = __commonJS({
           name: pickName(s, sx),
           fatherId: s.pregnancy.fatherId || "",
           bornDay: day, stage: "infant", birth: outcome,
-          promoted: false,
+          promoted: false, movedOut: false, home: "",
           look: looks.child(s.pregnancy.motherLook, s.pregnancy.fatherLook)
         });
       }
@@ -13541,7 +13549,11 @@ var require_childstate = __commonJS({
         if (s.pregnancy.day >= TERM) birth(s, day, ctx);
       }
 
-      for (var i = 0; i < s.children.length; i++) s.children[i].stage = stageOf(day - s.children[i].bornDay);
+      for (var i = 0; i < s.children.length; i++) {
+        var ch = s.children[i];
+        ch.stage = stageOf(day - ch.bornDay);
+        moveOutIfGrown(ch);
+      }
 
       if (s.pregnancy.active && !s.pregnancy.known) {
         var tr = Number(ctx.trust || 0);
@@ -13646,7 +13658,7 @@ var require_childstate = __commonJS({
         sex: c.sex === "m" ? "m" : "f",
         generation: 1,
         alive: true,
-        lives: "same_town",
+        lives: c.movedOut ? (c.home || "same_town") : "home",
         circle: 0.7,
         warmth: 0.8,
         strictness: 0.4,
@@ -13663,6 +13675,8 @@ var require_childstate = __commonJS({
         personId: pid,
         name: person.name,
         stage: c.stage,
+        movedOut: !!c.movedOut,
+        lives: c.movedOut ? (c.home || "same_town") : "home",
         link: { kind: "parent_of", from: "char:" + (her || pt), to: "person:" + pid }
       };
     }
@@ -13679,6 +13693,15 @@ var require_childstate = __commonJS({
     }
 
     var STAGE_AGE = { infant: 15, child: 50, teen: 100, youth: 160 };
+    // где ребёнок живёт: дома, пока не вырос; дальше — своё место
+    function pickHome() {
+      var r = Math.random();
+      return r < 0.45 ? "same_town" : r < 0.8 ? "day_ride" : "far";
+    }
+    function moveOutIfGrown(c) {
+      if (c.stage === "youth" && !c.movedOut) { c.movedOut = true; c.home = pickHome(); }
+      return c;
+    }
     // правка одного ребёнка: имя, стадия, возраст (стадия и bornDay держатся согласованно)
     function patchChild(dir, pt, childId, patch) {
       var s = forPlaythrough(dir, pt);
@@ -13690,6 +13713,7 @@ var require_childstate = __commonJS({
       if (typeof patch.bornDay === "number" && isFinite(patch.bornDay)) c.bornDay = Math.round(patch.bornDay);
       if (c.bornDay > (s.lastDay || 0)) c.bornDay = s.lastDay || 0;
       c.stage = stageOf((s.lastDay || 0) - c.bornDay);
+      moveOutIfGrown(c);
       if (!c.name) c.name = pickName(s, c.sex);
       save(dir, s);
       return s;

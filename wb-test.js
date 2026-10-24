@@ -279,7 +279,7 @@ async function waitUp(c) {
   const g6p = await api("GET", "/bridge/api/childstate/person?playthrough=pt-pers&childId=q1&her=elena");
   ok("G6: человек для ребёнка", g6p.status === 200 && safe(g6p.json, ["person", "name"]) === "Анна" && safe(g6p.json, ["person", "sex"]) === "f");
   ok("G6: ребро parent_of от героини", safe(g6p.json, ["link", "kind"]) === "parent_of" && safe(g6p.json, ["link", "from"]) === "char:elena" && String(safe(g6p.json, ["link", "to"]) || "").indexOf("person:") === 0);
-  ok("G6: живой и рядом", safe(g6p.json, ["person", "alive"]) === true && safe(g6p.json, ["person", "lives"]) === "same_town");
+  ok("G6: живой и дома", safe(g6p.json, ["person", "alive"]) === true && safe(g6p.json, ["person", "lives"]) === "home");
   ok("G6: атрибуты и regard", typeof safe(g6p.json, ["person", "attributes", "wit"]) === "number" && typeof safe(g6p.json, ["person", "regard"]) === "number");
   const g6pr = await api("POST", "/bridge/api/childstate/promote", { playthrough: "pt-pers", childId: "q1", her: "elena" });
   ok("G6: пометка promoted", safe(g6pr.json, ["state", "children", 0, "promoted", "personId"]) === safe(g6p.json, ["personId"]));
@@ -298,6 +298,14 @@ async function waitUp(c) {
   ok("G6: имя добирается старым детям", String(safe(g6bf.json, ["person", "name"]) || "").length > 1);
   const g6no2 = await api("POST", "/bridge/api/childstate/child", { playthrough: "pt-pers", childId: "нет", patch: { stage: "teen" } });
   ok("G6: правка несуществующего -> 404", g6no2.status === 404);
+  // --- G6b1: дома vs уехал ---
+  await api("POST", "/bridge/api/childstate/set", { playthrough: "pt-home", patch: { children: [{ id: "h1", sex: "m", name: "Петер", bornDay: 1, stage: "child", look: LOOK }] } });
+  const g7p = await api("GET", "/bridge/api/childstate/person?playthrough=pt-home&childId=h1&her=elena");
+  ok("G6b: домашний живёт дома", safe(g7p.json, ["person", "lives"]) === "home" && safe(g7p.json, ["movedOut"]) === false);
+  await api("POST", "/bridge/api/childstate/child", { playthrough: "pt-home", childId: "h1", patch: { stage: "youth" } });
+  const g7q = await api("GET", "/bridge/api/childstate/person?playthrough=pt-home&childId=h1&her=elena");
+  ok("G6b: вырос — переехал", safe(g7q.json, ["movedOut"]) === true && ["same_town", "day_ride", "far"].indexOf(safe(g7q.json, ["person", "lives"])) >= 0);
+  ok("G6b: домашний вне вылазок", safe(g7p.json, ["person", "lives"]) !== "same_town");
   c.kill();
   await sleep(300);
   fs.rmSync(DATA, { recursive: true, force: true });

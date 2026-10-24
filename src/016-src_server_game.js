@@ -112,6 +112,14 @@ var require_game = __commonJS({
           html = nurseryHtml;
           hooks.nursery = true;
         } else hooks.nursery = false;
+        const kinHtml = html.replace('Fle={same_town:.7,day_ride:.35,far:.1}', 'Fle={home:.9,same_town:.7,day_ride:.35,far:.1}')
+          .replace('UCe={', 'UCe={home:.8,')
+          .replace('GCe={', 'GCe={home:.5,');
+        if (kinHtml !== html && stillCompiles(original, kinHtml)) {
+          html = kinHtml;
+          hooks.kin = true;
+        } else hooks.kin = false;
+        console.log("[bridge]   kin home weight:", hooks.kin ? "installed" : "NOT FOUND");
         const tag = '<script id="wayward-bridge">' + this.bootstrap + '</script>\n<script src="' + this.menuUrl + '" defer></script>';
         const firstScript = html.search(/<script\b/i);
         html = firstScript >= 0 ? html.slice(0, firstScript) + tag + "\n    " + html.slice(firstScript) : html.replace(/<\/head>/i, () => tag + "</head>");
