@@ -115,7 +115,13 @@ var require_game = __commonJS({
         const kinHtml = html.replace('Fle={same_town:.7,day_ride:.35,far:.1}', 'Fle={home:.9,same_town:.7,day_ride:.35,far:.1}')
           .replace('UCe={', 'UCe={home:.8,')
           .replace('GCe={', 'GCe={home:.5,')
-          .replace('function qD(){jm=null,Ya=null,zs=null}', 'function qD(){jm=null,Ya=null,zs=null;I_=null;window.__WB_PACK_RESET__=qD}');
+          .replace('function qD(){jm=null,Ya=null,zs=null}', 'function qD(){jm=null,Ya=null,zs=null;I_=null;window.__WB_PACK_RESET__=qD}')
+          .replace('n.has(f)&&(o[d].occupants.push(f),r.add(f))}', '(n.has(f)||e.characters&&e.characters[f])&&(o[d].occupants.push(f),r.add(f))}')
+          .replace('g=iU(e,d);return{', 'g=iU(e,d).filter(function(v){return !((v.person||v).wbChild)});return{')
+          .replace('o=iU(t,e);return', 'o=iU(t,e).filter(function(v){return !((v.person||v).wbChild)});return')
+          .replace('return n?n.persons.filter(i=>s.has(cp(i))):[]', 'return n?n.persons.filter(i=>s.has(cp(i))&&!(i.wbChild&&s.has(i.id.slice(2)))):[]')
+          .replace('return n?n.persons.filter(i=>s.has(cp(i))):[]', 'return n?n.persons.filter(i=>s.has(cp(i))&&!(i.wbChild&&s.has(i.id.slice(2)))):[]')
+          .replace('truncate max-w-[10rem] ${i.text}`,children:t.name})', 'truncate max-w-[10rem] ${i.text}`,children:t.wbChild&&window.__WB_KINLABEL__?t.name+" · "+window.__WB_KINLABEL__(e):t.name})');
         if (kinHtml !== html && stillCompiles(original, kinHtml)) {
           html = kinHtml;
           hooks.kin = true;

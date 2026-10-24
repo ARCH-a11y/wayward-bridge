@@ -3887,7 +3887,13 @@ var require_game = __commonJS({
         const kinHtml = html.replace('Fle={same_town:.7,day_ride:.35,far:.1}', 'Fle={home:.9,same_town:.7,day_ride:.35,far:.1}')
           .replace('UCe={', 'UCe={home:.8,')
           .replace('GCe={', 'GCe={home:.5,')
-          .replace('function qD(){jm=null,Ya=null,zs=null}', 'function qD(){jm=null,Ya=null,zs=null;I_=null;window.__WB_PACK_RESET__=qD}');
+          .replace('function qD(){jm=null,Ya=null,zs=null}', 'function qD(){jm=null,Ya=null,zs=null;I_=null;window.__WB_PACK_RESET__=qD}')
+          .replace('n.has(f)&&(o[d].occupants.push(f),r.add(f))}', '(n.has(f)||e.characters&&e.characters[f])&&(o[d].occupants.push(f),r.add(f))}')
+          .replace('g=iU(e,d);return{', 'g=iU(e,d).filter(function(v){return !((v.person||v).wbChild)});return{')
+          .replace('o=iU(t,e);return', 'o=iU(t,e).filter(function(v){return !((v.person||v).wbChild)});return')
+          .replace('return n?n.persons.filter(i=>s.has(cp(i))):[]', 'return n?n.persons.filter(i=>s.has(cp(i))&&!(i.wbChild&&s.has(i.id.slice(2)))):[]')
+          .replace('return n?n.persons.filter(i=>s.has(cp(i))):[]', 'return n?n.persons.filter(i=>s.has(cp(i))&&!(i.wbChild&&s.has(i.id.slice(2)))):[]')
+          .replace('truncate max-w-[10rem] ${i.text}`,children:t.name})', 'truncate max-w-[10rem] ${i.text}`,children:t.wbChild&&window.__WB_KINLABEL__?t.name+" · "+window.__WB_KINLABEL__(e):t.name})');
         if (kinHtml !== html && stillCompiles(original, kinHtml)) {
           html = kinHtml;
           hooks.kin = true;
@@ -5349,7 +5355,7 @@ var require_assets_generated = __commonJS({
                   var locs = {};
                   Object.keys(g.locations).forEach(function(k2) {
                     var o = g.locations[k2] && g.locations[k2].occupants;
-                    locs[k2] = Object.assign({}, g.locations[k2], { occupants: (o || []).filter(function(v) { return v !== pid; }) });
+                    locs[k2] = Object.assign({}, g.locations[k2], { occupants: (o || []).filter(function(v) { return v !== pid && v !== c.id; }) });
                   });
                   st.locations = locs;
                 }
@@ -5487,11 +5493,12 @@ var require_assets_generated = __commonJS({
             var keys = kids.map(function(c) { return "wb" + c.id; });
             var pids = keys.map(function(k) { return "person:" + k; });
             var vp = (g.visitingPeople || []).filter(function(e) { return keys.indexOf(e.personId) < 0; });
+            var cids = kids.map(function(c) { return c.id; });
             var locs = Object.assign({}, g.locations || {}), occ = {};
             Object.keys(locs).forEach(function(k) {
               var o = locs[k] && locs[k].occupants;
               if (!o) return;
-              var f = o.filter(function(v) { return pids.indexOf(v) < 0; });
+              var f = o.filter(function(v) { return pids.indexOf(v) < 0 && cids.indexOf(v) < 0; });
               if (f.length !== o.length) occ[k] = f;
             });
             kids.forEach(function(c) {
@@ -5500,7 +5507,7 @@ var require_assets_generated = __commonJS({
               var room = (phase === "service" && c.stage !== "infant") ? "taproom" : "nursery";
               vp.push({ of: her, personId: "wb" + c.id, arrivedSlot: slot, leaveAtSlot: slot + 1e6, toSee: false, home: true });
               var base = occ[room] != null ? occ[room] : ((locs[room] && locs[room].occupants) || []);
-              occ[room] = base.filter(function(v) { return pids.indexOf(v) < 0; }).concat([pid]);
+              occ[room] = base.filter(function(v) { return pids.indexOf(v) < 0 && v !== c.id; }).concat([pid, c.id]);
             });
             Object.keys(occ).forEach(function(k) {
               locs[k] = Object.assign({}, locs[k] || { occupants: [] }, { occupants: occ[k] });
@@ -5605,6 +5612,52 @@ var require_assets_generated = __commonJS({
           });
         }
         // H1b: родня ребёнку создаётся сама, без кнопки
+        // H2b: у человека-ребёнка свои атрибуты и низкий regard, а не женины
+        var CHILD_MULT2 = { infant: 0, child: 0.35, teen: 0.7, youth: 1 };
+        var CHILD_ATTRS2 = ["strength", "deftness", "vigor", "wit", "composure", "charm", "honesty", "libido", "loyalty", "openness", "confidence"];
+        function normalizeChildPerson() {
+          var s = window.__WB_STORE__;
+          if (!s || !s.getState) return;
+          var cs = S.st && S.st.childstate;
+          if (!cs) return;
+          var g = s.getState().state || {};
+          var her = g.primaryCharacterId;
+          var cir = her && g.circles && g.circles[her];
+          if (!cir || !(cir.persons || []).length) return;
+          var stage = {};
+          (cs.children || []).forEach(function(c) { stage["wb" + c.id] = c.stage; });
+          var dirty = false;
+          var persons = (cir.persons || []).map(function(p) {
+            if (!p.wbChild || !stage[p.id]) return p;
+            var st = stage[p.id];
+            if (p.wbStage === st && p.regard === 0.1) return p;
+            var m = CHILD_MULT2[st];
+            if (m == null) m = 0.35;
+            var np = Object.assign({}, p);
+            np.wbStage = st;
+            np.regard = 0.1;
+            np.attributes = {};
+            CHILD_ATTRS2.forEach(function(a) { np.attributes[a] = m <= 0 ? 0 : Math.round(m * 50); });
+            dirty = true;
+            return np;
+          });
+          if (!dirty) return;
+          s.setState(function(x) {
+            var gg = x.state || {}, cc = Object.assign({}, gg.circles || {});
+            cc[her] = Object.assign({}, cir, { persons: persons });
+            var out = {};
+            for (var k in gg) out[k] = gg[k];
+            out.circles = cc;
+            return { state: out };
+          });
+        }
+        // H1c: родство для строки ребёнка в панели
+        window.__WB_KINLABEL__ = function(id) {
+          var cs = S.st && S.st.childstate;
+          var c = ((cs && cs.children) || []).filter(function(x) { return x.id === id; })[0];
+          if (!c) return "";
+          return c.sex === "m" ? "her son" : "her daughter";
+        };
         var kinBusy = {};
         function ensureChildKin(pt) {
           var s = window.__WB_STORE__;
@@ -5659,7 +5712,7 @@ var require_assets_generated = __commonJS({
               var locs = {};
               Object.keys(gg.locations).forEach(function(k3) {
                 var o = (gg.locations[k3] && gg.locations[k3].occupants) || [];
-                locs[k3] = Object.assign({}, gg.locations[k3], { occupants: o.filter(function(v) { return !staleOcc(v); }) });
+                locs[k3] = Object.assign({}, gg.locations[k3], { occupants: o.filter(function(v) { return !staleOcc(v) && dead.indexOf(v) < 0; }) });
               });
               st.locations = locs;
             }
@@ -5693,6 +5746,7 @@ var require_assets_generated = __commonJS({
             loadChildFromSave(pt);
             mirrorChild();
             pruneChildCharacters();
+            normalizeChildPerson();
             syncChildCharacter();
             ensureChildKin(pt);
             syncChildHome();
