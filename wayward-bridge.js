@@ -7551,10 +7551,7 @@ var require_assets_generated = __commonJS({
           var kids = cs && cs.children || [];
           var stage = !preg.active ? "нет" : preg.day < 10 ? "не видно" : preg.day < 20 ? "слегка" : preg.day < 30 ? "заметно" : "большой";
           function set(patch) {
-            api("POST", "/bridge/api/childstate/set", { playthrough: pt, patch: patch }).then(function(j) {
-              if (j && j.state) S.st.childstate = j.state;
-              render();
-            });
+            api("POST", "/bridge/api/childstate/set", { playthrough: pt, patch: patch }).then(function(j) { if (j && j.state) S.st.childstate = j.state; render(); });
           }
           function cell(label, val) {
             return h("div", { class: "pcell" },
@@ -7572,13 +7569,13 @@ var require_assets_generated = __commonJS({
               cell("Знает", preg.known ? "да" : "нет"),
               cell("Цикл", cs && cs.cycle ? cs.cycle.day + " / " + cs.cycle.length : "—"),
               cell("Дети", String(kids.length)),
-              cell("Молоко", post.milkUntilDay > ((cs && cs.lastDay) || 0) ? "да" : "нет"),
+              cell("Молоко", (post.milkUntilDay > ((cs && cs.lastDay) || 0) || (preg.active && preg.day >= 30)) ? "да" : "нет"),
               cell("Желание", cs && cs.childWish ? (cs.childWish.mode || "нет") : "—")
             ),
             kids.length ? h("div", { class: "pgrid" }, kids.map(function(c, i) {
               var age = ((cs && cs.lastDay) || 0) - (c.bornDay || 0);
               return h("div", { class: "pcell" },
-                h("div", { class: "phead" }, h("span", { class: "plab" }, "#" + (i + 1) + " " + (c.sex === "f" ? "девочка" : "мальчик")), h("button", { type: "button", class: "link", title: "Перебросить внешность", onclick: function() { api("POST", "/bridge/api/childstate/reroll", { playthrough: pt, childId: c.id }).then(function(j) { if (j && j.state) S.st.childstate = j.state; render(); }); } }, "↻")),
+                h("div", { class: "phead" }, h("span", { class: "plab" }, "#" + (i + 1) + " " + (c.sex === "f" ? "девочка" : "мальчик")), h("button", { type: "button", class: "link", title: "Перебросить внешность", onclick: function() { api("POST", "/bridge/api/childstate/reroll", { playthrough: pt, childId: c.id }).then(function(j) { if (j && j.state) S.st.childstate = j.state; say("Внешность переброшена"); render(); }); } }, "↻")),
                 h("div", { style: "padding:2px 4px;font-size:12px" }, (c.stage || "?") + ", " + age + " дн" + (c.lookText ? " — " + c.lookText : "")));
             })) : null,
             row((function() {
@@ -12496,7 +12493,7 @@ var require_server = __commonJS({
       const addons = store.listAddons().map((a) => Object.assign(a, { layer: (store.readAddon(a.file) || {}).layer || {}, heroine: (store.readAddon(a.file) || {}).heroine || {}, items: [...store.itemsOf(a.file)] }));
       return {
       lookVocab: { scale: LOOKS_SCALE, free: LOOKS_FREE },
-      childstate: (function () { var c = childstateCurrent(store.dataDir); if (c && c.children) c = Object.assign({}, c, { children: c.children.map(function (k) { return Object.assign({}, k, { lookText: looksDescribe(k.look, k.stage, k.sex) }); }) }); return c; })(),
+      childstate: withChildLook(childstateCurrent(store.dataDir)),
         revision: store.revision,
         app: store.settings.app,
         defaults: defaultLayer(),
@@ -12547,6 +12544,10 @@ var require_server = __commonJS({
       const e = library.latest(key);
       return e ? { kind: "wb", e, key, fp: library.filePath(e.file) } : { kind: "none", key };
     }
+    function withChildLook(cs) {
+      if (!cs || !cs.children) return cs;
+      return Object.assign({}, cs, { children: cs.children.map(function (k) { return Object.assign({}, k, { lookText: looksDescribe(k.look, k.stage, k.sex) }); }) });
+    }
     async function handleBridge(req, res, p, url) {
       if (!trusted(req)) return send(res, 403, { error: "Only the game page served by Wayward Bridge can use this." });
       const m = req.method;
@@ -12575,12 +12576,12 @@ var require_server = __commonJS({
       if (p === "/bridge/api/childstate/set" && m === "POST") {
         const body = await readJson(req);
         const cs2 = childstateSet(store.dataDir, String(body.playthrough || ""), body.patch || {});
-        return send(res, 200, { ok: true, state: cs2 });
+        return send(res, 200, { ok: true, state: withChildLook(cs2) });
       }
       if (p === "/bridge/api/childstate/reroll" && m === "POST") {
         const body = await readJson(req);
         const cs3 = childstateReroll(store.dataDir, String(body.playthrough || ""), String(body.childId || ""));
-        return send(res, 200, { ok: true, state: cs3 });
+        return send(res, 200, { ok: true, state: withChildLook(cs3) });
       }
       if (p === "/bridge/api/player/random" && m === "POST") {
         const l = looksRandom(); l.set = true;
@@ -13423,7 +13424,7 @@ var require_childstate = __commonJS({
           look: looks.child(s.pregnancy.motherLook, s.pregnancy.fatherLook)
         });
       }
-      s.pregnancy = { active: false, day: 0, fatherId: "", known: false, revealDay: 0, forced: false };
+      s.pregnancy = { active: false, day: 0, fatherId: "", known: false, revealDay: 0, forced: false, motherLook: s.pregnancy.motherLook || null, fatherLook: s.pregnancy.fatherLook || null };
       s.postpartum.blockUntilDay = day + block;
       s.postpartum.milkUntilDay = day + milk;
       s.lastBirth = { day: day, outcome: outcome, count: n };
@@ -13473,6 +13474,7 @@ var require_childstate = __commonJS({
         }
       }
 
+      if (s.pregnancy.active && s.pregnancy.day >= TERM) birth(s, s.lastDay || s.pregnancy.day, {});
       save(dir, s);
       return s;
     }
@@ -13482,6 +13484,7 @@ var require_childstate = __commonJS({
       var milk = (s.postpartum.milkUntilDay || 0) > (s.lastDay || 0);
       if (s.pregnancy && s.pregnancy.active) {
         var d = s.pregnancy.day;
+        if (d >= 30) milk = true;
         var stage = d < 10 ? "none" : d < 20 ? "slight" : d < 30 ? "visible" : "large";
         return { stage: stage, milk: milk };
       }
@@ -13499,6 +13502,7 @@ var require_childstate = __commonJS({
           s[k] = patch[k];
         }
       }
+      if (s.pregnancy.active && s.pregnancy.day >= TERM) birth(s, s.lastDay || s.pregnancy.day, {});
       save(dir, s);
       return s;
     }

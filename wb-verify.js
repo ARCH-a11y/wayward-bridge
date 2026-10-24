@@ -7,6 +7,9 @@ const src = fs.readFileSync(FILE, "utf8");
 
 // [название, подстрока, минимум вхождений]
 const CHECKS = [
+  ["G4 withChildLook", "function withChildLook(cs)", 1],
+  ["G4 молоко у срока", "if (d >= 30) milk = true;", 1],
+  ["G4 роды из set", "s.pregnancy.day >= TERM) birth(s, s.lastDay", 1],
   ["G3 BODY_PARTS: запятая", "\"Разное\"], [\"belly\"", 1],
   ["G3 секция паспорт", "function passportSec()", 1],
   ["G3 вызов паспорта", "stateSec(), passportSec(), bodySec()", 1],
@@ -47,7 +50,7 @@ const CHECKS = [
   ["F3 вызов секции", "stateSec(), passportSec(), bodySec()", 1],
   ["F3 живот в UI", "[\"belly\", \"Живот\"]", 1],
   ["F3 роут childstate/set", "/bridge/api/childstate/set", 1],
-  ["F3 childstate в stateFor", "childstate: (function () { var c = childstateCurrent", 1],
+  ["F3 childstate в stateFor", "childstate: withChildLook(childstateCurrent", 1],
   ["F3 модуль set", "function set(dir, pt, patch)", 1],
   ["F2 belly в SECTION_ORDER", "\"misc\", \"belly\"]", 1],
   ["F2 таблица стадий", "BELLY_TAGS", 1],
