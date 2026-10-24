@@ -1111,12 +1111,37 @@ var require_assets_generated = __commonJS({
           });
         }
         // H1c: родство для строки ребёнка в панели
+        window.__WB_KIDS__ = function() {
+          var cs = S.st && S.st.childstate;
+          return ((cs && cs.children) || []).map(function(c) { return { id: c.id, name: c.name || (c.sex === "m" ? "Сын" : "Дочь"), stage: c.stage }; });
+        };
         window.__WB_KINLABEL__ = function(id) {
           var cs = S.st && S.st.childstate;
           var c = ((cs && cs.children) || []).filter(function(x) { return x.id === id; })[0];
           if (!c) return "";
           return c.sex === "m" ? "her son" : "her daughter";
         };
+        // H1e: страховка — если запись главного персонажа исчезла, вернуть её
+        var wifeBak = "";
+        function keepWife() {
+          var s = window.__WB_STORE__;
+          if (!s || !s.getState) return;
+          var g = s.getState().state || {};
+          var her = g.primaryCharacterId;
+          if (!her || !g.characters) return;
+          var w = g.characters[her];
+          if (w) { wifeBak = JSON.stringify(w); return; }
+          if (!wifeBak) return;
+          s.setState(function(x) {
+            var gg = x.state || {}, chars = Object.assign({}, gg.characters || {});
+            chars[her] = JSON.parse(wifeBak);
+            var st = {};
+            for (var k in gg) st[k] = gg[k];
+            st.characters = chars;
+            return { state: st };
+          });
+        }
+        var lastChars = "", lastWifeBad = 0;
         var kinBusy = {};
         function ensureChildKin(pt) {
           var s = window.__WB_STORE__;
@@ -1202,8 +1227,13 @@ var require_assets_generated = __commonJS({
             var her = activeHer();
             var pt = her && her.save;
             if (!pt) return;
+            var __ks = Object.keys(g.characters || {}).join(",");
+            if (__ks !== lastChars) { lastChars = __ks; if (__ks && __ks.indexOf("wife") < 0) console.warn("[wb] жена пропала. characters =", __ks, (new Error()).stack); }
+            var __w = g.characters && g.characters[g.primaryCharacterId];
+            if (__w && !lastWifeBad && (__w.wbChild || __w.wbSig)) { lastWifeBad = 1; console.warn("[wb] у жены появились служебные поля:", Object.keys(__w).filter(function(k) { return /^wb/.test(k); }), (new Error()).stack); }
             loadChildFromSave(pt);
             mirrorChild();
+            keepWife();
             pruneChildCharacters();
             normalizeChildPerson();
             syncChildCharacter();
