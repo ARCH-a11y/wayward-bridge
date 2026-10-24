@@ -306,6 +306,19 @@ async function waitUp(c) {
   const g7q = await api("GET", "/bridge/api/childstate/person?playthrough=pt-home&childId=h1&her=elena");
   ok("G6b: вырос — переехал", safe(g7q.json, ["movedOut"]) === true && ["same_town", "day_ride", "far"].indexOf(safe(g7q.json, ["person", "lives"])) >= 0);
   ok("G6b: домашний вне вылазок", safe(g7p.json, ["person", "lives"]) !== "same_town");
+  // --- G6c: childstate из сейва и обратимость ---
+  const g8 = await api("POST", "/bridge/api/childstate/load", { playthrough: "pt-load", state: { lastDay: 12, children: [{ id: "z1", sex: "f", name: "Роза", bornDay: 2, stage: "child" }] } });
+  ok("G6c: состояние грузится из сейва", safe(g8.json, ["state", "lastDay"]) === 12 && (safe(g8.json, ["state", "children"]) || []).length === 1);
+  const g8b = await api("GET", "/bridge/api/childstate?playthrough=pt-load");
+  ok("G6c: и держится после чтения", safe(g8b.json, ["lastDay"]) === 12 && safe(g8b.json, ["children", 0, "name"]) === "Роза");
+  const g8c = await api("POST", "/bridge/api/childstate/load", { playthrough: "pt-load", state: { lastDay: 3, children: [] } });
+  ok("G6c: загрузка раннего сейва убирает ребёнка", (safe(g8c.json, ["state", "children"]) || []).length === 0 && safe(g8c.json, ["state", "lastDay"]) === 3);
+  await api("POST", "/bridge/api/childstate/set", { playthrough: "pt-back", patch: { children: [{ id: "b1", sex: "m", bornDay: 0, stage: "youth" }] } });
+  const g8d = await api("GET", "/bridge/api/childstate/person?playthrough=pt-back&childId=b1&her=elena");
+  ok("G6c: youth = уехал", safe(g8d.json, ["movedOut"]) === true);
+  await api("POST", "/bridge/api/childstate/child", { playthrough: "pt-back", childId: "b1", patch: { stage: "child" } });
+  const g8e = await api("GET", "/bridge/api/childstate/person?playthrough=pt-back&childId=b1&her=elena");
+  ok("G6c: возраст назад = дома", safe(g8e.json, ["movedOut"]) === false && safe(g8e.json, ["person", "lives"]) === "home");
   c.kill();
   await sleep(300);
   fs.rmSync(DATA, { recursive: true, force: true });

@@ -799,24 +799,45 @@ var require_assets_generated = __commonJS({
         }
         // ребёнок живёт дома: запись в visitingPeople + person: в occupants детской
         // (без записи в visitingPeople игра выбрасывает person: из комнат при синхронизации)
-        function syncChildHome(c) {
-          var store = window.__WB_STORE__;
-          if (!store || !store.getState) { say("Игра не отдала стор.", false); return; }
-          var her = (store.getState().state || {}).primaryCharacterId;
-          if (!her) return;
-          var pid = "person:wb" + c.id, key = "wb" + c.id;
-          store.setState(function(x) {
-            var g = x.state || {}, slot = g.slot || 0;
-            var vp = (g.visitingPeople || []).filter(function(e) { return e.personId !== key; });
+        var lastHomeSig = "";
+        function homeSig() {
+          var cs = S.st && S.st.childstate;
+          var s = window.__WB_STORE__;
+          if (!cs || !s || !s.getState) return "";
+          var g = s.getState().state || {};
+          return (g.phase || "") + "|" + (cs.children || []).map(function(c) { return c.id + c.stage + (c.movedOut ? "1" : "0"); }).join(",");
+        }
+        // дети живут в детской, днём (service) играют в таверне; уехавшие — вне дома
+        function syncChildHome(force) {
+          var s = window.__WB_STORE__;
+          if (!s || !s.getState) { if (force) say("Игра не отдала стор.", false); return; }
+          var her = (s.getState().state || {}).primaryCharacterId;
+          var cs = S.st && S.st.childstate;
+          if (!her || !cs) return;
+          var sig = homeSig();
+          if (!force && sig === lastHomeSig) return;
+          lastHomeSig = sig;
+          s.setState(function(x) {
+            var g = x.state || {}, slot = g.slot || 0, phase = g.phase || "";
+            var kids = (cs.children || []).filter(function(c) { return c.promoted; });
+            var keys = kids.map(function(c) { return "wb" + c.id; });
+            var pids = keys.map(function(k) { return "person:" + k; });
+            var vp = (g.visitingPeople || []).filter(function(e) { return keys.indexOf(e.personId) < 0; });
             var locs = Object.assign({}, g.locations || {}), occ = {};
             Object.keys(locs).forEach(function(k) {
               var o = locs[k] && locs[k].occupants;
-              if (o && o.indexOf(pid) >= 0) occ[k] = o.filter(function(v) { return v !== pid; });
+              if (!o) return;
+              var f = o.filter(function(v) { return pids.indexOf(v) < 0; });
+              if (f.length !== o.length) occ[k] = f;
             });
-            if (!c.movedOut) {
-              vp.push({ of: her, personId: key, arrivedSlot: slot, leaveAtSlot: slot + 1e6, toSee: false, home: true });
-              occ.nursery = (((locs.nursery && locs.nursery.occupants) || []).filter(function(v) { return v !== pid; })).concat([pid]);
-            }
+            kids.forEach(function(c) {
+              if (c.movedOut) return;
+              var pid = "person:wb" + c.id;
+              var room = (phase === "service" && c.stage !== "infant") ? "taproom" : "nursery";
+              vp.push({ of: her, personId: "wb" + c.id, arrivedSlot: slot, leaveAtSlot: slot + 1e6, toSee: false, home: true });
+              var base = occ[room] != null ? occ[room] : ((locs[room] && locs[room].occupants) || []);
+              occ[room] = base.filter(function(v) { return pids.indexOf(v) < 0; }).concat([pid]);
+            });
             Object.keys(occ).forEach(function(k) {
               locs[k] = Object.assign({}, locs[k] || { occupants: [] }, { occupants: occ[k] });
             });
@@ -824,6 +845,34 @@ var require_assets_generated = __commonJS({
             for (var k2 in g) st[k2] = g[k2];
             st.visitingPeople = vp;
             st.locations = locs;
+            return { state: st };
+          });
+        }
+        // состояние ребёнка едет вместе с сейвом игры
+        var wbChildLoadedFor = "", lastMirror = "";
+        function loadChildFromSave(pt) {
+          if (wbChildLoadedFor === pt) return;
+          wbChildLoadedFor = pt;
+          var s = window.__WB_STORE__;
+          if (!s || !s.getState) return;
+          var g = s.getState().state || {};
+          if (!g.wbChild) return;
+          api("POST", "/bridge/api/childstate/load", { playthrough: pt, state: g.wbChild }).then(function(j) {
+            if (j && j.state) { S.st.childstate = j.state; lastMirror = ""; lastHomeSig = ""; render(); }
+          }).catch(function() {});
+        }
+        function mirrorChild() {
+          var cs = S.st && S.st.childstate, s = window.__WB_STORE__;
+          if (!cs || !s || !s.getState) return;
+          var sig = JSON.stringify(cs);
+          if (sig === lastMirror) return;
+          lastMirror = sig;
+          s.setState(function(x) {
+            var g = x.state || {};
+            if (JSON.stringify(g.wbChild) === sig) return {};
+            var st = {};
+            for (var k in g) st[k] = g[k];
+            st.wbChild = cs;
             return { state: st };
           });
         }
@@ -848,8 +897,8 @@ var require_assets_generated = __commonJS({
                 st.circles = circles;
                 return { state: st };
               });
-              syncChildHome(c);
               if (j.state) S.st.childstate = j.state;
+              syncChildHome(true);
               say((c.name || "Ребёнок") + " теперь " + (c.sex === "f" ? "дочь" : "сын") + " в игре.", true);
               render();
             } catch (e) { say("Стор не принял: " + e.message, false); }
@@ -868,10 +917,13 @@ var require_assets_generated = __commonJS({
             var ds = g.dailyState;
             var day = ds && typeof ds.day === "number" ? ds.day : 0;
             if (!day && typeof g.slot === "number") day = Math.floor(g.slot / 1440) + 1;
-            if (!day || day === lastTickDay) return;
             var her = activeHer();
             var pt = her && her.save;
             if (!pt) return;
+            loadChildFromSave(pt);
+            mirrorChild();
+            syncChildHome();
+            if (!day || day === lastTickDay) return;
             lastTickDay = day;
             var sc = g.activeScene || {}, pat = sc.patron || {};
             var ch = g.characters && g.characters[g.primaryCharacterId];
@@ -3113,7 +3165,7 @@ var require_assets_generated = __commonJS({
             kids.length ? h("div", { class: "pgrid" }, kids.map(function(c, i) {
               var age = ((cs && cs.lastDay) || 0) - (c.bornDay || 0);
               return h("div", { class: "pcell" },
-                h("div", { class: "phead" }, h("span", { class: "plab" }, "#" + (i + 1) + " " + (c.name ? c.name + " — " : "") + (c.sex === "f" ? "девочка" : "мальчик")), h("button", { type: "button", class: "link", title: "Перебросить внешность", onclick: function() { api("POST", "/bridge/api/childstate/reroll", { playthrough: pt, childId: c.id }).then(function(j) { if (j && j.state) S.st.childstate = j.state; say("Внешность переброшена"); render(); }); } }, "↻"), h("button", { type: "button", class: "link", title: "Нарисовать портрет", onclick: function() { say("Рисую портрет…"); api("POST", "/bridge/api/childstate/image", { playthrough: pt, childId: c.id, wait: true }).then(function(j) { if (j && j.state) S.st.childstate = j.state; say(j && j.error ? j.error : "Портрет готов"); render(); }); } }, "портрет"), (c.stage === "teen" || c.stage === "youth") ? h("button", { type: "button", class: "link", title: "Сделать персонажем игры", onclick: function() { promoteChild(c, pt); } }, c.promoted ? "персонаж" : "в персонажа") : null, c.promoted ? h("button", { type: "button", class: "link", title: "Поселить в детскую / убрать после переезда", onclick: function() { syncChildHome(c); say("Место жительства обновлено"); render(); } }, "дом") : null),
+                h("div", { class: "phead" }, h("span", { class: "plab" }, "#" + (i + 1) + " " + (c.name ? c.name + " — " : "") + (c.sex === "f" ? "девочка" : "мальчик")), h("button", { type: "button", class: "link", title: "Перебросить внешность", onclick: function() { api("POST", "/bridge/api/childstate/reroll", { playthrough: pt, childId: c.id }).then(function(j) { if (j && j.state) S.st.childstate = j.state; say("Внешность переброшена"); render(); }); } }, "↻"), h("button", { type: "button", class: "link", title: "Нарисовать портрет", onclick: function() { say("Рисую портрет…"); api("POST", "/bridge/api/childstate/image", { playthrough: pt, childId: c.id, wait: true }).then(function(j) { if (j && j.state) S.st.childstate = j.state; say(j && j.error ? j.error : "Портрет готов"); render(); }); } }, "портрет"), (c.stage === "teen" || c.stage === "youth") ? h("button", { type: "button", class: "link", title: "Сделать персонажем игры", onclick: function() { promoteChild(c, pt); } }, c.promoted ? "персонаж" : "в персонажа") : null, c.promoted ? h("button", { type: "button", class: "link", title: "Поселить в детскую / убрать после переезда", onclick: function() { syncChildHome(true); say("Место жительства обновлено"); render(); } }, "дом") : null),
                 h("div", { style: "padding:2px 4px;font-size:12px" }, (c.stage || "?") + ", " + age + " дн" + (c.lookText ? " — " + c.lookText : "")), h("div", { style: "display:flex;gap:4px;align-items:center;padding:2px 4px" }, h("input", { class: "sel xs", value: c.name || "", placeholder: "имя", onchange: function() { patchChild(c.id, { name: this.value }, pt); } }), h("select", { class: "sel xs", onchange: function() { patchChild(c.id, { stage: this.value }, pt); } }, ["infant", "child", "teen", "youth"].map(function(st) { return h("option", { value: st, selected: c.stage === st }, st); })), h("button", { type: "button", class: "link", title: "Взрослеть на 30 дней", onclick: function() { patchChild(c.id, { bornDay: (c.bornDay || 0) - 30 }, pt); } }, "+30 дн")), c.img && c.img.url ? h("img", { src: c.img.url, style: "display:block;width:100%;border-radius:6px;margin-top:4px" }) : null);
             })) : null,
             row((function() {

@@ -23,7 +23,7 @@ var require_server = __commonJS({
     var { UpdateCheck, flatten: flattenPrompts } = require_updates();
     var { addonItems } = require_items();
     var { clean: cleanSchema, LAYER: LAYER_SCHEMA } = require_schema();
-    var { forPlaythrough: childstateFor, tick: childstateTick, prompt: childstatePrompt, current: childstateCurrent, set: childstateSet, rerollLook: childstateReroll, imagePrompt: childstateImagePrompt, setImage: childstateSetImage, personFor: childstatePerson, promote: childstatePromote, patchChild: childstatePatchChild } = require_childstate();
+    var { forPlaythrough: childstateFor, tick: childstateTick, prompt: childstatePrompt, current: childstateCurrent, set: childstateSet, rerollLook: childstateReroll, imagePrompt: childstateImagePrompt, setImage: childstateSetImage, personFor: childstatePerson, promote: childstatePromote, patchChild: childstatePatchChild, replace: childstateReplace } = require_childstate();
     var { extract: looksExtract, describe: looksDescribe, random: looksRandom, SCALE: LOOKS_SCALE, FREE: LOOKS_FREE } = require_looks();
     var { Ratings, suggestions } = require_learn();
     var maintainer = require_maintainer();
@@ -1013,6 +1013,11 @@ var require_server = __commonJS({
         const cs4 = childstatePatchChild(store.dataDir, String(body.playthrough || ""), String(body.childId || ""), body.patch || {});
         if (!cs4) return send(res, 404, { error: "Нет такого ребёнка." });
         return send(res, 200, { ok: true, state: withChildLook(cs4) });
+      }
+      if (p === "/bridge/api/childstate/load" && m === "POST") {
+        const body = await readJson(req);
+        const cs5 = childstateReplace(store.dataDir, String(body.playthrough || ""), body.state || {});
+        return send(res, 200, { ok: true, state: withChildLook(cs5) });
       }
       if (p === "/bridge/api/player/random" && m === "POST") {
         const l = looksRandom(); l.set = true;
