@@ -330,6 +330,14 @@ async function waitUp(c) {
   ok("G7: удаление несуществующего -> 404", g9b.status === 404);
   const g9c = await api("GET", "/bridge/api/childstate?playthrough=pt-rm");
   ok("G7: удаление сохранилось", (safe(g9c.json, ["children"]) || []).length === 1);
+  // --- H1: персонаж с рождения ---
+  let h1;
+  await api("POST", "/bridge/api/childstate/tick", { playthrough: "pt-h1", day: 1, ctx: { encounters: 1, force: true, father: "player" } });
+  for (let d = 2; d <= 41; d++) h1 = await api("POST", "/bridge/api/childstate/tick", { playthrough: "pt-h1", day: d, ctx: { encounters: 0 } });
+  const h1kid = (safe(h1.json, ["state", "children"]) || [])[0] || {};
+  ok("H1: ребёнок сразу персонаж", h1kid.promoted === true && !!h1kid.name);
+  const h1p = await api("GET", "/bridge/api/childstate/person?playthrough=pt-h1&childId=" + h1kid.id + "&her=elena");
+  ok("H1: и сразу человек в родне", safe(h1p.json, ["person", "lives"]) === "home");
   c.kill();
   await sleep(300);
   fs.rmSync(DATA, { recursive: true, force: true });
