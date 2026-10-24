@@ -68,3 +68,48 @@ origin/token (B30), хардненинг хрупких regex (B33–B38), пр�
 Идём вне очереди — пункты 1–6 плана (инспектор, превью частей, баг pipeline, гардероб, слой событий, стирка/печати/магия) ждут.
 Первый в очереди при возврате: строка «Внешность» в инспекторе (решение в HANDOFF).
 verify 70/70, тесты 43/43.
+
+## G5–G7: дети, родня, сейв (сессия 2026-10)
+
+### Что сделано
+- Портреты детей: `looks.portraitPrompt()`, роут `/bridge/api/childstate/image` (ключ `child_<id>`), кнопка и картинка в карточке. Флаг `noBelly` в `planRender`, чтобы живот матери не лез в портрет.
+- Ребёнок как родня: при рождении — имя (`pickName`), ребро `{kind:"parent_of", from:"char:<herId>", to:"person:<id>"}` в `circles[herId]`.
+- `lives`: `home`, пока живёт дома; при `youth` — переезд в `same_town|day_ride|far` (обратимо: возраст назад → домой).
+- Быт: в фазе `service` ребёнок в таверне, иначе в детской (`syncChildHome`, подпись `homeSig`).
+- `childstate` едет вместе с сейвом игры: зеркало `state.wbChild` (`mirrorChild`) + восстановление (`loadChildFromSave`, сейв главнее файла мода).
+- Инвалидация кэша картинок при смене фигуры: `bellySig`/`checkBelly` + `window.__WB_PACK_RESET__`.
+- Кнопки для тестов: `✕` (удалить ребёнка, чистит и родню) и `Убрать срок`.
+
+### Устройство игры (проверено)
+- Родня: `circles[herId] = { of, home, persons:[], links:[] }`. Человек: `{id, name, sex, alive, lives, regard, presence, warmth, strictness, past, generation, belief, attributes}`. Узлы рёбер: `person:<id>` (`ln`), `char:<herId>` (`s5`).
+- `Tie.relation(a,b)`: `parents(t) = into("parent_of", t)`; если `parents(person)` содержит `char:herId` → `"child"`. Ярлык — `Iie.child=["daughter","son"]`, рендер — `Gd`.
+- Визиты: `ZCe` (только фаза `service`) ставит человека в `taproom` через `Pt` и пишет в `visitingPeople`; `X7` держит `person:` в `occupants` **только** при наличии записи в `visitingPeople`; `QCe` убирает по `leaveAtSlot`.
+- Веса визита — `UCe`/`GCe` (ключ по `lives`), `home` добавлен патчем. `Fle` влияет только на генерацию `presence`.
+- Вылазка к родне: `Gr(e,"kin")` → `W2` берёт **одного** самого «весомого» (`$M = presence·(0.35+0.65·regard)`) среди `alive && Uve(lives)`, `Uve={same_town,day_ride}`.
+- `Bne` (панель комнаты) собирает только `player`, `characters[id]`, `customers` — людей из `circles.persons` отбрасывает. Карта комнат и `dje` их показывают.
+- `hEe` (класс родства для событий) не знает `child` → падает в `other`.
+
+### Кэш картинок
+- Промпт живот учитывает (`planRender` → `childstatePrompt`), **ключ картинки — нет**.
+- Пак игры мемоизируется (`I_`), сброс — `qD()`; выставлено как `window.__WB_PACK_RESET__`.
+- `LPe` без `bypassCache` сначала спрашивает `Hp(key)`; `isStale` в `/api/pack` спасает только на перезагрузке страницы.
+
+### Диагностика (в браузере)
+`window.__WB_MENU_REV__` (версия меню), `__WB_MIRROR_OK__`/`__WB_MIRROR_ERR__` (зеркало), `__WB_DBG__` (ручные вызовы), `__WB_PACK_RESET__`.
+
+### Грабли
+- **verify не ловит синтаксис.** Обязательный шаг: `node -e "new (require('vm').Script)(require('fs').readFileSync('wayward-bridge.js','utf8'))"`.
+- Вставка в `CHECKS` в начало массива требует запятой у последнего элемента, иначе он склеивается со следующим (был баг «НЕТ Н»: у строки брались её буквы).
+- В патч-скриптах анкоры копировать из вывода probe, не по памяти; скрипт падает целиком на конкретном анкоре, и `build` после падения собирает **старое**.
+- `pt` в клиентских хендлерах не в области видимости — передавать параметром.
+- Порядок в `checkDay`: `loadChildFromSave` → `mirrorChild` → `syncChildHome` → `checkBelly`.
+- Кириллица: сохранять скрипты через `[IO.File]::WriteAllText(..., UTF8Encoding($false))`.
+
+### Открытые задачи
+1. `state.characters` для ребёнка — виден в панели комнаты, участник сцен, портрет в сцене.
+2. Класс родства `child` + 2–3 дочерних события (`relationClass:["child"]`).
+3. Выбор, к кому ехать: хук на `W2` + селект в меню.
+4. Развитие `latentTraits` во времени; внешность отца из карточек завсегдатаев; `Случайно` → `↻` у ГГ.
+
+### Счётчики на конец сессии
+`wb-verify.js` — 156 проверок, `wb-test.js` — 86 тестов, оба зелёные.
