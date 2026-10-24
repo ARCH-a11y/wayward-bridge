@@ -20,7 +20,7 @@
     },
     "tagDelete": false,
     "sharedNegatives": false,
-    "drawAhead": true,
+    "drawAhead": false,
     "drawAheadCount": 5,
     "shortcuts": true,
     "loraMemory": [
@@ -4402,8 +4402,14 @@
                 "mode": "never"
               },
               "erectnipples": {
-                "tags": "covered nipples, ",
+                "tags": "covered nipples,",
                 "negative": "",
+                "when": "nipples_visible",
+                "mode": "auto"
+              },
+              "milk": {
+                "tags": "",
+                "negative": "(lactating breasts:2.0), (milk:2.0),",
                 "when": "nipples_visible",
                 "mode": "always"
               }
@@ -4553,7 +4559,7 @@
     "pippa.17qhigs1l00zv0": {
       "heroine": "pippa",
       "name": "Zenit",
-      "at": 1792862615385
+      "at": 1792869828926
     }
   },
   "addons": [],
