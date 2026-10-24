@@ -338,6 +338,9 @@ async function waitUp(c) {
   ok("H1: ребёнок сразу персонаж", h1kid.promoted === true && !!h1kid.name);
   const h1p = await api("GET", "/bridge/api/childstate/person?playthrough=pt-h1&childId=" + h1kid.id + "&her=elena");
   ok("H1: и сразу человек в родне", safe(h1p.json, ["person", "lives"]) === "home");
+  ok("H1b: promote младенца даёт родню", !!(h1p.json.person && h1p.json.person.id === "wb" + h1kid.id));
+  ok("H1b: ребро parent_of на младенце", h1p.json.link.kind === "parent_of" && h1p.json.link.from.indexOf("char:") === 0);
+  ok("H2: regard ребёнка низкий", h1p.json.person.regard <= 0.11);
   c.kill();
   await sleep(300);
   fs.rmSync(DATA, { recursive: true, force: true });

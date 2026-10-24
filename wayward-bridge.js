@@ -5396,6 +5396,58 @@ var require_assets_generated = __commonJS({
           t.push("medieval tavern background");
           return t.join(", ");
         }
+        // H2: у ребёнка своя запись, а не копия жены
+        var CHILD_MULT = { infant: 0, child: 0.35, teen: 0.7, youth: 1 };
+        var CHILD_ATTRS = ["strength", "deftness", "vigor", "wit", "composure", "charm", "honesty", "libido", "loyalty", "openness", "confidence"];
+        function childSig(c) {
+          return (c.stage || "") + "|" + (c.sex || "") + "|" + (c.lookText || "") + "|" + (c.movedOut ? 1 : 0);
+        }
+        function childRecord(c, tmpl, prev) {
+          var ch = JSON.parse(JSON.stringify(tmpl));
+          ch.id = c.id;
+          ch.name = c.name || (c.sex === "f" ? "Дочь" : "Сын");
+          ch.archetypeId = "";
+          ch.generatedArchetype = { id: "wbchild_" + c.id, shortname: "wbchild_" + c.id, name: ch.name, imageBase: childImageBase(c), imageNegative: "" };
+          ch.outfit = "modest";
+          ch.currentTask = "idle";
+          ch.busyUntilSlot = 0;
+          ch.wbChild = true;
+          ch.wbSig = childSig(c);
+          var m = CHILD_MULT[c.stage];
+          if (m == null) m = 0.35;
+          var seed = 0, i;
+          for (i = 0; i < c.id.length; i++) seed = (seed * 31 + c.id.charCodeAt(i)) % 997;
+          ch.attributes = {};
+          CHILD_ATTRS.forEach(function(a, k) {
+            ch.attributes[a] = m <= 0 ? 0 : Math.round(m * (40 + ((seed + k * 37) % 21)));
+          });
+          ch.stats = { energy: 100, mood: 60, arousal: m <= 0 ? 0 : 10 };
+          ch.selfConcept = { openness: m <= 0 ? 0 : Math.round(50 * m), confidence: m <= 0 ? 0 : Math.round(50 * m) };
+          ch.traitsAtGeneration = { openness: 50, confidence: 50 };
+          ch.growthRates = { openness: { increase: 1, decrease: 1 }, confidence: { increase: 1, decrease: 1 } };
+          ch.lean = "custom";
+          ch.leanMix = {};
+          ch.picks = {};
+          ch.skills = { hunting: 0, foraging: 0, brewing: 0, cooking: 0, serving: 0 };
+          ch.feelings = [];
+          ch.notedMoments = [];
+          ch.latentTraits = [];
+          ch.noticedLatentTraits = [];
+          ch.affinities = { romantic: 1, oral: 1, vaginal: 1, anal: 1, breast: 1, exhibition: 1, dominance: 1, prostitution: 1, drinking: 0, taboo: 1 };
+          ch.latitude = { byCategory: {} };
+          ch.intoxication = { level: 0, drinksToday: 0, peakToday: 0, tolerance: 0 };
+          ch.volatility = 0.5;
+          ch.annoyance = 0;
+          ch.relationship = { trust: 100, patronInteractionsEncouraged: 0 };
+          if (prev && prev.wbSig) {
+            if (prev.stats) ch.stats = prev.stats;
+            if (prev.feelings) ch.feelings = prev.feelings;
+            if (prev.notedMoments) ch.notedMoments = prev.notedMoments;
+            if (prev.relationship) ch.relationship = prev.relationship;
+            if (prev.intoxication) ch.intoxication = prev.intoxication;
+          }
+          return ch;
+        }
         function syncChildCharacter() {
           var s = window.__WB_STORE__;
           if (!s || !s.getState) return;
@@ -5405,23 +5457,13 @@ var require_assets_generated = __commonJS({
           var her = g0.primaryCharacterId;
           var tmpl = her && g0.characters && g0.characters[her];
           if (!tmpl) return;
-          var kids = (cs.children || []).filter(function(c) { return !g0.characters || !g0.characters[c.id]; });
+          var kids = (cs.children || []).filter(function(c) { var ex = g0.characters && g0.characters[c.id]; return !ex || ex.wbSig !== childSig(c); });
           if (!kids.length) return;
           s.setState(function(x) {
             var g = x.state || {};
             var chars = Object.assign({}, g.characters || {});
             kids.forEach(function(c) {
-              if (chars[c.id]) return;
-              var ch = JSON.parse(JSON.stringify(tmpl));
-              ch.id = c.id;
-              ch.name = c.name || (c.sex === "f" ? "Дочь" : "Сын");
-              ch.archetypeId = "";
-              ch.generatedArchetype = { id: "wbchild_" + c.id, shortname: "wbchild_" + c.id, name: ch.name, imageBase: childImageBase(c), imageNegative: "" };
-              ch.outfit = "modest";
-              ch.currentTask = "idle";
-              ch.busyUntilSlot = 0;
-              ch.relationship = { trust: 60, patronInteractionsEncouraged: 0 };
-              ch.wbChild = true;
+              var ch = childRecord(c, tmpl, chars[c.id]);
               chars[c.id] = ch;
             });
             var st = {};
@@ -5532,7 +5574,7 @@ var require_assets_generated = __commonJS({
           });
           window.__WB_MIRROR_OK__ = (window.__WB_MIRROR_OK__ || 0) + 1;
         }
-        function promoteChild(c, pt) {
+        function promoteChild(c, pt, quiet) {
           var store = window.__WB_STORE__;
           if (!store || !store.getState) { say("Игра не отдала стор — обнови страницу.", false); return; }
           api("POST", "/bridge/api/childstate/promote", { playthrough: pt, childId: c.id }).then(function(j) {
@@ -5556,9 +5598,80 @@ var require_assets_generated = __commonJS({
               if (j.state) S.st.childstate = j.state;
               syncChildHome(true);
               syncChildCharacter();
+              if (quiet) return;
               say((c.name || "Ребёнок") + " теперь " + (c.sex === "f" ? "дочь" : "сын") + " в игре.", true);
               render();
             } catch (e) { say("Стор не принял: " + e.message, false); }
+          });
+        }
+        // H1b: родня ребёнку создаётся сама, без кнопки
+        var kinBusy = {};
+        function ensureChildKin(pt) {
+          var s = window.__WB_STORE__;
+          if (!s || !s.getState) return;
+          var cs = S.st && S.st.childstate;
+          if (!cs || !(cs.children || []).length) return;
+          var g = s.getState().state || {};
+          var her = g.primaryCharacterId;
+          if (!her) return;
+          var have = {};
+          ((g.circles && g.circles[her] && g.circles[her].persons) || []).forEach(function(p) { have[p.id] = 1; });
+          var need = (cs.children || []).filter(function(c) { return !have["wb" + c.id] && !kinBusy[c.id]; });
+          if (!need.length) return;
+          need.forEach(function(c) {
+            kinBusy[c.id] = 1;
+            setTimeout(function() { delete kinBusy[c.id]; }, 2500);
+            promoteChild(c, pt, true);
+          });
+        }
+        // H1b: персонаж wbchild_ без ребёнка (удалён или приехал из старого сейва) убирается целиком
+        function pruneChildCharacters() {
+          var s = window.__WB_STORE__;
+          if (!s || !s.getState) return;
+          var cs = S.st && S.st.childstate;
+          var live = {};
+          ((cs && cs.children) || []).forEach(function(c) { live[c.id] = 1; });
+          var g = s.getState().state || {};
+          var her = g.primaryCharacterId;
+          var chars = g.characters || {};
+          function stalePid(pid) {
+            if (typeof pid !== "string" || pid.indexOf("wb") !== 0) return false;
+            return !live[pid.slice(2)];
+          }
+          function staleOcc(v) {
+            if (typeof v !== "string" || v.indexOf("person:") !== 0) return false;
+            return stalePid(v.slice(7));
+          }
+          var dead = Object.keys(chars).filter(function(k) { return chars[k] && chars[k].wbChild === true && !live[k]; });
+          var stalePeople = (g.visitingPeople || []).filter(function(e) { return stalePid(e.personId); });
+          var staleCirc = !!(her && g.circles && g.circles[her] && (g.circles[her].persons || []).some(function(p) { return stalePid(p.id); }));
+          if (!dead.length && !stalePeople.length && !staleCirc) return;
+          s.setState(function(x) {
+            var gg = x.state || {}, st = {};
+            for (var k in gg) st[k] = gg[k];
+            if (dead.length) {
+              var ch = Object.assign({}, gg.characters || {});
+              dead.forEach(function(k2) { delete ch[k2]; });
+              st.characters = ch;
+            }
+            st.visitingPeople = (gg.visitingPeople || []).filter(function(e) { return !stalePid(e.personId); });
+            if (gg.locations) {
+              var locs = {};
+              Object.keys(gg.locations).forEach(function(k3) {
+                var o = (gg.locations[k3] && gg.locations[k3].occupants) || [];
+                locs[k3] = Object.assign({}, gg.locations[k3], { occupants: o.filter(function(v) { return !staleOcc(v); }) });
+              });
+              st.locations = locs;
+            }
+            if (her && gg.circles && gg.circles[her]) {
+              var c1 = gg.circles[her], cc = Object.assign({}, gg.circles);
+              cc[her] = Object.assign({}, c1, {
+                persons: (c1.persons || []).filter(function(p) { return !stalePid(p.id); }),
+                links: (c1.links || []).filter(function(l) { return !staleOcc(l.to) && !staleOcc(l.from); })
+              });
+              st.circles = cc;
+            }
+            return { state: st };
           });
         }
         function checkDay() {
@@ -5579,8 +5692,10 @@ var require_assets_generated = __commonJS({
             if (!pt) return;
             loadChildFromSave(pt);
             mirrorChild();
-            syncChildHome();
+            pruneChildCharacters();
             syncChildCharacter();
+            ensureChildKin(pt);
+            syncChildHome();
             checkBelly();
             if (!day || day === lastTickDay) return;
             lastTickDay = day;
@@ -7825,7 +7940,7 @@ var require_assets_generated = __commonJS({
             kids.length ? h("div", { class: "pgrid" }, kids.map(function(c, i) {
               var age = ((cs && cs.lastDay) || 0) - (c.bornDay || 0);
               return h("div", { class: "pcell" },
-                h("div", { class: "phead" }, h("span", { class: "plab" }, "#" + (i + 1) + " " + (c.name ? c.name + " — " : "") + (c.sex === "f" ? "девочка" : "мальчик")), h("button", { type: "button", class: "link", title: "Перебросить внешность", onclick: function() { api("POST", "/bridge/api/childstate/reroll", { playthrough: pt, childId: c.id }).then(function(j) { if (j && j.state) S.st.childstate = j.state; say("Внешность переброшена"); render(); }); } }, "↻"), h("button", { type: "button", class: "link", title: "Нарисовать портрет", onclick: function() { say("Рисую портрет…"); api("POST", "/bridge/api/childstate/image", { playthrough: pt, childId: c.id, wait: true }).then(function(j) { if (j && j.state) S.st.childstate = j.state; say(j && j.error ? j.error : "Портрет готов"); render(); }); } }, "портрет"), (c.stage === "teen" || c.stage === "youth") ? h("button", { type: "button", class: "link", title: "Сделать персонажем игры", onclick: function() { promoteChild(c, pt); } }, c.promoted ? "персонаж" : "в персонажа") : null, c.promoted ? h("button", { type: "button", class: "link", title: "Поселить в детскую / убрать после переезда", onclick: function() { syncChildHome(true); say("Место жительства обновлено"); render(); } }, "дом") : null, h("button", { type: "button", class: "link", title: "Удалить ребёнка", onclick: function() { removeChild2(c, pt); } }, "✕")),
+                h("div", { class: "phead" }, h("span", { class: "plab" }, "#" + (i + 1) + " " + (c.name ? c.name + " — " : "") + (c.sex === "f" ? "девочка" : "мальчик")), h("button", { type: "button", class: "link", title: "Перебросить внешность", onclick: function() { api("POST", "/bridge/api/childstate/reroll", { playthrough: pt, childId: c.id }).then(function(j) { if (j && j.state) S.st.childstate = j.state; say("Внешность переброшена"); render(); }); } }, "↻"), h("button", { type: "button", class: "link", title: "Нарисовать портрет", onclick: function() { say("Рисую портрет…"); api("POST", "/bridge/api/childstate/image", { playthrough: pt, childId: c.id, wait: true }).then(function(j) { if (j && j.state) S.st.childstate = j.state; say(j && j.error ? j.error : "Портрет готов"); render(); }); } }, "портрет"), h("button", { type: "button", class: "link", title: "Сделать персонажем игры", onclick: function() { promoteChild(c, pt); } }, c.promoted ? "персонаж" : "в персонажа"), c.promoted ? h("button", { type: "button", class: "link", title: "Поселить в детскую / убрать после переезда", onclick: function() { syncChildHome(true); say("Место жительства обновлено"); render(); } }, "дом") : null, h("button", { type: "button", class: "link", title: "Удалить ребёнка", onclick: function() { removeChild2(c, pt); } }, "✕")),
                 h("div", { style: "padding:2px 4px;font-size:12px" }, (c.stage || "?") + ", " + age + " дн" + (c.lookText ? " — " + c.lookText : "")), h("div", { style: "display:flex;gap:4px;align-items:center;padding:2px 4px" }, h("input", { class: "sel xs", value: c.name || "", placeholder: "имя", onchange: function() { patchChild(c.id, { name: this.value }, pt); } }), h("select", { class: "sel xs", onchange: function() { patchChild(c.id, { stage: this.value }, pt); } }, ["infant", "child", "teen", "youth"].map(function(st) { return h("option", { value: st, selected: c.stage === st }, st); })), h("button", { type: "button", class: "link", title: "Взрослеть на 30 дней", onclick: function() { patchChild(c.id, { bornDay: (c.bornDay || 0) - 30 }, pt); } }, "+30 дн")), c.img && c.img.url ? h("img", { src: c.img.url, style: "display:block;width:100%;border-radius:6px;margin-top:4px" }) : null);
             })) : null,
             row((function() {
@@ -13886,7 +14001,7 @@ var require_childstate = __commonJS({
         strictness: 0.4,
         past: "good",
         presence: 0.6,
-        regard: 0.6,
+        regard: 0.1,
         belief: { rung: "nothing", sinceDay: 0, thinksHeKnows: false },
         attributes: { strength: 30, deftness: 40, vigor: 45, wit: 45, composure: 40, charm: 50, openness: 50, confidence: 50 },
         wbChild: true,
