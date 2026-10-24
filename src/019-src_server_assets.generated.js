@@ -3049,8 +3049,8 @@ var require_assets_generated = __commonJS({
             kids.length ? h("div", { class: "pgrid" }, kids.map(function(c, i) {
               var age = ((cs && cs.lastDay) || 0) - (c.bornDay || 0);
               return h("div", { class: "pcell" },
-                h("div", { class: "phead" }, h("span", { class: "plab" }, "#" + (i + 1) + " " + (c.sex === "f" ? "девочка" : "мальчик")), h("button", { type: "button", class: "link", title: "Перебросить внешность", onclick: function() { api("POST", "/bridge/api/childstate/reroll", { playthrough: pt, childId: c.id }).then(function(j) { if (j && j.state) S.st.childstate = j.state; say("Внешность переброшена"); render(); }); } }, "↻")),
-                h("div", { style: "padding:2px 4px;font-size:12px" }, (c.stage || "?") + ", " + age + " дн" + (c.lookText ? " — " + c.lookText : "")));
+                h("div", { class: "phead" }, h("span", { class: "plab" }, "#" + (i + 1) + " " + (c.sex === "f" ? "девочка" : "мальчик")), h("button", { type: "button", class: "link", title: "Перебросить внешность", onclick: function() { api("POST", "/bridge/api/childstate/reroll", { playthrough: pt, childId: c.id }).then(function(j) { if (j && j.state) S.st.childstate = j.state; say("Внешность переброшена"); render(); }); } }, "↻"), h("button", { type: "button", class: "link", title: "Нарисовать портрет", onclick: function() { say("Рисую портрет…"); api("POST", "/bridge/api/childstate/image", { playthrough: pt, childId: c.id, wait: true }).then(function(j) { if (j && j.state) S.st.childstate = j.state; say(j && j.error ? j.error : "Портрет готов"); render(); }); } }, "портрет")),
+                h("div", { style: "padding:2px 4px;font-size:12px" }, (c.stage || "?") + ", " + age + " дн" + (c.lookText ? " — " + c.lookText : "")), c.img && c.img.url ? h("img", { src: c.img.url, style: "display:block;width:100%;border-radius:6px;margin-top:4px" }) : null);
             })) : null,
             row((function() {
               var cur = cs && cs.childWish ? cs.childWish.mode : "none";

@@ -7,6 +7,14 @@ const src = fs.readFileSync(FILE, "utf8");
 
 // [название, подстрока, минимум вхождений]
 const CHECKS = [
+  ["G5: сброс портрета при reroll", "s.children[i].img = null;", 1],
+  ["G5: промпт в ответе роута", "positive: ip.positive, negative: ip.negative", 1],
+  ["G5: промпт портрета ребёнка", "function portraitPrompt(", 1],
+  ["G5: imagePrompt ребёнка", "function imagePrompt(dir, pt, childId)", 1],
+  ["G5: роут портрета ребёнка", "/bridge/api/childstate/image", 1],
+  ["G5: noBelly в planRender", "req.noBelly ? null : childstatePrompt", 1],
+  ["G5: img в карточке ребёнка", "c.img && c.img.url", 1],
+  ["G5: кнопка портрета", "Нарисовать портрет", 1],
   ["G4 withChildLook", "function withChildLook(cs)", 1],
   ["G4 молоко у срока", "if (d >= 30) milk = true;", 1],
   ["G4 роды из set", "s.pregnancy.day >= TERM) birth(s, s.lastDay", 1],
