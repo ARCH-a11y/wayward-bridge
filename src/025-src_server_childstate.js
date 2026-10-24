@@ -82,7 +82,9 @@ var require_childstate = __commonJS({
       var changed = false;
       for (var i = 0; i < s.children.length; i++) {
         var c = s.children[i];
-        if (c && !c.name) { c.name = pickName(s, c.sex); changed = true; }
+        if (!c) continue;
+        if (!c.name) { c.name = pickName(s, c.sex); changed = true; }
+        if (moveOutIfGrown(c)) changed = true;
       }
       return changed;
     }
@@ -291,8 +293,13 @@ var require_childstate = __commonJS({
       return r < 0.45 ? "same_town" : r < 0.8 ? "day_ride" : "far";
     }
     function moveOutIfGrown(c) {
-      if (c.stage === "youth" && !c.movedOut) { c.movedOut = true; c.home = pickHome(); }
-      return c;
+      if (c.stage === "youth") {
+        if (!c.movedOut) { c.movedOut = true; c.home = pickHome(); return true; }
+      } else if (c.movedOut) {
+        c.movedOut = false;
+        return true;
+      }
+      return false;
     }
     // правка одного ребёнка: имя, стадия, возраст (стадия и bornDay держатся согласованно)
     function patchChild(dir, pt, childId, patch) {
@@ -311,6 +318,25 @@ var require_childstate = __commonJS({
       return s;
     }
 
-    module2.exports = { empty: empty, forPlaythrough: forPlaythrough, tick: tick, phase: phase, chance: chance, stageOf: stageOf, prompt: prompt, current: current, set: set, rerollLook: rerollLook, imagePrompt: imagePrompt, setImage: setImage, personFor: personFor, promote: promote, patchChild: patchChild };
+    // состояние ребёнка из сейва игры перекрывает файл мода
+    function replace(dir, pt, incoming) {
+      var f = empty();
+      if (incoming && typeof incoming === "object") {
+        for (var k in incoming) if (k !== "playthrough" && incoming[k] !== void 0) f[k] = incoming[k];
+      }
+      f.playthrough = pt;
+      if (!Array.isArray(f.children)) f.children = [];
+      if (!f.pregnancy || typeof f.pregnancy !== "object") f.pregnancy = empty().pregnancy;
+      if (!f.postpartum || typeof f.postpartum !== "object") f.postpartum = empty().postpartum;
+      if (!f.cycle || typeof f.cycle !== "object") f.cycle = empty().cycle;
+      if (!f.childWish || typeof f.childWish !== "object") f.childWish = empty().childWish;
+      if (!f.lastBirth || typeof f.lastBirth !== "object") f.lastBirth = empty().lastBirth;
+      if (typeof f.lastDay !== "number") f.lastDay = 0;
+      ensureNames(f);
+      save(dir, f);
+      return f;
+    }
+
+    module2.exports = { empty: empty, forPlaythrough: forPlaythrough, tick: tick, phase: phase, chance: chance, stageOf: stageOf, prompt: prompt, current: current, set: set, rerollLook: rerollLook, imagePrompt: imagePrompt, setImage: setImage, personFor: personFor, promote: promote, patchChild: patchChild, replace: replace };
   }
 });

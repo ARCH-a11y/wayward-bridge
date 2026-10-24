@@ -7,10 +7,16 @@ const src = fs.readFileSync(FILE, "utf8");
 
 // [название, подстрока, минимум вхождений]
 const CHECKS = [
+  ["G6c: переезд обратим", "} else if (c.movedOut) {", 1],
+  ["G6c: childstate из сейва", "function replace(dir, pt, incoming)", 1],
+  ["G6c: роут load", "/bridge/api/childstate/load", 1],
+  ["G6c: зеркало в сейв", "st.wbChild = cs;", 1],
+  ["G6c: загрузка из сейва", "function loadChildFromSave(pt)", 1],
+  ["G6c: днём в таверне", "phase === \"service\" && c.stage !== \"infant\"", 1],
   ["G6b: кнопка дом в карточке", "\"дом\") : null),", 1],
-  ["G6b: ребёнок живёт в детской", "function syncChildHome(c)", 1],
+  ["G6b: ребёнок живёт в детской", "function syncChildHome(force)", 1],
   ["G6b: запись visitingPeople", "leaveAtSlot: slot + 1e6", 1],
-  ["G6b: поселение в детскую", "occ.nursery", 1],
+  ["G6b: поселение в детскую", "occ[room] = base", 1],
   ["G6b: кнопка дом", "\"дом\"", 1],
   ["G6b: вес home в визитах", "UCe={home:", 1],
   ["G6b: переезд по стадии", "function moveOutIfGrown(c)", 1],
