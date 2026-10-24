@@ -74,6 +74,15 @@ var require_childstate = __commonJS({
       return age < 30 ? "infant" : age < 75 ? "child" : age < 135 ? "teen" : "youth";
     }
 
+    var NAMES_F = ["Анна", "Марта", "Эльза", "Грета", "Лиза", "Майя", "Роза", "Хельга", "Ингрид", "Беата", "Клара", "Соня"];
+    var NAMES_M = ["Ганс", "Петер", "Клаус", "Отто", "Ларс", "Матс", "Эрик", "Юрген", "Дитер", "Бруно", "Феликс", "Томас"];
+    function pickName(s, sex) {
+      var pool = sex === "f" ? NAMES_F : NAMES_M, used = {};
+      for (var i = 0; i < s.children.length; i++) used[s.children[i].name] = 1;
+      for (var t = 0; t < 40; t++) { var n = pool[Math.floor(Math.random() * pool.length)]; if (!used[n]) return n; }
+      return pool[0];
+    }
+
     function birth(s, day, ctx) {
       ctx = ctx || {};
       var risk = 0.30;
@@ -88,11 +97,14 @@ var require_childstate = __commonJS({
       var milk = outcome === "smooth" ? MILK : outcome === "hard" ? 30 : 40;
       var n = Math.random() < TWINS * (1 + (ctx.boost || 0)) ? 2 : 1;
       for (var i = 0; i < n; i++) {
+        var sx = Math.random() < 0.5 ? "f" : "m";
         s.children.push({
           id: "c" + day.toString(36) + i + Math.random().toString(36).slice(2, 6),
-          sex: Math.random() < 0.5 ? "f" : "m",
+          sex: sx,
+          name: pickName(s, sx),
           fatherId: s.pregnancy.fatherId || "",
           bornDay: day, stage: "infant", birth: outcome,
+          promoted: false,
           look: looks.child(s.pregnancy.motherLook, s.pregnancy.fatherLook)
         });
       }
@@ -211,6 +223,50 @@ var require_childstate = __commonJS({
       return s;
     }
 
-    module2.exports = { empty: empty, forPlaythrough: forPlaythrough, tick: tick, phase: phase, chance: chance, stageOf: stageOf, prompt: prompt, current: current, set: set, rerollLook: rerollLook, imagePrompt: imagePrompt, setImage: setImage };
+    // человек для круга героини: ребро parent_of от char:<her> к person:<id>
+    function personFor(dir, pt, childId, her) {
+      var s = forPlaythrough(dir, pt);
+      var c = childById(s, childId);
+      if (!c) return null;
+      var pid = "wb" + c.id;
+      var person = {
+        id: pid,
+        name: c.name || (c.sex === "f" ? "Дочь" : "Сын"),
+        sex: c.sex === "m" ? "m" : "f",
+        generation: 1,
+        alive: true,
+        lives: "same_town",
+        circle: 0.7,
+        warmth: 0.8,
+        strictness: 0.4,
+        past: "good",
+        presence: 0.6,
+        regard: 0.6,
+        belief: { rung: "nothing", sinceDay: 0, thinksHeKnows: false },
+        attributes: { strength: 30, deftness: 40, vigor: 45, wit: 45, composure: 40, charm: 50, openness: 50, confidence: 50 },
+        wbChild: true,
+        wbBornDay: c.bornDay
+      };
+      return {
+        person: person,
+        personId: pid,
+        name: person.name,
+        stage: c.stage,
+        link: { kind: "parent_of", from: "char:" + (her || pt), to: "person:" + pid }
+      };
+    }
+
+    function promote(dir, pt, childId, her) {
+      var s = forPlaythrough(dir, pt);
+      var c = childById(s, childId);
+      if (!c) return null;
+      var pl = personFor(dir, pt, childId, her);
+      c.promoted = { at: s.lastDay || 0, personId: pl.personId };
+      save(dir, s);
+      pl.state = s;
+      return pl;
+    }
+
+    module2.exports = { empty: empty, forPlaythrough: forPlaythrough, tick: tick, phase: phase, chance: chance, stageOf: stageOf, prompt: prompt, current: current, set: set, rerollLook: rerollLook, imagePrompt: imagePrompt, setImage: setImage, personFor: personFor, promote: promote };
   }
 });

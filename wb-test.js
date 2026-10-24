@@ -273,6 +273,18 @@ async function waitUp(c) {
   await api("POST", "/bridge/api/childstate/set", { playthrough: "pt-img", patch: { children: [{ id: "p1", sex: "f", stage: "infant", look: LOOK, img: { file: "x.png" } }] } });
   const stImg = await api("POST", "/bridge/api/childstate/reroll", { playthrough: "pt-img", childId: "p1" });
   ok("G5: переброс сбрасывает старый портрет", safe(stImg.json, ["state", "children", 0, "img"]) === null);
+  // --- G6: ребёнок становится роднёй ---
+  const g6set = await api("POST", "/bridge/api/childstate/set", { playthrough: "pt-pers", patch: { children: [{ id: "q1", sex: "f", name: "Анна", bornDay: 1, stage: "teen", look: LOOK }] } });
+  ok("G6: ребёнок с именем", safe(g6set.json, ["state", "children", 0, "name"]) === "Анна");
+  const g6p = await api("GET", "/bridge/api/childstate/person?playthrough=pt-pers&childId=q1&her=elena");
+  ok("G6: человек для ребёнка", g6p.status === 200 && safe(g6p.json, ["person", "name"]) === "Анна" && safe(g6p.json, ["person", "sex"]) === "f");
+  ok("G6: ребро parent_of от героини", safe(g6p.json, ["link", "kind"]) === "parent_of" && safe(g6p.json, ["link", "from"]) === "char:elena" && String(safe(g6p.json, ["link", "to"]) || "").indexOf("person:") === 0);
+  ok("G6: живой и рядом", safe(g6p.json, ["person", "alive"]) === true && safe(g6p.json, ["person", "lives"]) === "same_town");
+  ok("G6: атрибуты и regard", typeof safe(g6p.json, ["person", "attributes", "wit"]) === "number" && typeof safe(g6p.json, ["person", "regard"]) === "number");
+  const g6pr = await api("POST", "/bridge/api/childstate/promote", { playthrough: "pt-pers", childId: "q1", her: "elena" });
+  ok("G6: пометка promoted", safe(g6pr.json, ["state", "children", 0, "promoted", "personId"]) === safe(g6p.json, ["personId"]));
+  const g6no = await api("GET", "/bridge/api/childstate/person?playthrough=pt-pers&childId=нет");
+  ok("G6: нет ребёнка -> 404", g6no.status === 404);
   c.kill();
   await sleep(300);
   fs.rmSync(DATA, { recursive: true, force: true });

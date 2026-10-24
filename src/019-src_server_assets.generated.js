@@ -791,6 +791,33 @@ var require_assets_generated = __commonJS({
             });
           } catch (e) {}
         }
+        function promoteChild(c, pt) {
+          var store = window.__WB_STORE__;
+          if (!store || !store.getState) { say("Игра не отдала стор — обнови страницу.", false); return; }
+          api("POST", "/bridge/api/childstate/promote", { playthrough: pt, childId: c.id }).then(function(j) {
+            if (!j || !j.person) { say((j && j.error) || "Не вышло.", false); return; }
+            try {
+              store.setState(function(x) {
+                var g = x.state || {}, her = g.primaryCharacterId;
+                if (!her) return {};
+                var circles = Object.assign({}, g.circles || {});
+                var base = circles[her] ? Object.assign({}, circles[her]) : { of: her, home: "same_town", persons: [], links: [] };
+                var persons = (base.persons || []).slice(), links = (base.links || []).slice();
+                if (!persons.some(function(p) { return p.id === j.person.id; })) persons.push(j.person);
+                var lk = { kind: j.link.kind, from: "char:" + her, to: j.link.to };
+                if (!links.some(function(l) { return l.kind === lk.kind && l.from === lk.from && l.to === lk.to; })) links.push(lk);
+                circles[her] = Object.assign({}, base, { persons: persons, links: links });
+                var st = {};
+                for (var k in g) st[k] = g[k];
+                st.circles = circles;
+                return { state: st };
+              });
+              if (j.state) S.st.childstate = j.state;
+              say((c.name || "Ребёнок") + " теперь " + (c.sex === "f" ? "дочь" : "сын") + " в игре.", true);
+              render();
+            } catch (e) { say("Стор не принял: " + e.message, false); }
+          });
+        }
         function checkDay() {
           try {
             var s = window.__WB_STORE__;
@@ -3049,7 +3076,7 @@ var require_assets_generated = __commonJS({
             kids.length ? h("div", { class: "pgrid" }, kids.map(function(c, i) {
               var age = ((cs && cs.lastDay) || 0) - (c.bornDay || 0);
               return h("div", { class: "pcell" },
-                h("div", { class: "phead" }, h("span", { class: "plab" }, "#" + (i + 1) + " " + (c.sex === "f" ? "девочка" : "мальчик")), h("button", { type: "button", class: "link", title: "Перебросить внешность", onclick: function() { api("POST", "/bridge/api/childstate/reroll", { playthrough: pt, childId: c.id }).then(function(j) { if (j && j.state) S.st.childstate = j.state; say("Внешность переброшена"); render(); }); } }, "↻"), h("button", { type: "button", class: "link", title: "Нарисовать портрет", onclick: function() { say("Рисую портрет…"); api("POST", "/bridge/api/childstate/image", { playthrough: pt, childId: c.id, wait: true }).then(function(j) { if (j && j.state) S.st.childstate = j.state; say(j && j.error ? j.error : "Портрет готов"); render(); }); } }, "портрет")),
+                h("div", { class: "phead" }, h("span", { class: "plab" }, "#" + (i + 1) + " " + (c.name ? c.name + " — " : "") + (c.sex === "f" ? "девочка" : "мальчик")), h("button", { type: "button", class: "link", title: "Перебросить внешность", onclick: function() { api("POST", "/bridge/api/childstate/reroll", { playthrough: pt, childId: c.id }).then(function(j) { if (j && j.state) S.st.childstate = j.state; say("Внешность переброшена"); render(); }); } }, "↻"), h("button", { type: "button", class: "link", title: "Нарисовать портрет", onclick: function() { say("Рисую портрет…"); api("POST", "/bridge/api/childstate/image", { playthrough: pt, childId: c.id, wait: true }).then(function(j) { if (j && j.state) S.st.childstate = j.state; say(j && j.error ? j.error : "Портрет готов"); render(); }); } }, "портрет"), (c.stage === "teen" || c.stage === "youth") ? h("button", { type: "button", class: "link", title: "Сделать персонажем игры", onclick: function() { promoteChild(c, pt); } }, c.promoted ? "персонаж" : "в персонажа") : null),
                 h("div", { style: "padding:2px 4px;font-size:12px" }, (c.stage || "?") + ", " + age + " дн" + (c.lookText ? " — " + c.lookText : "")), c.img && c.img.url ? h("img", { src: c.img.url, style: "display:block;width:100%;border-radius:6px;margin-top:4px" }) : null);
             })) : null,
             row((function() {

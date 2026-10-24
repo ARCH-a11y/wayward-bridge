@@ -23,7 +23,7 @@ var require_server = __commonJS({
     var { UpdateCheck, flatten: flattenPrompts } = require_updates();
     var { addonItems } = require_items();
     var { clean: cleanSchema, LAYER: LAYER_SCHEMA } = require_schema();
-    var { forPlaythrough: childstateFor, tick: childstateTick, prompt: childstatePrompt, current: childstateCurrent, set: childstateSet, rerollLook: childstateReroll, imagePrompt: childstateImagePrompt, setImage: childstateSetImage } = require_childstate();
+    var { forPlaythrough: childstateFor, tick: childstateTick, prompt: childstatePrompt, current: childstateCurrent, set: childstateSet, rerollLook: childstateReroll, imagePrompt: childstateImagePrompt, setImage: childstateSetImage, personFor: childstatePerson, promote: childstatePromote } = require_childstate();
     var { extract: looksExtract, describe: looksDescribe, random: looksRandom, SCALE: LOOKS_SCALE, FREE: LOOKS_FREE } = require_looks();
     var { Ratings, suggestions } = require_learn();
     var maintainer = require_maintainer();
@@ -990,6 +990,23 @@ var require_server = __commonJS({
         if (!e) return send(res, 500, { error: "Картинка не сохранилась." });
         const cs = childstateSetImage(store.dataDir, pt, id, { file: e.file, url: "/images/wb/" + e.file.split("/").map(encodeURIComponent).join("/"), at: Date.now(), seed: e.seed, prompt: e.prompt });
         return send(res, 200, { ok: true, image: "/images/wb/" + e.file, state: withChildLook(cs) });
+      }
+      if (p === "/bridge/api/childstate/person" && m === "GET") {
+        const pt = String(url.searchParams.get("playthrough") || "");
+        const id = String(url.searchParams.get("childId") || "");
+        const her = String(url.searchParams.get("her") || "");
+        const pl = childstatePerson(store.dataDir, pt, id, her);
+        if (!pl) return send(res, 404, { error: "Нет такого ребёнка." });
+        return send(res, 200, pl);
+      }
+      if (p === "/bridge/api/childstate/promote" && m === "POST") {
+        const body = await readJson(req);
+        const pt = String(body.playthrough || "");
+        const id = String(body.childId || "");
+        const her = String(body.her || "");
+        const pl = childstatePromote(store.dataDir, pt, id, her);
+        if (!pl) return send(res, 404, { error: "Нет такого ребёнка." });
+        return send(res, 200, Object.assign({ ok: true }, pl, { state: withChildLook(pl.state) }));
       }
       if (p === "/bridge/api/player/random" && m === "POST") {
         const l = looksRandom(); l.set = true;
