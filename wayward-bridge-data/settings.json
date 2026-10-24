@@ -4554,18 +4554,26 @@
         }
       }
     },
-    "wbchild_c880apn9.17qhigs1l00zv0": {}
+    "wbchild_c880apn9.17qhigs1l00zv0": {
+      "pipeline": {
+        "family": "illustrious",
+        "sdxlCache": {
+          "mode": "donut",
+          "enabled": true
+        }
+      }
+    }
   },
   "saveInfo": {
     "pippa.17qhigs1l00zv0": {
       "heroine": "pippa",
       "name": "Zenit",
-      "at": 1792873311971
+      "at": 1792878913507
     },
     "wbchild_c880apn9.17qhigs1l00zv0": {
       "heroine": "wbchild_c880apn9",
       "name": "Майя",
-      "at": 1792872392328
+      "at": 1792877518877
     }
   },
   "addons": [],

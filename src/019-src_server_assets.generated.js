@@ -876,6 +876,7 @@ var require_assets_generated = __commonJS({
           ch.outfit = "modest";
           ch.currentTask = "idle";
           ch.busyUntilSlot = 0;
+          if (c.id === "wife") console.warn("[wb] childRecord под ключом wife");
           ch.wbChild = true;
           ch.wbSig = childSig(c);
           var m = CHILD_MULT[c.stage];
@@ -899,7 +900,7 @@ var require_assets_generated = __commonJS({
           ch.latentTraits = [];
           ch.noticedLatentTraits = [];
           ch.affinities = { romantic: 1, oral: 1, vaginal: 1, anal: 1, breast: 1, exhibition: 1, dominance: 1, prostitution: 1, drinking: 0, taboo: 1 };
-          ch.latitude = { byCategory: {} };
+          ch.latitude = { byCategory: {}, byPatron: {} };
           ch.intoxication = { level: 0, drinksToday: 0, peakToday: 0, tolerance: 0 };
           ch.volatility = 0.5;
           ch.annoyance = 0;
@@ -928,6 +929,8 @@ var require_assets_generated = __commonJS({
             var g = x.state || {};
             var chars = Object.assign({}, g.characters || {});
             kids.forEach(function(c) {
+              var __tag = c.id + "|" + her; window.wbSeen = window.wbSeen || {};
+              if (!window.wbSeen[__tag]) { window.wbSeen[__tag] = 1; console.warn("[wb] клон под ключом:", __tag, "| children:", (cs.children || []).map(function(x) { return x.id; }).join(",")); }
               var ch = childRecord(c, tmpl, chars[c.id]);
               chars[c.id] = ch;
             });
@@ -1130,18 +1133,40 @@ var require_assets_generated = __commonJS({
           var her = g.primaryCharacterId;
           if (!her || !g.characters) return;
           var w = g.characters[her];
-          if (w) { wifeBak = JSON.stringify(w); return; }
+          if (w && w.id === her) { wifeBak = JSON.stringify(w); return; }
+          if (w) return;
           if (!wifeBak) return;
           s.setState(function(x) {
             var gg = x.state || {}, chars = Object.assign({}, gg.characters || {});
-            chars[her] = JSON.parse(wifeBak);
+            var wb2 = JSON.parse(wifeBak);
+            wb2.id = her;
+            chars[her] = wb2;
             var st = {};
             for (var k in gg) st[k] = gg[k];
             st.characters = chars;
             return { state: st };
           });
         }
-        var lastChars = "", lastWifeBad = 0;
+        var lastChars = "", lastWifeBad = 0, lastWifeId = "";
+        // H1n: если запись жены подменили чужой — вернуть свою
+        function healWife() {
+          var s = window.__WB_STORE__;
+          if (!s || !s.getState) return;
+          var g = s.getState().state || {};
+          var her = g.primaryCharacterId;
+          var w = g.characters && g.characters[her];
+          if (!w || !wifeBak) return;
+          if (w.id === her && !w.wbChild && !w.wbSig) return;
+          var bak = JSON.parse(wifeBak);
+          s.setState(function(x) {
+            var gg = x.state || {}, chars = Object.assign({}, gg.characters || {});
+            chars[her] = bak;
+            var st = {};
+            for (var k in gg) st[k] = gg[k];
+            st.characters = chars;
+            return { state: st };
+          });
+        }
         var kinBusy = {};
         function ensureChildKin(pt) {
           var s = window.__WB_STORE__;
@@ -1179,7 +1204,7 @@ var require_assets_generated = __commonJS({
             if (typeof v !== "string" || v.indexOf("person:") !== 0) return false;
             return stalePid(v.slice(7));
           }
-          var dead = Object.keys(chars).filter(function(k) { return chars[k] && chars[k].wbChild === true && !live[k]; });
+          var dead = Object.keys(chars).filter(function(k) { return k !== her && chars[k] && chars[k].wbChild === true && !live[k]; });
           var stalePeople = (g.visitingPeople || []).filter(function(e) { return stalePid(e.personId); });
           var staleCirc = !!(her && g.circles && g.circles[her] && (g.circles[her].persons || []).some(function(p) { return stalePid(p.id); }));
           if (!dead.length && !stalePeople.length && !staleCirc) return;
@@ -1227,13 +1252,14 @@ var require_assets_generated = __commonJS({
             var her = activeHer();
             var pt = her && her.save;
             if (!pt) return;
-            var __ks = Object.keys(g.characters || {}).join(",");
-            if (__ks !== lastChars) { lastChars = __ks; if (__ks && __ks.indexOf("wife") < 0) console.warn("[wb] жена пропала. characters =", __ks, (new Error()).stack); }
-            var __w = g.characters && g.characters[g.primaryCharacterId];
-            if (__w && !lastWifeBad && (__w.wbChild || __w.wbSig)) { lastWifeBad = 1; console.warn("[wb] у жены появились служебные поля:", Object.keys(__w).filter(function(k) { return /^wb/.test(k); }), (new Error()).stack); }
+            var __ks = Object.keys(g.characters || {}).join(",") + "|" + (g.characters && g.characters.wife ? (g.characters.wife.wbChild ? "W" : "-") : "X");
+            if (__ks !== lastChars) { lastChars = __ks; console.warn("[wb] characters:", __ks); }
+            var __wid = g.characters && g.characters.wife ? g.characters.wife.id : "";
+            if (__wid !== lastWifeId) { lastWifeId = __wid; console.warn("[wb] чужой id у жены:", __wid, (new Error()).stack); }
             loadChildFromSave(pt);
             mirrorChild();
             keepWife();
+            healWife();
             pruneChildCharacters();
             normalizeChildPerson();
             syncChildCharacter();
