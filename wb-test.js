@@ -285,6 +285,19 @@ async function waitUp(c) {
   ok("G6: пометка promoted", safe(g6pr.json, ["state", "children", 0, "promoted", "personId"]) === safe(g6p.json, ["personId"]));
   const g6no = await api("GET", "/bridge/api/childstate/person?playthrough=pt-pers&childId=нет");
   ok("G6: нет ребёнка -> 404", g6no.status === 404);
+  // --- G6a2: правка ребёнка и добор имён ---
+  const g6st = await api("POST", "/bridge/api/childstate/child", { playthrough: "pt-pers", childId: "q1", patch: { stage: "teen" } });
+  ok("G6: стадия ставится вручную", safe(g6st.json, ["state", "children", 0, "stage"]) === "teen");
+  ok("G6: возраст под стадию", ((safe(g6st.json, ["state", "lastDay"]) || 0) - (safe(g6st.json, ["state", "children", 0, "bornDay"]) || 0)) >= 75);
+  const g6nm = await api("POST", "/bridge/api/childstate/child", { playthrough: "pt-pers", childId: "q1", patch: { name: "Марта" } });
+  ok("G6: имя правится руками", safe(g6nm.json, ["state", "children", 0, "name"]) === "Марта");
+  const g6up = await api("POST", "/bridge/api/childstate/child", { playthrough: "pt-pers", childId: "q1", patch: { bornDay: (safe(g6nm.json, ["state", "children", 0, "bornDay"]) || 0) - 30 } });
+  ok("G6: взросление сдвигает возраст", ((safe(g6up.json, ["state", "lastDay"]) || 0) - (safe(g6up.json, ["state", "children", 0, "bornDay"]) || 0)) >= 130);
+  await api("POST", "/bridge/api/childstate/set", { playthrough: "pt-nm", patch: { children: [{ id: "n1", sex: "m", bornDay: 5, stage: "child", look: LOOK }] } });
+  const g6bf = await api("GET", "/bridge/api/childstate/person?playthrough=pt-nm&childId=n1&her=elena");
+  ok("G6: имя добирается старым детям", String(safe(g6bf.json, ["person", "name"]) || "").length > 1);
+  const g6no2 = await api("POST", "/bridge/api/childstate/child", { playthrough: "pt-pers", childId: "нет", patch: { stage: "teen" } });
+  ok("G6: правка несуществующего -> 404", g6no2.status === 404);
   c.kill();
   await sleep(300);
   fs.rmSync(DATA, { recursive: true, force: true });

@@ -7,6 +7,12 @@ const src = fs.readFileSync(FILE, "utf8");
 
 // [название, подстрока, минимум вхождений]
 const CHECKS = [
+  ["G6: pt в правке ребёнка", "function patchChild(id, patch, pt)", 1],
+  ["G6: добор имён", "function ensureNames(s)", 1],
+  ["G6: правка ребёнка", "function patchChild(dir, pt, childId, patch)", 1],
+  ["G6: роут правки ребёнка", "/bridge/api/childstate/child", 1],
+  ["G6: выбор стадии в UI", "[\"infant\", \"child\", \"teen\", \"youth\"]", 1],
+  ["G6: кнопка взросления", "+30 дн", 1],
   ["G6: имена детей", "function pickName(", 1],
   ["G6: имя при рождении", "name: pickName(s, sx),", 1],
   ["G6: человек для ребёнка", "function personFor(dir, pt, childId, her)", 1],

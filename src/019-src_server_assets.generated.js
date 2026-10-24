@@ -791,6 +791,12 @@ var require_assets_generated = __commonJS({
             });
           } catch (e) {}
         }
+        function patchChild(id, patch, pt) {
+          api("POST", "/bridge/api/childstate/child", { playthrough: pt, childId: id, patch: patch }).then(function(j) {
+            if (j && j.state) S.st.childstate = j.state;
+            render();
+          });
+        }
         function promoteChild(c, pt) {
           var store = window.__WB_STORE__;
           if (!store || !store.getState) { say("Игра не отдала стор — обнови страницу.", false); return; }
@@ -3077,7 +3083,7 @@ var require_assets_generated = __commonJS({
               var age = ((cs && cs.lastDay) || 0) - (c.bornDay || 0);
               return h("div", { class: "pcell" },
                 h("div", { class: "phead" }, h("span", { class: "plab" }, "#" + (i + 1) + " " + (c.name ? c.name + " — " : "") + (c.sex === "f" ? "девочка" : "мальчик")), h("button", { type: "button", class: "link", title: "Перебросить внешность", onclick: function() { api("POST", "/bridge/api/childstate/reroll", { playthrough: pt, childId: c.id }).then(function(j) { if (j && j.state) S.st.childstate = j.state; say("Внешность переброшена"); render(); }); } }, "↻"), h("button", { type: "button", class: "link", title: "Нарисовать портрет", onclick: function() { say("Рисую портрет…"); api("POST", "/bridge/api/childstate/image", { playthrough: pt, childId: c.id, wait: true }).then(function(j) { if (j && j.state) S.st.childstate = j.state; say(j && j.error ? j.error : "Портрет готов"); render(); }); } }, "портрет"), (c.stage === "teen" || c.stage === "youth") ? h("button", { type: "button", class: "link", title: "Сделать персонажем игры", onclick: function() { promoteChild(c, pt); } }, c.promoted ? "персонаж" : "в персонажа") : null),
-                h("div", { style: "padding:2px 4px;font-size:12px" }, (c.stage || "?") + ", " + age + " дн" + (c.lookText ? " — " + c.lookText : "")), c.img && c.img.url ? h("img", { src: c.img.url, style: "display:block;width:100%;border-radius:6px;margin-top:4px" }) : null);
+                h("div", { style: "padding:2px 4px;font-size:12px" }, (c.stage || "?") + ", " + age + " дн" + (c.lookText ? " — " + c.lookText : "")), h("div", { style: "display:flex;gap:4px;align-items:center;padding:2px 4px" }, h("input", { class: "sel xs", value: c.name || "", placeholder: "имя", onchange: function() { patchChild(c.id, { name: this.value }, pt); } }), h("select", { class: "sel xs", onchange: function() { patchChild(c.id, { stage: this.value }, pt); } }, ["infant", "child", "teen", "youth"].map(function(st) { return h("option", { value: st, selected: c.stage === st }, st); })), h("button", { type: "button", class: "link", title: "Взрослеть на 30 дней", onclick: function() { patchChild(c.id, { bornDay: (c.bornDay || 0) - 30 }, pt); } }, "+30 дн")), c.img && c.img.url ? h("img", { src: c.img.url, style: "display:block;width:100%;border-radius:6px;margin-top:4px" }) : null);
             })) : null,
             row((function() {
               var cur = cs && cs.childWish ? cs.childWish.mode : "none";
