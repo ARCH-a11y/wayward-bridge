@@ -337,6 +337,15 @@ var require_childstate = __commonJS({
       return f;
     }
 
-    module2.exports = { empty: empty, forPlaythrough: forPlaythrough, tick: tick, phase: phase, chance: chance, stageOf: stageOf, prompt: prompt, current: current, set: set, rerollLook: rerollLook, imagePrompt: imagePrompt, setImage: setImage, personFor: personFor, promote: promote, patchChild: patchChild, replace: replace };
+    function removeChild(dir, pt, childId) {
+      var s = forPlaythrough(dir, pt);
+      var before = s.children.length;
+      s.children = s.children.filter(function (c) { return c.id !== childId; });
+      if (s.children.length === before) return null;
+      save(dir, s);
+      return s;
+    }
+
+    module2.exports = { empty: empty, forPlaythrough: forPlaythrough, tick: tick, phase: phase, chance: chance, stageOf: stageOf, prompt: prompt, current: current, set: set, rerollLook: rerollLook, imagePrompt: imagePrompt, setImage: setImage, personFor: personFor, promote: promote, patchChild: patchChild, replace: replace, removeChild: removeChild };
   }
 });

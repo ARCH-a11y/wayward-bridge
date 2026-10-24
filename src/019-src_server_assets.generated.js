@@ -604,6 +604,8 @@ var require_assets_generated = __commonJS({
           if (!S.viewHeroine || heroines().indexOf(S.viewHeroine) < 0) S.viewHeroine = st.activeHeroine || st.live && st.live.heroine || st.currentHeroine || heroines()[0] || "";
           if (S.open && !isTyping()) render();
           paintButton();
+          window.__WB_MENU_REV__ = "g7e";
+          window.__WB_DBG__ = { st: function() { return S.st; }, mirrorChild: mirrorChild, checkBelly: checkBelly, loadChildFromSave: loadChildFromSave, syncChildHome: syncChildHome };
         }
         function customWivesNow() {
           try {
@@ -791,6 +793,43 @@ var require_assets_generated = __commonJS({
             });
           } catch (e) {}
         }
+        function removeChild2(c, pt) {
+          api("POST", "/bridge/api/childstate/remove-child", { playthrough: pt, childId: c.id }).then(function(j) {
+            if (!j || !j.state) { say((j && j.error) || "Не вышло.", false); return; }
+            S.st.childstate = j.state;
+            var s = window.__WB_STORE__;
+            if (s && s.getState) {
+              var key = "wb" + c.id, pid = "person:" + key;
+              s.setState(function(x) {
+                var g = x.state || {}, her = g.primaryCharacterId;
+                var st = {};
+                for (var k in g) st[k] = g[k];
+                st.visitingPeople = (g.visitingPeople || []).filter(function(e) { return e.personId !== key; });
+                if (g.locations) {
+                  var locs = {};
+                  Object.keys(g.locations).forEach(function(k2) {
+                    var o = g.locations[k2] && g.locations[k2].occupants;
+                    locs[k2] = Object.assign({}, g.locations[k2], { occupants: (o || []).filter(function(v) { return v !== pid; }) });
+                  });
+                  st.locations = locs;
+                }
+                if (her && g.circles && g.circles[her]) {
+                  var c0 = g.circles[her], circles = Object.assign({}, g.circles);
+                  circles[her] = Object.assign({}, c0, {
+                    persons: (c0.persons || []).filter(function(p) { return p.id !== key; }),
+                    links: (c0.links || []).filter(function(l) { return l.to !== pid && l.from !== pid; })
+                  });
+                  st.circles = circles;
+                }
+                return { state: st };
+              });
+            }
+            lastHomeSig = "";
+            lastMirror = "";
+            say((c.name || "Ребёнок") + " удалён", true);
+            render();
+          }).catch(function() { say("Не вышло.", false); });
+        }
         function patchChild(id, patch, pt) {
           api("POST", "/bridge/api/childstate/child", { playthrough: pt, childId: id, patch: patch }).then(function(j) {
             if (j && j.state) S.st.childstate = j.state;
@@ -849,21 +888,54 @@ var require_assets_generated = __commonJS({
           });
         }
         // состояние ребёнка едет вместе с сейвом игры
-        var wbChildLoadedFor = "", lastMirror = "";
+        var lastMirror = "", loadingSave = false;
+        // сейв игры главнее файла мода: разошлись — значит загрузили сейв, применяем его
         function loadChildFromSave(pt) {
-          if (wbChildLoadedFor === pt) return;
-          wbChildLoadedFor = pt;
           var s = window.__WB_STORE__;
           if (!s || !s.getState) return;
           var g = s.getState().state || {};
-          if (!g.wbChild) return;
-          api("POST", "/bridge/api/childstate/load", { playthrough: pt, state: g.wbChild }).then(function(j) {
-            if (j && j.state) { S.st.childstate = j.state; lastMirror = ""; lastHomeSig = ""; render(); }
+          var wb = g.wbChild;
+          if (!wb) return;
+          var sig = JSON.stringify(wb);
+          if (sig === lastMirror) return;
+          var cur = S.st && S.st.childstate ? JSON.stringify(S.st.childstate) : "";
+          if (sig === cur) { lastMirror = sig; return; }
+          lastMirror = sig;
+          loadingSave = true;
+          api("POST", "/bridge/api/childstate/load", { playthrough: pt, state: wb }).then(function(j) {
+            loadingSave = false;
+            if (j && j.state) { S.st.childstate = j.state; lastMirror = ""; lastHomeSig = ""; lastBelly = ""; render(); }
+          }).catch(function() { loadingSave = false; });
+        }
+        // фигура: стадия живота + молоко; на смене — сброс пака и перерисовка
+        function bellySig(cs) {
+          if (!cs) return "";
+          var p = cs.pregnancy || {}, d = p.active ? (p.day || 0) : -1;
+          var st = !p.active ? "none" : d < 10 ? "none" : d < 20 ? "slight" : d < 30 ? "visible" : "large";
+          var milk = !!((cs.postpartum && (cs.postpartum.milkUntilDay || 0) > (cs.lastDay || 0)) || (p.active && d >= 30));
+          return st + (milk ? "+milk" : "");
+        }
+        var lastBelly = "";
+        function checkBelly() {
+          var cs = S.st && S.st.childstate;
+          if (!cs) return;
+          var sig = bellySig(cs);
+          if (sig === lastBelly) return;
+          var was = lastBelly;
+          lastBelly = sig;
+          if (!was) return;
+          try { if (window.__WB_PACK_RESET__) window.__WB_PACK_RESET__(); } catch (e) {}
+          var key = S.st.lastKey;
+          if (!key || /^patron_/.test(key)) return;
+          api("POST", "/bridge/api/redraw", { key: key, wait: true }).then(function(r) {
+            if (r && r.image) WBPIC.useImage(r.image, key);
+            say("Фигура изменилась — картинка перерисована.", true);
           }).catch(function() {});
         }
         function mirrorChild() {
+          if (loadingSave) return;
           var cs = S.st && S.st.childstate, s = window.__WB_STORE__;
-          if (!cs || !s || !s.getState) return;
+          if (!cs || !s || !s.getState) { window.__WB_MIRROR_ERR__ = !cs ? "нет childstate" : "нет стора"; return; }
           var sig = JSON.stringify(cs);
           if (sig === lastMirror) return;
           lastMirror = sig;
@@ -875,6 +947,7 @@ var require_assets_generated = __commonJS({
             st.wbChild = cs;
             return { state: st };
           });
+          window.__WB_MIRROR_OK__ = (window.__WB_MIRROR_OK__ || 0) + 1;
         }
         function promoteChild(c, pt) {
           var store = window.__WB_STORE__;
@@ -923,6 +996,7 @@ var require_assets_generated = __commonJS({
             loadChildFromSave(pt);
             mirrorChild();
             syncChildHome();
+            checkBelly();
             if (!day || day === lastTickDay) return;
             lastTickDay = day;
             var sc = g.activeScene || {}, pat = sc.patron || {};
@@ -937,6 +1011,7 @@ var require_assets_generated = __commonJS({
             };
             dayEncounters = 0;
             api("POST", "/bridge/api/childstate/tick", { playthrough: pt, day: day, ctx: ctx }).then(function(j) {
+              if (j && j.state) { S.st.childstate = j.state; checkBelly(); }
               if (j && j.state && j.state.children && j.state.children.length) grantNursery();
             }).catch(function() {});
           } catch (e) {}
@@ -3165,7 +3240,7 @@ var require_assets_generated = __commonJS({
             kids.length ? h("div", { class: "pgrid" }, kids.map(function(c, i) {
               var age = ((cs && cs.lastDay) || 0) - (c.bornDay || 0);
               return h("div", { class: "pcell" },
-                h("div", { class: "phead" }, h("span", { class: "plab" }, "#" + (i + 1) + " " + (c.name ? c.name + " — " : "") + (c.sex === "f" ? "девочка" : "мальчик")), h("button", { type: "button", class: "link", title: "Перебросить внешность", onclick: function() { api("POST", "/bridge/api/childstate/reroll", { playthrough: pt, childId: c.id }).then(function(j) { if (j && j.state) S.st.childstate = j.state; say("Внешность переброшена"); render(); }); } }, "↻"), h("button", { type: "button", class: "link", title: "Нарисовать портрет", onclick: function() { say("Рисую портрет…"); api("POST", "/bridge/api/childstate/image", { playthrough: pt, childId: c.id, wait: true }).then(function(j) { if (j && j.state) S.st.childstate = j.state; say(j && j.error ? j.error : "Портрет готов"); render(); }); } }, "портрет"), (c.stage === "teen" || c.stage === "youth") ? h("button", { type: "button", class: "link", title: "Сделать персонажем игры", onclick: function() { promoteChild(c, pt); } }, c.promoted ? "персонаж" : "в персонажа") : null, c.promoted ? h("button", { type: "button", class: "link", title: "Поселить в детскую / убрать после переезда", onclick: function() { syncChildHome(true); say("Место жительства обновлено"); render(); } }, "дом") : null),
+                h("div", { class: "phead" }, h("span", { class: "plab" }, "#" + (i + 1) + " " + (c.name ? c.name + " — " : "") + (c.sex === "f" ? "девочка" : "мальчик")), h("button", { type: "button", class: "link", title: "Перебросить внешность", onclick: function() { api("POST", "/bridge/api/childstate/reroll", { playthrough: pt, childId: c.id }).then(function(j) { if (j && j.state) S.st.childstate = j.state; say("Внешность переброшена"); render(); }); } }, "↻"), h("button", { type: "button", class: "link", title: "Нарисовать портрет", onclick: function() { say("Рисую портрет…"); api("POST", "/bridge/api/childstate/image", { playthrough: pt, childId: c.id, wait: true }).then(function(j) { if (j && j.state) S.st.childstate = j.state; say(j && j.error ? j.error : "Портрет готов"); render(); }); } }, "портрет"), (c.stage === "teen" || c.stage === "youth") ? h("button", { type: "button", class: "link", title: "Сделать персонажем игры", onclick: function() { promoteChild(c, pt); } }, c.promoted ? "персонаж" : "в персонажа") : null, c.promoted ? h("button", { type: "button", class: "link", title: "Поселить в детскую / убрать после переезда", onclick: function() { syncChildHome(true); say("Место жительства обновлено"); render(); } }, "дом") : null, h("button", { type: "button", class: "link", title: "Удалить ребёнка", onclick: function() { removeChild2(c, pt); } }, "✕")),
                 h("div", { style: "padding:2px 4px;font-size:12px" }, (c.stage || "?") + ", " + age + " дн" + (c.lookText ? " — " + c.lookText : "")), h("div", { style: "display:flex;gap:4px;align-items:center;padding:2px 4px" }, h("input", { class: "sel xs", value: c.name || "", placeholder: "имя", onchange: function() { patchChild(c.id, { name: this.value }, pt); } }), h("select", { class: "sel xs", onchange: function() { patchChild(c.id, { stage: this.value }, pt); } }, ["infant", "child", "teen", "youth"].map(function(st) { return h("option", { value: st, selected: c.stage === st }, st); })), h("button", { type: "button", class: "link", title: "Взрослеть на 30 дней", onclick: function() { patchChild(c.id, { bornDay: (c.bornDay || 0) - 30 }, pt); } }, "+30 дн")), c.img && c.img.url ? h("img", { src: c.img.url, style: "display:block;width:100%;border-radius:6px;margin-top:4px" }) : null);
             })) : null,
             row((function() {
@@ -3176,7 +3251,7 @@ var require_assets_generated = __commonJS({
               return h("span", {}, sel, " ", ti);
             })()),
             row(
-              sbtn("Зачать", "#7c3aed", function() { set({ pregnancy: { active: true, day: 0, fatherId: "", known: false } }); }),
+              sbtn("Зачать", "#7c3aed", function() { set({ pregnancy: { active: true, day: 0, fatherId: "", known: false } }); }), sbtn("Убрать срок", "#57534e", function() { set({ pregnancy: { active: false, day: 0, fatherId: "", known: false }, postpartum: { blockUntilDay: 0, milkUntilDay: 0 } }); }),
               sbtn("Прервать", "#57534e", function() { set({ pregnancy: { active: false, day: 0 } }); }),
               sbtn("+7 дней", "#0369a1", function() { set({ pregnancy: { day: Math.min(40, (preg.day || 0) + 7) } }); }),
               sbtn("Раскрыть", "#0f766e", function() { set({ pregnancy: { known: true } }); })

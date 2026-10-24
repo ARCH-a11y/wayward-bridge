@@ -319,6 +319,17 @@ async function waitUp(c) {
   await api("POST", "/bridge/api/childstate/child", { playthrough: "pt-back", childId: "b1", patch: { stage: "child" } });
   const g8e = await api("GET", "/bridge/api/childstate/person?playthrough=pt-back&childId=b1&her=elena");
   ok("G6c: возраст назад = дома", safe(g8e.json, ["movedOut"]) === false && safe(g8e.json, ["person", "lives"]) === "home");
+  // --- G7: удаление ---
+  await api("POST", "/bridge/api/childstate/load", { playthrough: "pt-rm", state: { lastDay: 5, children: [
+    { id: "r1", sex: "f", name: "Лиза", bornDay: 1, stage: "child" },
+    { id: "r2", sex: "m", name: "Отто", bornDay: 1, stage: "child" }
+  ] } });
+  const g9 = await api("POST", "/bridge/api/childstate/remove-child", { playthrough: "pt-rm", childId: "r1" });
+  ok("G7: ребёнок удаляется", (safe(g9.json, ["state", "children"]) || []).length === 1 && safe(g9.json, ["state", "children", 0, "id"]) === "r2");
+  const g9b = await api("POST", "/bridge/api/childstate/remove-child", { playthrough: "pt-rm", childId: "нет" });
+  ok("G7: удаление несуществующего -> 404", g9b.status === 404);
+  const g9c = await api("GET", "/bridge/api/childstate?playthrough=pt-rm");
+  ok("G7: удаление сохранилось", (safe(g9c.json, ["children"]) || []).length === 1);
   c.kill();
   await sleep(300);
   fs.rmSync(DATA, { recursive: true, force: true });
