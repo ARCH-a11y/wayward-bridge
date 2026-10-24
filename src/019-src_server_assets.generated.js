@@ -816,7 +816,8 @@ var require_assets_generated = __commonJS({
               patronId: String(pat.customerId || ""),
               group: Array.isArray(pat.joinedPatronIds) && pat.joinedPatronIds.length > 0,
               encounters: dayEncounters,
-              trust: trust
+              trust: trust,
+              father: String(pat.customerId || (sc.sex ? "player" : ""))
             };
             dayEncounters = 0;
             api("POST", "/bridge/api/childstate/tick", { playthrough: pt, day: day, ctx: ctx }).then(function(j) {

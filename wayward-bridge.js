@@ -158,13 +158,14 @@ var require_schema = __commonJS({
       playthrough: str(),
       lastDay: num(0, 1e4),
       cycle: { on: bool(), day: num(0, 1e5), length: num(0, 400), window: num(0, 400) },
-      pregnancy: { active: bool(), day: num(0, 1e5), fatherId: str(), known: bool(), revealDay: num(0, 1e9), forced: bool() },
+      pregnancy: { active: bool(), day: num(0, 1e5), fatherId: str(), known: bool(), revealDay: num(0, 1e9), forced: bool(), motherLook: (v) => v && typeof v === "object" ? v : void 0, fatherLook: (v) => v && typeof v === "object" ? v : void 0 },
       childWish: { mode: str(), targetId: str() },
       children: (v) => Array.isArray(v) ? v : void 0,
       postpartum: { blockUntilDay: num(0, 1e9), milkUntilDay: num(0, 1e9) },
       lastBirth: { day: num(0, 1e9), outcome: str(), count: num(0, 10) }
     };
-    var LAYER = { prompts: PROMPTS, pipeline: PIPELINE, childstate: CHILDSTATE };
+    var PLAYER = { look: { hair: str(), hairType: str(), eyes: str(), skin: str(), face: str(), build: str(), bust: str(), hips: str(), set: bool() } };
+    var LAYER = { prompts: PROMPTS, pipeline: PIPELINE, childstate: CHILDSTATE, player: PLAYER };
     var SCHEMA = {
       version: num(1, 1e3),
       app: {
@@ -902,7 +903,8 @@ var require_defaults = __commonJS({
       const listMap = (m) => Object.fromEntries(Object.entries(m || {}).map(([k, v]) => [k, Array.isArray(v) ? v.map(String) : [String(v || "")]]));
       const strMap = (m) => Object.fromEntries(Object.entries(m || {}).filter(([, v]) => typeof v === "string"));
       return {
-        childstate: {
+        player: { look: { hair: "", hairType: "", eyes: "", skin: "", face: "", build: "", bust: "", hips: "", set: false } },
+  childstate: {
           playthrough: "",
           lastDay: 0,
           cycle:      { on: true, day: 0, length: 28, window: 4 },
@@ -5340,7 +5342,8 @@ var require_assets_generated = __commonJS({
               patronId: String(pat.customerId || ""),
               group: Array.isArray(pat.joinedPatronIds) && pat.joinedPatronIds.length > 0,
               encounters: dayEncounters,
-              trust: trust
+              trust: trust,
+              father: String(pat.customerId || (sc.sex ? "player" : ""))
             };
             dayEncounters = 0;
             api("POST", "/bridge/api/childstate/tick", { playthrough: pt, day: day, ctx: ctx }).then(function(j) {
@@ -11607,6 +11610,7 @@ var require_server = __commonJS({
     var { addonItems } = require_items();
     var { clean: cleanSchema, LAYER: LAYER_SCHEMA } = require_schema();
     var { forPlaythrough: childstateFor, tick: childstateTick, prompt: childstatePrompt, current: childstateCurrent, set: childstateSet } = require_childstate();
+    var { extract: looksExtract, describe: looksDescribe, random: looksRandom } = require_looks();
     var { Ratings, suggestions } = require_learn();
     var maintainer = require_maintainer();
     var VERSION = assets.VERSION || "dev";
@@ -12466,7 +12470,7 @@ var require_server = __commonJS({
       const heroine = currentHeroine();
       const addons = store.listAddons().map((a) => Object.assign(a, { layer: (store.readAddon(a.file) || {}).layer || {}, heroine: (store.readAddon(a.file) || {}).heroine || {}, items: [...store.itemsOf(a.file)] }));
       return {
-      childstate: childstateCurrent(store.dataDir),
+      childstate: (function () { var c = childstateCurrent(store.dataDir); if (c && c.children) c = Object.assign({}, c, { children: c.children.map(function (k) { return Object.assign({}, k, { lookText: looksDescribe(k.look, k.stage, k.sex) }); }) }); return c; })(),
         revision: store.revision,
         app: store.settings.app,
         defaults: defaultLayer(),
@@ -12527,7 +12531,19 @@ var require_server = __commonJS({
       }
       if (p === "/bridge/api/childstate/tick" && m === "POST") {
         const body = await readJson(req);
-        const cs = childstateTick(store.dataDir, String(body.playthrough || ""), Number(body.day) || 0, body.ctx || {});
+        const ctx2 = Object.assign({}, body.ctx || {});
+        try {
+          const hero = currentHeroine();
+          const hh = (store.settings.layer.prompts.heroines || {})[hero] || {};
+          const txt = [hh.base].concat(Object.keys(hh.sections || {}).map((kk) => hh.sections[kk] && hh.sections[kk].tags)).filter(Boolean).join(", ");
+          ctx2.motherLook = looksExtract(txt);
+          if (ctx2.father === "player" || ctx2.patronId === "player") {
+            const cur = (store.settings.layer.player || {}).look;
+            if (cur && cur.set) ctx2.fatherLook = cur;
+            else { const l = looksRandom(); l.set = true; try { store.patch([{ path: ["layer", "player", "look"], value: l }], store.revision); } catch (e) {} ctx2.fatherLook = l; }
+          }
+        } catch (e) {}
+        const cs = childstateTick(store.dataDir, String(body.playthrough || ""), Number(body.day) || 0, ctx2);
         return send(res, 200, { ok: true, state: cs });
       }
       if (p === "/bridge/api/childstate/set" && m === "POST") {
@@ -13280,6 +13296,7 @@ var require_childstate = __commonJS({
     var fs = require("fs");
     var path = require("path");
     var { writeAtomic } = require_store();
+    var looks = require_looks();
 
     var FILE = "childstate.json";
     var TERM = 40;   // срок беременности, дней
@@ -13339,7 +13356,8 @@ var require_childstate = __commonJS({
       if (ctx.contraceptives) base *= 0.25;
       if (ctx.boost) base *= 1 + Number(ctx.boost || 0);
       if (s.childWish.mode === "target") base *= 1.1;
-      if (s.childWish.targetId && ctx.patronId) base *= ctx.patronId === s.childWish.targetId ? 1.5 : 0.6;
+      var fk = ctx.father || ctx.patronId;
+      if (s.childWish.targetId && fk) base *= fk === s.childWish.targetId ? 1.5 : 0.6;
       return Math.max(0, Math.min(0.95, base));
     }
 
@@ -13365,7 +13383,8 @@ var require_childstate = __commonJS({
           id: "c" + day.toString(36) + i + Math.random().toString(36).slice(2, 6),
           sex: Math.random() < 0.5 ? "f" : "m",
           fatherId: s.pregnancy.fatherId || "",
-          bornDay: day, stage: "infant", birth: outcome
+          bornDay: day, stage: "infant", birth: outcome,
+          look: looks.child(s.pregnancy.motherLook, s.pregnancy.fatherLook)
         });
       }
       s.pregnancy = { active: false, day: 0, fatherId: "", known: false, revealDay: 0, forced: false };
@@ -13412,7 +13431,9 @@ var require_childstate = __commonJS({
           s.pregnancy.active = true;
           s.pregnancy.day = 0;
           s.pregnancy.known = Number(ctx.trust || 0) >= 50;
-          s.pregnancy.fatherId = ctx.patronId && !ctx.group ? String(ctx.patronId) : "";
+          s.pregnancy.fatherId = (ctx.father || ctx.patronId) && !ctx.group ? String(ctx.father || ctx.patronId) : "";
+          s.pregnancy.motherLook = ctx.motherLook || looks.random();
+          s.pregnancy.fatherLook = ctx.fatherLook || null;
         }
       }
 
@@ -13447,6 +13468,72 @@ var require_childstate = __commonJS({
     }
 
     module2.exports = { empty: empty, forPlaythrough: forPlaythrough, tick: tick, phase: phase, chance: chance, stageOf: stageOf, prompt: prompt, current: current, set: set };
+  }
+});
+// src/server/looks.js
+var require_looks = __commonJS({
+  "src/server/looks.js"(exports2, module2) {
+    "use strict";
+    var SCALE = {
+      hair: ["black", "dark brown", "chestnut", "auburn", "ginger", "blonde", "platinum"],
+      skin: ["fair", "light", "olive", "tan", "brown"],
+      eyes: ["brown", "hazel", "green", "grey", "blue"]
+    };
+    var FREE = {
+      hairType: ["straight", "wavy", "curly"],
+      face: ["round", "oval", "sharp", "soft"],
+      build: ["slim", "lithe", "soft", "sturdy"],
+      bust: ["small", "modest", "full", "heavy"],
+      hips: ["narrow", "soft", "wide"]
+    };
+    function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+    function random() {
+      var l = {};
+      for (var k in SCALE) l[k] = pick(SCALE[k]);
+      for (var k2 in FREE) l[k2] = pick(FREE[k2]);
+      return l;
+    }
+    function extract(text) {
+      var t = String(text || "").toLowerCase(), l = {};
+      for (var k in SCALE) { var a = SCALE[k]; for (var i = 0; i < a.length; i++) if (t.indexOf(a[i]) >= 0) { l[k] = a[i]; break; } }
+      for (var k2 in FREE) { var b = FREE[k2]; for (var j = 0; j < b.length; j++) if (t.indexOf(b[j]) >= 0) { l[k2] = b[j]; break; } }
+      return l;
+    }
+    function idx(list, v) { var i = list.indexOf(v); return i < 0 ? Math.floor(list.length / 2) : i; }
+    function inherit(a, b, list) {
+      if (!a) return b; if (!b) return a;
+      var r = Math.random();
+      if (r < 0.3 || a === b) return a;
+      if (r < 0.6) return b;
+      var m = Math.round((idx(list, a) + idx(list, b)) / 2);
+      if (Math.random() < 0.15) m += Math.random() < 0.5 ? -1 : 1;
+      return list[Math.max(0, Math.min(list.length - 1, m))];
+    }
+    function child(mother, father) {
+      var m = mother || random(), f = father || random(), l = {};
+      for (var k in SCALE) l[k] = inherit(m[k], f[k], SCALE[k]);
+      for (var k2 in FREE) l[k2] = Math.random() < 0.5 ? (m[k2] || pick(FREE[k2])) : (f[k2] || pick(FREE[k2]));
+      return l;
+    }
+    // фильтры: по полу убираем чужое, по стадии подавляем вторичное
+    function describe(look, stage, sex) {
+      if (!look) return "";
+      var t = [];
+      if (look.hair) t.push(look.hair + (look.hairType ? " " + look.hairType : "") + " hair");
+      if (look.eyes) t.push(look.eyes + " eyes");
+      if (look.skin) t.push(look.skin + " skin");
+      if (look.face) t.push(look.face + " face");
+      if (stage !== "infant" && look.build) t.push(look.build + " build");
+      var grown = stage === "youth" || stage === "adult";
+      if (sex === "f") {
+        if (stage === "teen") t.push("small budding breasts", "hips filling out");
+        else if (grown) t.push((look.bust || "modest") + " breasts", (look.hips || "soft") + " hips");
+      } else if (grown) {
+        t.push("broad shoulders");
+      }
+      return t.join(", ");
+    }
+    module2.exports = { random: random, extract: extract, child: child, describe: describe };
   }
 });
 // src/main.js

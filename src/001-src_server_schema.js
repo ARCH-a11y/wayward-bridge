@@ -144,13 +144,14 @@ var require_schema = __commonJS({
       playthrough: str(),
       lastDay: num(0, 1e4),
       cycle: { on: bool(), day: num(0, 1e5), length: num(0, 400), window: num(0, 400) },
-      pregnancy: { active: bool(), day: num(0, 1e5), fatherId: str(), known: bool(), revealDay: num(0, 1e9), forced: bool() },
+      pregnancy: { active: bool(), day: num(0, 1e5), fatherId: str(), known: bool(), revealDay: num(0, 1e9), forced: bool(), motherLook: (v) => v && typeof v === "object" ? v : void 0, fatherLook: (v) => v && typeof v === "object" ? v : void 0 },
       childWish: { mode: str(), targetId: str() },
       children: (v) => Array.isArray(v) ? v : void 0,
       postpartum: { blockUntilDay: num(0, 1e9), milkUntilDay: num(0, 1e9) },
       lastBirth: { day: num(0, 1e9), outcome: str(), count: num(0, 10) }
     };
-    var LAYER = { prompts: PROMPTS, pipeline: PIPELINE, childstate: CHILDSTATE };
+    var PLAYER = { look: { hair: str(), hairType: str(), eyes: str(), skin: str(), face: str(), build: str(), bust: str(), hips: str(), set: bool() } };
+    var LAYER = { prompts: PROMPTS, pipeline: PIPELINE, childstate: CHILDSTATE, player: PLAYER };
     var SCHEMA = {
       version: num(1, 1e3),
       app: {

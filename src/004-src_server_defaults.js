@@ -22,7 +22,8 @@ var require_defaults = __commonJS({
       const listMap = (m) => Object.fromEntries(Object.entries(m || {}).map(([k, v]) => [k, Array.isArray(v) ? v.map(String) : [String(v || "")]]));
       const strMap = (m) => Object.fromEntries(Object.entries(m || {}).filter(([, v]) => typeof v === "string"));
       return {
-        childstate: {
+        player: { look: { hair: "", hairType: "", eyes: "", skin: "", face: "", build: "", bust: "", hips: "", set: false } },
+  childstate: {
           playthrough: "",
           lastDay: 0,
           cycle:      { on: true, day: 0, length: 28, window: 4 },

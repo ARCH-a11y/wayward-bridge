@@ -24,6 +24,7 @@ var require_server = __commonJS({
     var { addonItems } = require_items();
     var { clean: cleanSchema, LAYER: LAYER_SCHEMA } = require_schema();
     var { forPlaythrough: childstateFor, tick: childstateTick, prompt: childstatePrompt, current: childstateCurrent, set: childstateSet } = require_childstate();
+    var { extract: looksExtract, describe: looksDescribe, random: looksRandom } = require_looks();
     var { Ratings, suggestions } = require_learn();
     var maintainer = require_maintainer();
     var VERSION = assets.VERSION || "dev";
@@ -883,7 +884,7 @@ var require_server = __commonJS({
       const heroine = currentHeroine();
       const addons = store.listAddons().map((a) => Object.assign(a, { layer: (store.readAddon(a.file) || {}).layer || {}, heroine: (store.readAddon(a.file) || {}).heroine || {}, items: [...store.itemsOf(a.file)] }));
       return {
-      childstate: childstateCurrent(store.dataDir),
+      childstate: (function () { var c = childstateCurrent(store.dataDir); if (c && c.children) c = Object.assign({}, c, { children: c.children.map(function (k) { return Object.assign({}, k, { lookText: looksDescribe(k.look, k.stage, k.sex) }); }) }); return c; })(),
         revision: store.revision,
         app: store.settings.app,
         defaults: defaultLayer(),
@@ -944,7 +945,19 @@ var require_server = __commonJS({
       }
       if (p === "/bridge/api/childstate/tick" && m === "POST") {
         const body = await readJson(req);
-        const cs = childstateTick(store.dataDir, String(body.playthrough || ""), Number(body.day) || 0, body.ctx || {});
+        const ctx2 = Object.assign({}, body.ctx || {});
+        try {
+          const hero = currentHeroine();
+          const hh = (store.settings.layer.prompts.heroines || {})[hero] || {};
+          const txt = [hh.base].concat(Object.keys(hh.sections || {}).map((kk) => hh.sections[kk] && hh.sections[kk].tags)).filter(Boolean).join(", ");
+          ctx2.motherLook = looksExtract(txt);
+          if (ctx2.father === "player" || ctx2.patronId === "player") {
+            const cur = (store.settings.layer.player || {}).look;
+            if (cur && cur.set) ctx2.fatherLook = cur;
+            else { const l = looksRandom(); l.set = true; try { store.patch([{ path: ["layer", "player", "look"], value: l }], store.revision); } catch (e) {} ctx2.fatherLook = l; }
+          }
+        } catch (e) {}
+        const cs = childstateTick(store.dataDir, String(body.playthrough || ""), Number(body.day) || 0, ctx2);
         return send(res, 200, { ok: true, state: cs });
       }
       if (p === "/bridge/api/childstate/set" && m === "POST") {

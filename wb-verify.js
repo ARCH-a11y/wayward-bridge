@@ -7,6 +7,12 @@ const src = fs.readFileSync(FILE, "utf8");
 
 // [название, подстрока, минимум вхождений]
 const CHECKS = [
+  ["G модуль looks", "var require_looks = __commonJS", 1],
+  ["G гены: смешение", "function inherit(a, b, list)", 1],
+  ["G фильтр стадии", "small budding breasts", 1],
+  ["G схема player", "var PLAYER = {", 1],
+  ["G look при рождении", "look: looks.child(", 1],
+  ["G клиент father", "sc.sex ? \"player\"", 1],
   ["F5 схема pregnancy", "known: bool(), revealDay: num(0, 1e9)", 1],
   ["F5 сокрытие: вынужденное", "s.pregnancy.day >= 16", 1],
   ["F5 сокрытие: порог доверия", "known = Number(ctx.trust || 0) >= 50", 1],
@@ -34,7 +40,7 @@ const CHECKS = [
   ["F3 вызов секции", "stateSec(), bodySec()", 1],
   ["F3 живот в UI", "[\"belly\", \"Живот\"]", 1],
   ["F3 роут childstate/set", "/bridge/api/childstate/set", 1],
-  ["F3 childstate в stateFor", "childstate: childstateCurrent", 1],
+  ["F3 childstate в stateFor", "childstate: (function () { var c = childstateCurrent", 1],
   ["F3 модуль set", "function set(dir, pt, patch)", 1],
   ["F2 belly в SECTION_ORDER", "\"misc\", \"belly\"]", 1],
   ["F2 таблица стадий", "BELLY_TAGS", 1],
