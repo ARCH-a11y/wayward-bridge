@@ -96,7 +96,7 @@ var require_childstate = __commonJS({
           look: looks.child(s.pregnancy.motherLook, s.pregnancy.fatherLook)
         });
       }
-      s.pregnancy = { active: false, day: 0, fatherId: "", known: false, revealDay: 0, forced: false };
+      s.pregnancy = { active: false, day: 0, fatherId: "", known: false, revealDay: 0, forced: false, motherLook: s.pregnancy.motherLook || null, fatherLook: s.pregnancy.fatherLook || null };
       s.postpartum.blockUntilDay = day + block;
       s.postpartum.milkUntilDay = day + milk;
       s.lastBirth = { day: day, outcome: outcome, count: n };
@@ -146,6 +146,7 @@ var require_childstate = __commonJS({
         }
       }
 
+      if (s.pregnancy.active && s.pregnancy.day >= TERM) birth(s, s.lastDay || s.pregnancy.day, {});
       save(dir, s);
       return s;
     }
@@ -155,6 +156,7 @@ var require_childstate = __commonJS({
       var milk = (s.postpartum.milkUntilDay || 0) > (s.lastDay || 0);
       if (s.pregnancy && s.pregnancy.active) {
         var d = s.pregnancy.day;
+        if (d >= 30) milk = true;
         var stage = d < 10 ? "none" : d < 20 ? "slight" : d < 30 ? "visible" : "large";
         return { stage: stage, milk: milk };
       }
@@ -172,6 +174,7 @@ var require_childstate = __commonJS({
           s[k] = patch[k];
         }
       }
+      if (s.pregnancy.active && s.pregnancy.day >= TERM) birth(s, s.lastDay || s.pregnancy.day, {});
       save(dir, s);
       return s;
     }

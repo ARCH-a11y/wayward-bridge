@@ -3025,10 +3025,7 @@ var require_assets_generated = __commonJS({
           var kids = cs && cs.children || [];
           var stage = !preg.active ? "нет" : preg.day < 10 ? "не видно" : preg.day < 20 ? "слегка" : preg.day < 30 ? "заметно" : "большой";
           function set(patch) {
-            api("POST", "/bridge/api/childstate/set", { playthrough: pt, patch: patch }).then(function(j) {
-              if (j && j.state) S.st.childstate = j.state;
-              render();
-            });
+            api("POST", "/bridge/api/childstate/set", { playthrough: pt, patch: patch }).then(function(j) { if (j && j.state) S.st.childstate = j.state; render(); });
           }
           function cell(label, val) {
             return h("div", { class: "pcell" },
@@ -3046,13 +3043,13 @@ var require_assets_generated = __commonJS({
               cell("Знает", preg.known ? "да" : "нет"),
               cell("Цикл", cs && cs.cycle ? cs.cycle.day + " / " + cs.cycle.length : "—"),
               cell("Дети", String(kids.length)),
-              cell("Молоко", post.milkUntilDay > ((cs && cs.lastDay) || 0) ? "да" : "нет"),
+              cell("Молоко", (post.milkUntilDay > ((cs && cs.lastDay) || 0) || (preg.active && preg.day >= 30)) ? "да" : "нет"),
               cell("Желание", cs && cs.childWish ? (cs.childWish.mode || "нет") : "—")
             ),
             kids.length ? h("div", { class: "pgrid" }, kids.map(function(c, i) {
               var age = ((cs && cs.lastDay) || 0) - (c.bornDay || 0);
               return h("div", { class: "pcell" },
-                h("div", { class: "phead" }, h("span", { class: "plab" }, "#" + (i + 1) + " " + (c.sex === "f" ? "девочка" : "мальчик")), h("button", { type: "button", class: "link", title: "Перебросить внешность", onclick: function() { api("POST", "/bridge/api/childstate/reroll", { playthrough: pt, childId: c.id }).then(function(j) { if (j && j.state) S.st.childstate = j.state; render(); }); } }, "↻")),
+                h("div", { class: "phead" }, h("span", { class: "plab" }, "#" + (i + 1) + " " + (c.sex === "f" ? "девочка" : "мальчик")), h("button", { type: "button", class: "link", title: "Перебросить внешность", onclick: function() { api("POST", "/bridge/api/childstate/reroll", { playthrough: pt, childId: c.id }).then(function(j) { if (j && j.state) S.st.childstate = j.state; say("Внешность переброшена"); render(); }); } }, "↻")),
                 h("div", { style: "padding:2px 4px;font-size:12px" }, (c.stage || "?") + ", " + age + " дн" + (c.lookText ? " — " + c.lookText : "")));
             })) : null,
             row((function() {

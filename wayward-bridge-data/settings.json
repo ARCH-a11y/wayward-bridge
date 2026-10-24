@@ -1288,6 +1288,19 @@
         "width": 832,
         "height": 1216
       }
+    },
+    "player": {
+      "look": {
+        "hair": "auburn",
+        "skin": "brown",
+        "eyes": "grey",
+        "hairType": "straight",
+        "face": "round",
+        "build": "sturdy",
+        "bust": "heavy",
+        "hips": "narrow",
+        "set": true
+      }
     }
   },
   "heroine": {
@@ -4540,7 +4553,7 @@
     "pippa.17qhigs1l00zv0": {
       "heroine": "pippa",
       "name": "Zenit",
-      "at": 1792820572524
+      "at": 1792823061660
     }
   },
   "addons": [],

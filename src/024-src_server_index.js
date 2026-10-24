@@ -885,7 +885,7 @@ var require_server = __commonJS({
       const addons = store.listAddons().map((a) => Object.assign(a, { layer: (store.readAddon(a.file) || {}).layer || {}, heroine: (store.readAddon(a.file) || {}).heroine || {}, items: [...store.itemsOf(a.file)] }));
       return {
       lookVocab: { scale: LOOKS_SCALE, free: LOOKS_FREE },
-      childstate: (function () { var c = childstateCurrent(store.dataDir); if (c && c.children) c = Object.assign({}, c, { children: c.children.map(function (k) { return Object.assign({}, k, { lookText: looksDescribe(k.look, k.stage, k.sex) }); }) }); return c; })(),
+      childstate: withChildLook(childstateCurrent(store.dataDir)),
         revision: store.revision,
         app: store.settings.app,
         defaults: defaultLayer(),
@@ -936,6 +936,10 @@ var require_server = __commonJS({
       const e = library.latest(key);
       return e ? { kind: "wb", e, key, fp: library.filePath(e.file) } : { kind: "none", key };
     }
+    function withChildLook(cs) {
+      if (!cs || !cs.children) return cs;
+      return Object.assign({}, cs, { children: cs.children.map(function (k) { return Object.assign({}, k, { lookText: looksDescribe(k.look, k.stage, k.sex) }); }) });
+    }
     async function handleBridge(req, res, p, url) {
       if (!trusted(req)) return send(res, 403, { error: "Only the game page served by Wayward Bridge can use this." });
       const m = req.method;
@@ -964,12 +968,12 @@ var require_server = __commonJS({
       if (p === "/bridge/api/childstate/set" && m === "POST") {
         const body = await readJson(req);
         const cs2 = childstateSet(store.dataDir, String(body.playthrough || ""), body.patch || {});
-        return send(res, 200, { ok: true, state: cs2 });
+        return send(res, 200, { ok: true, state: withChildLook(cs2) });
       }
       if (p === "/bridge/api/childstate/reroll" && m === "POST") {
         const body = await readJson(req);
         const cs3 = childstateReroll(store.dataDir, String(body.playthrough || ""), String(body.childId || ""));
-        return send(res, 200, { ok: true, state: cs3 });
+        return send(res, 200, { ok: true, state: withChildLook(cs3) });
       }
       if (p === "/bridge/api/player/random" && m === "POST") {
         const l = looksRandom(); l.set = true;

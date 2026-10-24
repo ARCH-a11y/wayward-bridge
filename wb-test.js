@@ -249,6 +249,12 @@ async function waitUp(c) {
   for (let d = 2; d <= 41; d++) rL = await api("POST", "/bridge/api/childstate/tick", { playthrough: "pt-gene", day: d, ctx: { encounters: 0 } });
   const kid0 = (safe(rL.json, ["state", "children"]) || [])[0] || {};
   ok("G: у ребёнка есть look", !!(kid0.look && kid0.look.hair && kid0.look.eyes));
+  // --- G4: set доводит до родов, молоко у срока ---
+  await api("POST", "/bridge/api/childstate/set", { playthrough: "pt-setb", patch: { pregnancy: { active: true, day: 35 } } });
+  const stMilk = await api("POST", "/bridge/api/preview", { key: (hid || "x") + "__scene-taproom", ops: [] });
+  ok("G4: молоко у срока в positive", String((stMilk.json || {}).positive || "").includes("lactating breasts, milk"));
+  const stBirth = await api("POST", "/bridge/api/childstate/set", { playthrough: "pt-setb", patch: { pregnancy: { day: 40 } } });
+  ok("G4: set доводит до родов", (safe(stBirth.json, ["state", "children"]) || []).length >= 1 && safe(stBirth.json, ["state", "pregnancy", "active"]) === false);
   c.kill();
   await sleep(300);
   fs.rmSync(DATA, { recursive: true, force: true });
