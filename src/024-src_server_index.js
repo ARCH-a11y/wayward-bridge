@@ -1506,9 +1506,15 @@ var require_server = __commonJS({
         }
         const parsedKey = parseImageKey(key);
         if (parsedKey.kind !== "patron") lastHeroine = heroineOf(parsedKey, heroineIds()) || lastHeroine;
+        console.log("[wb] gen", JSON.stringify({ k: String(key).slice(0,70), bypass: !!body.bypassCache, saved: !!(store.settings.app.savedMedia && store.settings.app.savedMedia.enabled), lib: !!library.latest(key), pk: (parseImageKey(key) || {}).kind }));
         if (store.settings.app.savedMedia && store.settings.app.savedMedia.enabled && !body.bypassCache) {
           const hit = media.pick(parsedKey, heroineOf(parsedKey, heroineIds()));
           if (hit) return send(res, 200, { status: "completed", promptId: "saved-" + Date.now(), imagePath: "saved/" + hit.rel, cached: true }, corsOf(req));
+        }
+        // H1y/H2b: патроны вне media.pick — готовый портрет берём из библиотеки
+        if (!body.bypassCache && /^patron_/i.test(key)) {
+          const pe = library.latest(key);
+          if (pe && pe.file) { console.log("[wb] cached patron", String(key).slice(0,70)); return send(res, 200, { status: "completed", promptId: "saved-" + Date.now(), imagePath: "wb/" + pe.file, cached: true }, corsOf(req)); }
         }
         if (nextSeed.has(key)) {
           body.seed = nextSeed.get(key);
