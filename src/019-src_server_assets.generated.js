@@ -865,7 +865,7 @@ var require_assets_generated = __commonJS({
         var CHILD_MULT = { infant: 0, child: 0.35, teen: 0.7, youth: 1 };
         var CHILD_ATTRS = ["strength", "deftness", "vigor", "wit", "composure", "charm", "honesty", "libido", "loyalty", "openness", "confidence"];
         function childSig(c) {
-          return (c.stage || "") + "|" + (c.sex || "") + "|" + (c.lookText || "") + "|" + (c.movedOut ? 1 : 0);
+          return (c.stage || "") + "|" + (c.sex || "") + "|" + (c.lookText || "") + "|" + (c.movedOut ? 1 : 0) + "|v3";
         }
         function childRecord(c, tmpl, prev) {
           var ch = JSON.parse(JSON.stringify(tmpl));
@@ -877,7 +877,7 @@ var require_assets_generated = __commonJS({
           ch.currentTask = "idle";
           ch.busyUntilSlot = 0;
           // H1v: не тащить «текущее» состояние жены
-          ["scene","sceneOverride","sceneVariant","sceneSetAtSlot","exposure","aftermathTags","aftermathFromPatron","aftermathFadeAt","lastResponse","lastResponseType","lastResponseSlot","lastActionDelta","lastActionDrive","innerThought","innerThoughtType","innerThoughtSlot","notedMoments","dailyState","taskTarget","locationUntilSlot","lastPatronContext","recentStimuli","recentThoughtIds","pendingPrompt","pendingReaction","soreness","orgasmsToday","sexLoadToday","sexStagesToday","lastSexStageSlot","lastSexStageLoad","lastOrgasmSlot","intoxication"].forEach(function(k) { delete ch[k]; });
+          ["scene","sceneOverride","sceneVariant","sceneSetAtSlot","exposure","aftermathTags","aftermathFromPatron","aftermathFadeAt","lastResponse","lastResponseType","lastResponseSlot","lastActionDelta","lastActionDrive","innerThought","innerThoughtType","innerThoughtSlot","notedMoments","dailyState","taskTarget","locationUntilSlot","lastPatronContext","recentStimuli","recentThoughtIds","pendingPrompt","pendingReaction","soreness","orgasmsToday","sexLoadToday","sexStagesToday","lastSexStageSlot","lastSexStageLoad","lastOrgasmSlot","intoxication","conditioning","firstsWithOthers","crossedLineHistory","intimateHistory","moments","anticipations","recentStimuli","recentThoughtIds","recentAgencyActions","recentContemptDeltas","actionMemory","actionAffinity","pendingPrompt","pendingReaction","daresAcceptedToday","onPatronLap","propositionPressure","cardsStake","marketTrip","outing","outingsTaken","stayedInHerBedNight","outfitReactedTo","unwornOutfits"].forEach(function(k) { delete ch[k]; });
 
 
           ch.wbChild = true;
@@ -910,10 +910,10 @@ var require_assets_generated = __commonJS({
           ch.relationship = { trust: 100, patronInteractionsEncouraged: 0 };
           if (prev && prev.wbSig) {
             if (prev.stats) ch.stats = prev.stats;
-            if (prev.feelings) ch.feelings = prev.feelings;
-            if (prev.notedMoments) ch.notedMoments = prev.notedMoments;
-            if (prev.relationship) ch.relationship = prev.relationship;
-            if (prev.intoxication) ch.intoxication = prev.intoxication;
+            
+            
+            
+            
           }
           return ch;
         }

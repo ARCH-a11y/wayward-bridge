@@ -3899,6 +3899,8 @@ var require_game = __commonJS({
           .replace('function PHe(){const e=ae(a=>a.state),', 'function PHe(){const e=__wbV(ae(a=>a.state)),')
           .replace('ae(Ae=>e8(_(Ae.state)))', 'ae(Ae=>e8(_(__wbV(Ae.state))))')
           .replace('ae(Ae=>_(Ae.state))', 'ae(Ae=>_(__wbV(Ae.state)))')
+          .replace('o=ae(Ae=>wf(Ae.state).scene)', 'o=ae(Ae=>_(__wbV(Ae.state)).id===Ae.state.primaryCharacterId?wf(Ae.state).scene:void 0)')
+          .replace('n=ae(Ae=>wf(Ae.state).sceneVariant)', 'n=ae(Ae=>_(__wbV(Ae.state)).id===Ae.state.primaryCharacterId?wf(Ae.state).sceneVariant:void 0)')
 .replace('function _(e){const t=e.characters[e.primaryCharacterId];', 'function __wbV(e){const t=(window.__WB_CARD__&&e.characters[window.__WB_CARD__])||e.characters[e.primaryCharacterId];return t===e.characters[e.primaryCharacterId]?e:{...e,primaryCharacterId:t.id}}function _(e){const t=e.characters[e.primaryCharacterId];')
           .replace('[i,l]=Z.useState(null),h=ae(E=>E.state),d=_(h),', '[i,l]=Z.useState(null),[cardSel,setCard]=Z.useState(window.__WB_CARD__||""),h=ae(E=>E.state),d=_(__wbV(h)),')
           .replace('const $=u.jsxs(u.Fragment,{children:[u.jsxs("div",{className:"flex flex-wrap gap-x-1 gap-y-0.5 mb-3 border-b border-stone-700"', 'const __wbKids=(window.__WB_KIDS__&&window.__WB_KIDS__())||[],__wbCard=function(lbl,id){return u.jsx("button",{type:"button",className:"px-1.5 py-0.5 rounded border text-[0.65rem] "+(cardSel===id?"border-amber-600 bg-amber-900/40 text-amber-200":"border-stone-700 text-stone-400 hover:text-stone-200"),onClick:function(){window.__WB_CARD__=id;setCard(id);},children:lbl},id||"wife")}; const $=u.jsxs(u.Fragment,{children:[__wbKids.length?u.jsx("div",{className:"flex flex-wrap gap-1 mb-2",children:[__wbCard(h.characters[h.primaryCharacterId].name,"")].concat(__wbKids.map(function(c){return __wbCard(c.name,c.id)}))}):null,u.jsxs("div",{className:"flex flex-wrap gap-x-1 gap-y-0.5 mb-3 border-b border-stone-700"')
@@ -5420,7 +5422,7 @@ var require_assets_generated = __commonJS({
         var CHILD_MULT = { infant: 0, child: 0.35, teen: 0.7, youth: 1 };
         var CHILD_ATTRS = ["strength", "deftness", "vigor", "wit", "composure", "charm", "honesty", "libido", "loyalty", "openness", "confidence"];
         function childSig(c) {
-          return (c.stage || "") + "|" + (c.sex || "") + "|" + (c.lookText || "") + "|" + (c.movedOut ? 1 : 0);
+          return (c.stage || "") + "|" + (c.sex || "") + "|" + (c.lookText || "") + "|" + (c.movedOut ? 1 : 0) + "|v3";
         }
         function childRecord(c, tmpl, prev) {
           var ch = JSON.parse(JSON.stringify(tmpl));
@@ -5432,7 +5434,7 @@ var require_assets_generated = __commonJS({
           ch.currentTask = "idle";
           ch.busyUntilSlot = 0;
           // H1v: не тащить «текущее» состояние жены
-          ["scene","sceneOverride","sceneVariant","sceneSetAtSlot","exposure","aftermathTags","aftermathFromPatron","aftermathFadeAt","lastResponse","lastResponseType","lastResponseSlot","lastActionDelta","lastActionDrive","innerThought","innerThoughtType","innerThoughtSlot","notedMoments","dailyState","taskTarget","locationUntilSlot","lastPatronContext","recentStimuli","recentThoughtIds","pendingPrompt","pendingReaction","soreness","orgasmsToday","sexLoadToday","sexStagesToday","lastSexStageSlot","lastSexStageLoad","lastOrgasmSlot","intoxication"].forEach(function(k) { delete ch[k]; });
+          ["scene","sceneOverride","sceneVariant","sceneSetAtSlot","exposure","aftermathTags","aftermathFromPatron","aftermathFadeAt","lastResponse","lastResponseType","lastResponseSlot","lastActionDelta","lastActionDrive","innerThought","innerThoughtType","innerThoughtSlot","notedMoments","dailyState","taskTarget","locationUntilSlot","lastPatronContext","recentStimuli","recentThoughtIds","pendingPrompt","pendingReaction","soreness","orgasmsToday","sexLoadToday","sexStagesToday","lastSexStageSlot","lastSexStageLoad","lastOrgasmSlot","intoxication","conditioning","firstsWithOthers","crossedLineHistory","intimateHistory","moments","anticipations","recentStimuli","recentThoughtIds","recentAgencyActions","recentContemptDeltas","actionMemory","actionAffinity","pendingPrompt","pendingReaction","daresAcceptedToday","onPatronLap","propositionPressure","cardsStake","marketTrip","outing","outingsTaken","stayedInHerBedNight","outfitReactedTo","unwornOutfits"].forEach(function(k) { delete ch[k]; });
 
 
           ch.wbChild = true;
@@ -5465,10 +5467,10 @@ var require_assets_generated = __commonJS({
           ch.relationship = { trust: 100, patronInteractionsEncouraged: 0 };
           if (prev && prev.wbSig) {
             if (prev.stats) ch.stats = prev.stats;
-            if (prev.feelings) ch.feelings = prev.feelings;
-            if (prev.notedMoments) ch.notedMoments = prev.notedMoments;
-            if (prev.relationship) ch.relationship = prev.relationship;
-            if (prev.intoxication) ch.intoxication = prev.intoxication;
+            
+            
+            
+            
           }
           return ch;
         }
