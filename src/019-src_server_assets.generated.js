@@ -876,7 +876,7 @@ var require_assets_generated = __commonJS({
           ch.outfit = "modest";
           ch.currentTask = "idle";
           ch.busyUntilSlot = 0;
-          if (c.id === "wife") console.warn("[wb] childRecord под ключом wife");
+
           ch.wbChild = true;
           ch.wbSig = childSig(c);
           var m = CHILD_MULT[c.stage];
@@ -929,8 +929,8 @@ var require_assets_generated = __commonJS({
             var g = x.state || {};
             var chars = Object.assign({}, g.characters || {});
             kids.forEach(function(c) {
-              var __tag = c.id + "|" + her; window.wbSeen = window.wbSeen || {};
-              if (!window.wbSeen[__tag]) { window.wbSeen[__tag] = 1; console.warn("[wb] клон под ключом:", __tag, "| children:", (cs.children || []).map(function(x) { return x.id; }).join(",")); }
+
+
               var ch = childRecord(c, tmpl, chars[c.id]);
               chars[c.id] = ch;
             });
@@ -1252,10 +1252,10 @@ var require_assets_generated = __commonJS({
             var her = activeHer();
             var pt = her && her.save;
             if (!pt) return;
-            var __ks = Object.keys(g.characters || {}).join(",") + "|" + (g.characters && g.characters.wife ? (g.characters.wife.wbChild ? "W" : "-") : "X");
-            if (__ks !== lastChars) { lastChars = __ks; console.warn("[wb] characters:", __ks); }
-            var __wid = g.characters && g.characters.wife ? g.characters.wife.id : "";
-            if (__wid !== lastWifeId) { lastWifeId = __wid; console.warn("[wb] чужой id у жены:", __wid, (new Error()).stack); }
+
+
+
+
             loadChildFromSave(pt);
             mirrorChild();
             keepWife();
