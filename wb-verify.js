@@ -40,6 +40,7 @@ const CHECKS = [
   ["H1n: подмену жены откатываем", "function healWife()", 1],
   ["H1o: запись не путает персонажей", "nn пишет чужую запись", 1],
 ["H1t: портрет за выбором", "ae(Ae=>_(__wbV(Ae.state)))", 1],
+["H1w: ребёнок без чужой сцены", "sceneVariant:void 0", 1],
   ["G7: удаление ребёнка", "function removeChild(dir, pt, childId)", 1],
   ["G7: роут удаления", "/bridge/api/childstate/remove-child", 1],
   ["G7: кнопка удаления", "Удалить ребёнка", 1],
