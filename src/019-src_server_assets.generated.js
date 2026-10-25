@@ -876,6 +876,9 @@ var require_assets_generated = __commonJS({
           ch.outfit = "modest";
           ch.currentTask = "idle";
           ch.busyUntilSlot = 0;
+          // H1v: не тащить «текущее» состояние жены
+          ["scene","sceneOverride","sceneVariant","sceneSetAtSlot","exposure","aftermathTags","aftermathFromPatron","aftermathFadeAt","lastResponse","lastResponseType","lastResponseSlot","lastActionDelta","lastActionDrive","innerThought","innerThoughtType","innerThoughtSlot","notedMoments","dailyState","taskTarget","locationUntilSlot","lastPatronContext","recentStimuli","recentThoughtIds","pendingPrompt","pendingReaction","soreness","orgasmsToday","sexLoadToday","sexStagesToday","lastSexStageSlot","lastSexStageLoad","lastOrgasmSlot","intoxication"].forEach(function(k) { delete ch[k]; });
+
 
           ch.wbChild = true;
           ch.wbSig = childSig(c);
