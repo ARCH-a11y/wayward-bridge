@@ -43,6 +43,7 @@ const CHECKS = [
 ["H1w: ребёнок без чужой сцены", "sceneVariant:void 0", 1],
 ["H2e: панель vitals за выбором", "const t=__wbV(ae(U=>U.state))", 1],
 ["H2f: выбор в сторе", "n.wbCard=id", 1],
+["H2g: sLe за выбором", "d=_(__wbV(e))", 1],
 ["H1y: патрон из кэша", "pe && pe.file", 1],
   ["G7: удаление ребёнка", "function removeChild(dir, pt, childId)", 1],
   ["G7: роут удаления", "/bridge/api/childstate/remove-child", 1],
