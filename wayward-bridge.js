@@ -3901,9 +3901,10 @@ var require_game = __commonJS({
           .replace('ae(Ae=>_(Ae.state))', 'ae(Ae=>_(__wbV(Ae.state)))')
           .replace('o=ae(Ae=>wf(Ae.state).scene)', 'o=ae(Ae=>_(__wbV(Ae.state)).id===Ae.state.primaryCharacterId?wf(Ae.state).scene:void 0)')
           .replace('n=ae(Ae=>wf(Ae.state).sceneVariant)', 'n=ae(Ae=>_(__wbV(Ae.state)).id===Ae.state.primaryCharacterId?wf(Ae.state).sceneVariant:void 0)')
-.replace('function _(e){const t=e.characters[e.primaryCharacterId];', 'function __wbV(e){const t=(window.__WB_CARD__&&e.characters[window.__WB_CARD__])||e.characters[e.primaryCharacterId];return t===e.characters[e.primaryCharacterId]?e:{...e,primaryCharacterId:t.id}}function _(e){const t=e.characters[e.primaryCharacterId];')
+          .replace('const t=ae(U=>U.state),o=At(U=>U.statDetailPinned)', 'const t=__wbV(ae(U=>U.state)),o=At(U=>U.statDetailPinned)')
+.replace('function _(e){const t=e.characters[e.primaryCharacterId];', 'function __wbV(e){const c=e.wbCard||window.__WB_CARD__;if(!c||!e.characters[c])return e;return e.characters[c]===e.characters[e.primaryCharacterId]?e:{...e,primaryCharacterId:c}}function _(e){const t=e.characters[e.primaryCharacterId];')
           .replace('[i,l]=Z.useState(null),h=ae(E=>E.state),d=_(h),', '[i,l]=Z.useState(null),[cardSel,setCard]=Z.useState(window.__WB_CARD__||""),h=ae(E=>E.state),d=_(__wbV(h)),')
-          .replace('const $=u.jsxs(u.Fragment,{children:[u.jsxs("div",{className:"flex flex-wrap gap-x-1 gap-y-0.5 mb-3 border-b border-stone-700"', 'const __wbKids=(window.__WB_KIDS__&&window.__WB_KIDS__())||[],__wbCard=function(lbl,id){return u.jsx("button",{type:"button",className:"px-1.5 py-0.5 rounded border text-[0.65rem] "+(cardSel===id?"border-amber-600 bg-amber-900/40 text-amber-200":"border-stone-700 text-stone-400 hover:text-stone-200"),onClick:function(){window.__WB_CARD__=id;setCard(id);},children:lbl},id||"wife")}; const $=u.jsxs(u.Fragment,{children:[__wbKids.length?u.jsx("div",{className:"flex flex-wrap gap-1 mb-2",children:[__wbCard(h.characters[h.primaryCharacterId].name,"")].concat(__wbKids.map(function(c){return __wbCard(c.name,c.id)}))}):null,u.jsxs("div",{className:"flex flex-wrap gap-x-1 gap-y-0.5 mb-3 border-b border-stone-700"')
+          .replace('const $=u.jsxs(u.Fragment,{children:[u.jsxs("div",{className:"flex flex-wrap gap-x-1 gap-y-0.5 mb-3 border-b border-stone-700"', 'const __wbKids=(window.__WB_KIDS__&&window.__WB_KIDS__())||[],__wbCard=function(lbl,id){return u.jsx("button",{type:"button",className:"px-1.5 py-0.5 rounded border text-[0.65rem] "+(cardSel===id?"border-amber-600 bg-amber-900/40 text-amber-200":"border-stone-700 text-stone-400 hover:text-stone-200"),onClick:function(){window.__WB_CARD__=id;setCard(id);var __s=window.__WB_STORE__;if(__s&&__s.setState)__s.setState(function(x){var g=x.state||{},n={},k;for(k in g)n[k]=g[k];n.wbCard=id;return{state:n};});},children:lbl},id||"wife")}; const $=u.jsxs(u.Fragment,{children:[__wbKids.length?u.jsx("div",{className:"flex flex-wrap gap-1 mb-2",children:[__wbCard(h.characters[h.primaryCharacterId].name,"")].concat(__wbKids.map(function(c){return __wbCard(c.name,c.id)}))}):null,u.jsxs("div",{className:"flex flex-wrap gap-x-1 gap-y-0.5 mb-3 border-b border-stone-700"')
           .replace('n.has(f)&&(o[d].occupants.push(f),r.add(f))}', '(n.has(f)||e.characters&&e.characters[f])&&(o[d].occupants.push(f),r.add(f))}')
           .replace('g=iU(e,d);return{', 'g=iU(e,d).filter(function(v){return !((v.person||v).wbChild)});return{')
           .replace('o=iU(t,e);return', 'o=iU(t,e).filter(function(v){return !((v.person||v).wbChild)});return')
@@ -13608,9 +13609,15 @@ var require_server = __commonJS({
         }
         const parsedKey = parseImageKey(key);
         if (parsedKey.kind !== "patron") lastHeroine = heroineOf(parsedKey, heroineIds()) || lastHeroine;
+        console.log("[wb] gen", JSON.stringify({ k: String(key).slice(0,70), bypass: !!body.bypassCache, saved: !!(store.settings.app.savedMedia && store.settings.app.savedMedia.enabled), lib: !!library.latest(key), pk: (parseImageKey(key) || {}).kind }));
         if (store.settings.app.savedMedia && store.settings.app.savedMedia.enabled && !body.bypassCache) {
           const hit = media.pick(parsedKey, heroineOf(parsedKey, heroineIds()));
           if (hit) return send(res, 200, { status: "completed", promptId: "saved-" + Date.now(), imagePath: "saved/" + hit.rel, cached: true }, corsOf(req));
+        }
+        // H1y/H2b: патроны вне media.pick — готовый портрет берём из библиотеки
+        if (!body.bypassCache && /^patron_/i.test(key)) {
+          const pe = library.latest(key);
+          if (pe && pe.file) { console.log("[wb] cached patron", String(key).slice(0,70)); return send(res, 200, { status: "completed", promptId: "saved-" + Date.now(), imagePath: "wb/" + pe.file, cached: true }, corsOf(req)); }
         }
         if (nextSeed.has(key)) {
           body.seed = nextSeed.get(key);
