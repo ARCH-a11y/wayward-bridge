@@ -4245,23 +4245,41 @@
         },
         "heroines": {
           "pippa": {
-            "base": "montgomery_glands, mole, fdicks, mm, <lora:Zenith_Greyrat-Mushoku_Tensei_ix:0.8>, anime screencap, short hair, ponytail, ahoge, mature female, mother, small breasts, puffy nipples, narrow waist, wide hips, thick thighs",
-            "negative": "orange hair, red hair, black hair, pink hair, tall, curvy, large breasts, huge breasts, saggy breasts, flat chest, inverted nipples, small areola, tattoo, piercing, heavy makeup, brown pubic hair, black pubic hair, bald pussy, hair over eyes, glasses",
+            "base": "",
+            "negative": "",
             "name": "Zenit",
             "sections": {
               "head": {
-                "tags": "blonde hair, blue eyes, "
+                "tags": "short hair, ponytail, ahoge, ",
+                "negative": "orange hair, red hair, black hair, pink hair, hair over eyes, glasses,"
+              },
+              "misc": {
+                "tags": "mole, <lora:Zenith_Greyrat-Mushoku_Tensei_ix:0.8>, anime screencap, mature female, mother, ",
+                "negative": "tall, curvy, tattoo, piercing, heavy makeup,"
+              },
+              "breasts": {
+                "tags": "small breasts, montgomery_glands, mm!,",
+                "negative": "large breasts, huge breasts, saggy breasts, flat chest, inverted nipples, small areola,"
+              },
+              "body": {
+                "tags": "narrow waist, "
+              },
+              "ass": {
+                "tags": "wide hips, thick thighs"
+              },
+              "vagina": {
+                "negative": ""
               }
             },
             "quarantine": {
               "pubic": {
                 "tags": "zzz_test_q",
-                "negative": "",
+                "negative": "brown pubic hair, black pubic hair, bald pussy,",
                 "when": "vagina_visible",
-                "mode": "never"
+                "mode": "auto"
               },
               "erectnipples": {
-                "tags": "covered nipples,",
+                "tags": "covered nipples, puffy nipples, ",
                 "negative": "",
                 "when": "nipples_visible",
                 "mode": "auto"
@@ -4394,7 +4412,7 @@
     "pippa.17qhigs1l00zv0": {
       "heroine": "pippa",
       "name": "Zenit",
-      "at": 1792947707563
+      "at": 1793033633033
     },
     "wbchild_c880apn9.17qhigs1l00zv0": {
       "heroine": "wbchild_c880apn9",
