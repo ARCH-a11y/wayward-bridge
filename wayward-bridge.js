@@ -1459,8 +1459,9 @@ var require_prompt = __commonJS({
       return cond.keywords.some((k) => hay.includes(String(k).toLowerCase()));
     }
     function expandHero(hero, signals, conds, notes, child) {
-      if (!hero) return { base: "", negative: "" };
-      const base = [], neg = [];
+      if (!hero) return { base: "", negative: "", parts: [] };
+      const base = [], neg = [], parts = [];
+      if (String(hero.base || "").trim()) parts.push({ kind: "base", tags: String(hero.base).trim() });
       const bellyTag = child && child.stage && child.stage !== "none" ? BELLY_TAGS[child.stage] || "" : "";
       let sawBelly = false;
       for (const id of orderedKeys(hero.sections)) {
@@ -1468,30 +1469,60 @@ var require_prompt = __commonJS({
         if (!s || s.on === false) continue;
         if (id === "belly") {
           sawBelly = true;
-          if (bellyTag) base.push(bellyTag);
-          if (String(s.tags || "").trim()) base.push(String(s.tags).trim());
+          if (bellyTag) { base.push(bellyTag); parts.push({ kind: "belly", id, tags: bellyTag }); }
+          if (String(s.tags || "").trim()) { base.push(String(s.tags).trim()); parts.push({ kind: "section", id, tags: String(s.tags).trim() }); }
           if (String(s.negative || "").trim()) neg.push(String(s.negative).trim());
           continue;
         }
-        if (String(s.tags || "").trim()) base.push(String(s.tags).trim());
+        if (String(s.tags || "").trim()) { base.push(String(s.tags).trim()); parts.push({ kind: "section", id, tags: String(s.tags).trim() }); }
         if (String(s.negative || "").trim()) neg.push(String(s.negative).trim());
       }
-      if (!sawBelly && bellyTag) base.push(bellyTag);
-      if (child && child.milk) base.push("lactating breasts, milk");
+      if (!sawBelly && bellyTag) { base.push(bellyTag); parts.push({ kind: "belly", id: "belly", tags: bellyTag }); }
+      if (child && child.milk) { base.push("lactating breasts, milk"); parts.push({ kind: "milk", tags: "lactating breasts, milk" }); }
       for (const id of orderedKeys(hero.quarantine)) {
         const q = hero.quarantine[id];
         if (!q || q.mode === "never") continue;
         const fire = q.mode === "always" || condFires((conds || {})[q.when], signals);
         if (!fire) continue;
-        if (String(q.tags || "").trim()) base.push(String(q.tags).trim());
+        if (String(q.tags || "").trim()) { base.push(String(q.tags).trim()); parts.push({ kind: "quarantine", id, when: q.when, tags: String(q.tags).trim() }); }
         if (String(q.negative || "").trim()) neg.push(String(q.negative).trim());
         if (notes) notes.push("quarantine." + id + " включён (условие " + q.when + ")");
       }
       return {
         base: [String(hero.base || "").trim(), ...base].filter(Boolean).join(", "),
-        negative: [String(hero.negative || "").trim(), ...neg].filter(Boolean).join(", ")
+        negative: [String(hero.negative || "").trim(), ...neg].filter(Boolean).join(", "),
+        parts
       };
     }
+    function buildAppearanceRow(heroine, defX, effX, notes, origin) {
+      const final = splitTags((effX && effX.base) || (defX && defX.base) || "");
+      const hasNotes = !!(notes && notes.length);
+      if (!final.length && !hasNotes) return null;
+      const defParts = new Map(((defX && defX.parts) || []).map((p) => [p.kind + ":" + (p.id || ""), p.tags]));
+      const changes = [];
+      for (const p of (effX && effX.parts) || []) {
+        const def = defParts.get(p.kind + ":" + (p.id || ""));
+        if (def != null && def === p.tags) continue;
+        const isBase = p.kind === "base";
+        const path = isBase ? ["heroines", heroine, "base"] : ["heroines", heroine, "sections", p.id || p.kind, "tags"];
+        changes.push({
+          id: isBase ? "base" : p.kind + "." + (p.id || p.kind),
+          from: def || "",
+          to: p.tags,
+          source: origin(path),
+          rel: { path: ["prompts", ...path] }
+        });
+      }
+      return {
+        label: "Внешность",
+        game: (defX && defX.base) || "",
+        final: joinTags(final),
+        changes,
+        rel: changes.length ? changes[0].rel : { path: ["prompts", "heroines", heroine, "base"] },
+        note: hasNotes ? notes.join("; ") : ""
+      };
+    }
+
     function compose(input) {
       const { parsed, heroine, defaults: D, prompts: E, pipeline: P } = input;
       const origin = input.origin || (() => "your settings");
@@ -1691,7 +1722,7 @@ var require_prompt = __commonJS({
       if (usingParts) for (const p of out) explain.push({ label: p.label, game: p.game, final: joinTags(p.tags), changes: p.changes, rel: p.rel });
       else for (const c of categorize(out[0] || { tags: [], changes: [], game: "" }, input, heroDef, heroEff)) explain.push(c);
       if (ruleAdded.length) explain.push({ label: "Tag rules", game: "", final: joinTags(ruleAdded), changes: [{ id: "added", to: joinTags(ruleAdded), source: addedSrc.join(", ") || ruleSrc }], rel: { path: ["prompts", "rules"], kind: "rules" } });
-      if (notes.length) explain.push({ label: "Внешность", note: notes.join("; ") });
+      // строка «Внешность» ставится ниже, второй после Quality tags (см. buildAppearanceRow)
       explain.unshift({
         label: "Quality tags",
         game: input.gameQuality || "",
@@ -1700,6 +1731,8 @@ var require_prompt = __commonJS({
         changes: (P.qualityIsDefault ? [] : [{ id: "pipeline", to: joinTags(head), source: "Your settings \u2014 Pipeline & models (all heroines)" }]).concat(headChanges),
         note: P.qualityIsDefault ? "Pipeline & models: " + (P.family || "") + " default quality tags (they replace the game's)" : ""
       });
+      const appearRow = buildAppearanceRow(heroine, heroDefX, heroEffX, notes, origin);
+      if (appearRow) explain.splice(1, 0, appearRow);
       if (!usingParts) warnings.push("The game did not send prompt parts for this picture, so edits were matched against the whole prompt (the parts below are worked out from your prompt tables).");
       return { positive: joinTags(positiveTags), negative, explain, warnings, usingParts };
     }
