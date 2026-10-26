@@ -114,30 +114,30 @@ var require_prompt = __commonJS({
       };
     }
     function buildAppearanceRow(heroine, defX, effX, notes, origin) {
-      const final = splitTags((effX && effX.base) || (defX && defX.base) || "");
+      const final = splitTags((effX && effX.base) || "");
       const hasNotes = !!(notes && notes.length);
-      if (!final.length && !hasNotes) return null;
+      if (!final.length && !hasNotes) { console.log("[wb] Внешность: строки нет (нет тегов и заметок)"); return null; }
       const defParts = new Map(((defX && defX.parts) || []).map((p) => [p.kind + ":" + (p.id || ""), p.tags]));
       const changes = [];
       for (const p of (effX && effX.parts) || []) {
         const def = defParts.get(p.kind + ":" + (p.id || ""));
         if (def != null && def === p.tags) continue;
         const isBase = p.kind === "base";
-        const path = isBase ? ["heroines", heroine, "base"] : ["heroines", heroine, "sections", p.id || p.kind, "tags"];
+        const path = isBase ? ["heroines", heroine, "base"] : p.kind === "quarantine" ? ["heroines", heroine, "quarantine", p.id || p.kind, "tags"] : ["heroines", heroine, "sections", p.id || p.kind, "tags"];
         changes.push({
           id: isBase ? "base" : p.kind + "." + (p.id || p.kind),
           from: def || "",
           to: p.tags,
-          source: origin(path),
-          rel: { path: ["prompts", ...path] }
+          source: origin(path)
         });
       }
+      console.log("[wb] Внешность: тегов=" + final.length + ", правок=" + changes.length + ", заметок=" + (hasNotes ? 1 : 0));
       return {
         label: "Внешность",
         game: (defX && defX.base) || "",
         final: joinTags(final),
         changes,
-        rel: changes.length ? changes[0].rel : { path: ["prompts", "heroines", heroine, "base"] },
+        rel: { path: ["prompts", "heroines", heroine, "sections"] },
         note: hasNotes ? notes.join("; ") : ""
       };
     }
@@ -162,6 +162,8 @@ var require_prompt = __commonJS({
       const mask = exposureMask(parsed.exposure);
       const partOv = E.parts || {};
       const out = [];
+      const appearTags = splitTags(heroEffX.base || "");
+      const appearKeys = new Set(appearTags.map(tagKey));
       for (const part of parts) {
         let tags = part.tags;
         const before = joinTags(tags);
@@ -195,7 +197,6 @@ var require_prompt = __commonJS({
             const r = replaceTags(tags, heroDefX.base || "", heroEffX.base, label === "Base");
             if (r.replaced || label === "Base") {
               tags = r.tags;
-              changes.push({ id: heroine, from: heroDefX.base, to: heroEffX.base, source: origin(["heroines", heroine, "base"]) });
             }
           }
         }
@@ -333,10 +334,15 @@ var require_prompt = __commonJS({
           if (!addedSrc.includes(r.src)) addedSrc.push(r.src);
         }
       }
-      const positiveTags = dedupe([...head, ...out.flatMap((p) => p.tags), ...ruleAdded]);
+      if (appearKeys.size) {
+        for (const p of out) p.tags = p.tags.filter((t) => !appearKeys.has(tagKey(t)));
+        for (let i = out.length - 1; i >= 0; i--) if (!out[i].tags.length && !out[i].changes.length) out.splice(i, 1);
+      }
+      const positiveTags = dedupe([...head, ...appearTags, ...out.flatMap((p) => p.tags), ...ruleAdded]);
       const yours = /* @__PURE__ */ new Set();
       for (const p of out) for (const c of p.changes) for (const t of splitTags(c.to)) yours.add(tagKey(t));
       for (const t of splitTags(P.quality)) yours.add(tagKey(t));
+      for (const t of appearTags) yours.add(tagKey(t));
       const negative = composeNegative(input, positiveTags, explain, warnings, heroDef, heroEff, yours);
       if (usingParts) for (const p of out) explain.push({ label: p.label, game: p.game, final: joinTags(p.tags), changes: p.changes, rel: p.rel });
       else for (const c of categorize(out[0] || { tags: [], changes: [], game: "" }, input, heroDef, heroEff)) explain.push(c);
