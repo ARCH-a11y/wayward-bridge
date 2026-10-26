@@ -1150,7 +1150,6 @@ var require_assets_generated = __commonJS({
             return { state: st };
           });
         }
-        var lastChars = "", lastWifeBad = 0, lastWifeId = "";
         // H1n: если запись жены подменили чужой — вернуть свою
         function healWife() {
           var s = window.__WB_STORE__;
