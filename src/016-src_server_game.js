@@ -117,8 +117,6 @@ var require_game = __commonJS({
           .replace('GCe={', 'GCe={home:.5,')
           .replace('function qD(){jm=null,Ya=null,zs=null}', 'function qD(){jm=null,Ya=null,zs=null;I_=null;window.__WB_PACK_RESET__=qD}')
           .replace('function nn(e,t,o){const n=e.characters[t];if(!n)return e;const s=o(n),', 'function nn(e,t,o){const n=e.characters[t];if(!n)return e;const s=o(n);if(t===e.primaryCharacterId&&s&&s.id!==t)console.warn("[wb] nn пишет чужую запись:",t,"<-",s.id);var r={...e.characters,[t]:s};')
-          .replace('var s=o(n);window.__WB_CARD__=__wc;r={...e.characters,[t]:s};', 'var s=o(n);window.__WB_CARD__=__wc;var r={...e.characters,[t]:s};')
-          .replace('var s=o(n);window.__WB_CARD__=__wc;var r={...e.characters,[t]:s};', 'var s=o(n);window.__WB_CARD__=__wc;if(t===e.primaryCharacterId&&s&&s.id!==t)console.warn("[wb] nn пишет чужую запись:",t,"<-",s.id,(new Error()).stack);var r={...e.characters,[t]:s};')
                     .replace('function $He(){const e=ae(k=>k.state),', 'function $He(){const e=__wbV(ae(k=>k.state)),')
           .replace('function IHe(){const e=ae(i=>i.state),', 'function IHe(){const e=__wbV(ae(i=>i.state)),')
           .replace('function NHe(){const e=ae(s=>s.state),', 'function NHe(){const e=__wbV(ae(s=>s.state)),')
@@ -137,7 +135,6 @@ var require_game = __commonJS({
           .replace('n.has(f)&&(o[d].occupants.push(f),r.add(f))}', '(n.has(f)||e.characters&&e.characters[f])&&(o[d].occupants.push(f),r.add(f))}')
           .replace('g=iU(e,d);return{', 'g=iU(e,d).filter(function(v){return !((v.person||v).wbChild)});return{')
           .replace('o=iU(t,e);return', 'o=iU(t,e).filter(function(v){return !((v.person||v).wbChild)});return')
-          .replace('return n?n.persons.filter(i=>s.has(cp(i))):[]', 'return n?n.persons.filter(i=>s.has(cp(i))&&!(i.wbChild&&s.has(i.id.slice(2)))):[]')
           .replace('return n?n.persons.filter(i=>s.has(cp(i))):[]', 'return n?n.persons.filter(i=>s.has(cp(i))&&!(i.wbChild&&s.has(i.id.slice(2)))):[]')
           .replace('truncate max-w-[10rem] ${i.text}`,children:t.name})', 'truncate max-w-[10rem] ${i.text}`,children:t.wbChild&&window.__WB_KINLABEL__?t.name+" · "+window.__WB_KINLABEL__(e):t.name})');
         if (kinHtml !== html && stillCompiles(original, kinHtml)) {
