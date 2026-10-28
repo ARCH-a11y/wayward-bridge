@@ -5729,6 +5729,11 @@ var require_assets_generated = __commonJS({
               ta2,
               (D(path) || [])[rel.index] ? h("div", { class: "gamehint" }, "Game default: " + D(path)[rel.index]) : null
             );
+          } else if (rel && rel.kind === "appear") {
+            parts.push(h("div", { class: "note" }, "Each part below is one piece of the look. What you type replaces that part in every picture that has it; clearing it removes the part."));
+            (e.parts || []).forEach(function(p) {
+              parts.push(promptBox(String(p.id || "").replace(/_/g, " "), p.path, { height: "46px", gameValue: p.from }));
+            });
           } else if (path) {
             parts.push(promptBox(path.slice(1).join(" \u203A ").replace(/_/g, " "), path, { height: "46px" }));
           }

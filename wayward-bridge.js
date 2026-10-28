@@ -1500,6 +1500,11 @@ var require_prompt = __commonJS({
       const hasNotes = !!(notes && notes.length);
       if (!final.length && !hasNotes) return null;
       const defParts = new Map(((defX && defX.parts) || []).map((p) => [p.kind + ":" + (p.id || ""), p.tags]));
+      const parts = ((effX && effX.parts) || []).map((p) => ({
+        id: p.kind === "base" ? "base" : p.kind + "." + (p.id || p.kind),
+        path: ["prompts", "heroines", heroine].concat(p.kind === "base" ? ["base"] : p.kind === "quarantine" ? ["quarantine", p.id || p.kind, "tags"] : ["sections", p.id || p.kind, "tags"]),
+        from: defParts.get(p.kind + ":" + (p.id || "")) || ""
+      }));
       const changes = [];
       for (const p of (effX && effX.parts) || []) {
         const def = defParts.get(p.kind + ":" + (p.id || ""));
@@ -1518,7 +1523,8 @@ var require_prompt = __commonJS({
         game: (defX && defX.base) || "",
         final: joinTags(final),
         changes,
-        rel: { path: ["prompts", "heroines", heroine, "sections"] },
+        parts,
+        rel: { path: ["prompts", "heroines", heroine, "sections"], kind: "appear" },
         note: hasNotes ? notes.join("; ") : ""
       };
     }
@@ -1791,6 +1797,11 @@ var require_prompt = __commonJS({
       const final = parts.flatMap((p) => splitTags(p.tags));
       if (!final.length) return null;
       const defParts = new Map(((defX && defX.negParts) || []).map((p) => [p.kind + ":" + (p.id || ""), p.tags]));
+      const partRows = ((effX && effX.negParts) || []).map((p) => ({
+        id: p.kind === "quarantine" ? "quarantine." + (p.id || p.kind) : p.kind + "." + (p.id || p.kind),
+        path: ["prompts", "heroines", heroine].concat(p.kind === "quarantine" ? ["quarantine", p.id || p.kind, "negative"] : ["sections", p.id || p.kind, "negative"]),
+        from: defParts.get(p.kind + ":" + (p.id || "")) || ""
+      }));
       const changes = [];
       for (const p of parts) {
         const def = defParts.get(p.kind + ":" + (p.id || ""));
@@ -1803,9 +1814,10 @@ var require_prompt = __commonJS({
         game: "",
         tags: [],
         changes,
+        parts: partRows,
         keys: new Set(final.map(tagKey)),
         negative: true,
-        rel: { path: ["prompts", "heroines", heroine, "sections"] }
+        rel: { path: ["prompts", "heroines", heroine, "sections"], kind: "appear" }
       };
     }
 
@@ -1920,7 +1932,7 @@ var require_prompt = __commonJS({
       const pos = new Set(positiveTags.map(tagKey));
       const clash = tags.filter((t) => pos.has(tagKey(t)));
       if (clash.length) warnings.push("In both the prompt and the negative prompt: " + clash.join(", "));
-      for (const r of [...rows, other]) if (r.tags.length || r.changes.length) explain.push({ label: "Negative \xB7 " + r.label, game: "", final: joinTags(r.tags), changes: r.changes, note: r.note, negative: true, rel: r.rel || null });
+      for (const r of [...rows, other]) if (r.tags.length || r.changes.length) explain.push({ label: "Negative \xB7 " + r.label, game: "", final: joinTags(r.tags), changes: r.changes, note: r.note, negative: true, parts: r.parts || null, rel: r.rel || null });
       return joinTags(tags);
     }
     function composePatron(input, explain, warnings) {
@@ -10353,6 +10365,11 @@ var require_assets_generated = __commonJS({
               ta2,
               (D(path) || [])[rel.index] ? h("div", { class: "gamehint" }, "Game default: " + D(path)[rel.index]) : null
             );
+          } else if (rel && rel.kind === "appear") {
+            parts.push(h("div", { class: "note" }, "Each part below is one piece of the look. What you type replaces that part in every picture that has it; clearing it removes the part."));
+            (e.parts || []).forEach(function(p) {
+              parts.push(promptBox(String(p.id || "").replace(/_/g, " "), p.path, { height: "46px", gameValue: p.from }));
+            });
           } else if (path) {
             parts.push(promptBox(path.slice(1).join(" \u203A ").replace(/_/g, " "), path, { height: "46px" }));
           }

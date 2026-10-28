@@ -1,0 +1,588 @@
+### src\008-src_server_prompt.js:154
+   146|         rel: { path: ["prompts", "heroines", heroine, "sections"], kind: "appear" },
+   147|         note: hasNotes ? notes.join("; ") : ""
+   148|       };
+   149|     }
+   150| 
+   151|     function compose(input) {
+   152|       const { parsed, heroine, defaults: D, prompts: E, pipeline: P } = input;
+   153|       const origin = input.origin || (() => "your settings");
+   154|       const explain = [];
+   155|       const warnings = [];
+   156|       if (parsed.kind === "patron") return composePatron(input, explain, warnings);
+   157|       const usingParts = Array.isArray(input.parts) && input.parts.length > 0;
+   158|       const parts = usingParts ? input.parts.map((p) => ({ label: String(p.label || ""), tags: splitTags(p.tags) })) : [{ label: "Prompt", tags: splitTags(input.gamePrompt) }];
+   159|       const heroDef = (D.heroines || {})[heroine] || {};
+   160|       const heroEff = (E.heroines || {})[heroine] || {};
+   161|       const signals = sectionSignals(parsed, D, E);
+   162|       const conds = E.conditions || D.conditions || {};
+
+### src\008-src_server_prompt.js:156
+   148|       };
+   149|     }
+   150| 
+   151|     function compose(input) {
+   152|       const { parsed, heroine, defaults: D, prompts: E, pipeline: P } = input;
+   153|       const origin = input.origin || (() => "your settings");
+   154|       const explain = [];
+   155|       const warnings = [];
+   156|       if (parsed.kind === "patron") return composePatron(input, explain, warnings);
+   157|       const usingParts = Array.isArray(input.parts) && input.parts.length > 0;
+   158|       const parts = usingParts ? input.parts.map((p) => ({ label: String(p.label || ""), tags: splitTags(p.tags) })) : [{ label: "Prompt", tags: splitTags(input.gamePrompt) }];
+   159|       const heroDef = (D.heroines || {})[heroine] || {};
+   160|       const heroEff = (E.heroines || {})[heroine] || {};
+   161|       const signals = sectionSignals(parsed, D, E);
+   162|       const conds = E.conditions || D.conditions || {};
+   163|       const notes = [];
+   164|       const child = input.child || null;
+
+### src\008-src_server_prompt.js:353
+   345|         for (let i = out.length - 1; i >= 0; i--) if (!out[i].tags.length && !out[i].changes.length) out.splice(i, 1);
+   346|       }
+   347|       const positiveTags = dedupe([...head, ...appearTags, ...out.flatMap((p) => p.tags), ...ruleAdded]);
+   348|       const yours = /* @__PURE__ */ new Set();
+   349|       for (const p of out) for (const c of p.changes) for (const t of splitTags(c.to)) yours.add(tagKey(t));
+   350|       for (const t of splitTags(P.quality)) yours.add(tagKey(t));
+   351|       for (const t of appearTags) yours.add(tagKey(t));
+   352|       let negative;
+   353|       try { negative = composeNegative(input, positiveTags, explain, warnings, heroDef, heroEff, yours); }
+   354|       catch (e) { console.error("[wb] composeNegative упал:", e && e.stack || e); throw e; }
+   355|       if (usingParts) for (const p of out) explain.push({ label: p.label, game: p.game, final: joinTags(p.tags), changes: p.changes, rel: p.rel });
+   356|       else for (const c of categorize(out[0] || { tags: [], changes: [], game: "" }, input, heroDef, heroEff)) explain.push(c);
+   357|       if (ruleAdded.length) explain.push({ label: "Tag rules", game: "", final: joinTags(ruleAdded), changes: [{ id: "added", to: joinTags(ruleAdded), source: addedSrc.join(", ") || ruleSrc }], rel: { path: ["prompts", "rules"], kind: "rules" } });
+   358|       // строка «Внешность» ставится ниже, второй после Quality tags (см. buildAppearanceRow)
+   359|       explain.unshift({
+   360|         label: "Quality tags",
+   361|         game: input.gameQuality || "",
+
+### src\008-src_server_prompt.js:355
+   347|       const positiveTags = dedupe([...head, ...appearTags, ...out.flatMap((p) => p.tags), ...ruleAdded]);
+   348|       const yours = /* @__PURE__ */ new Set();
+   349|       for (const p of out) for (const c of p.changes) for (const t of splitTags(c.to)) yours.add(tagKey(t));
+   350|       for (const t of splitTags(P.quality)) yours.add(tagKey(t));
+   351|       for (const t of appearTags) yours.add(tagKey(t));
+   352|       let negative;
+   353|       try { negative = composeNegative(input, positiveTags, explain, warnings, heroDef, heroEff, yours); }
+   354|       catch (e) { console.error("[wb] composeNegative упал:", e && e.stack || e); throw e; }
+   355|       if (usingParts) for (const p of out) explain.push({ label: p.label, game: p.game, final: joinTags(p.tags), changes: p.changes, rel: p.rel });
+   356|       else for (const c of categorize(out[0] || { tags: [], changes: [], game: "" }, input, heroDef, heroEff)) explain.push(c);
+   357|       if (ruleAdded.length) explain.push({ label: "Tag rules", game: "", final: joinTags(ruleAdded), changes: [{ id: "added", to: joinTags(ruleAdded), source: addedSrc.join(", ") || ruleSrc }], rel: { path: ["prompts", "rules"], kind: "rules" } });
+   358|       // строка «Внешность» ставится ниже, второй после Quality tags (см. buildAppearanceRow)
+   359|       explain.unshift({
+   360|         label: "Quality tags",
+   361|         game: input.gameQuality || "",
+   362|         final: joinTags(head),
+   363|         rel: { path: ["pipeline", "families", P.family || "anima", "quality"] },
+
+### src\008-src_server_prompt.js:356
+   348|       const yours = /* @__PURE__ */ new Set();
+   349|       for (const p of out) for (const c of p.changes) for (const t of splitTags(c.to)) yours.add(tagKey(t));
+   350|       for (const t of splitTags(P.quality)) yours.add(tagKey(t));
+   351|       for (const t of appearTags) yours.add(tagKey(t));
+   352|       let negative;
+   353|       try { negative = composeNegative(input, positiveTags, explain, warnings, heroDef, heroEff, yours); }
+   354|       catch (e) { console.error("[wb] composeNegative упал:", e && e.stack || e); throw e; }
+   355|       if (usingParts) for (const p of out) explain.push({ label: p.label, game: p.game, final: joinTags(p.tags), changes: p.changes, rel: p.rel });
+   356|       else for (const c of categorize(out[0] || { tags: [], changes: [], game: "" }, input, heroDef, heroEff)) explain.push(c);
+   357|       if (ruleAdded.length) explain.push({ label: "Tag rules", game: "", final: joinTags(ruleAdded), changes: [{ id: "added", to: joinTags(ruleAdded), source: addedSrc.join(", ") || ruleSrc }], rel: { path: ["prompts", "rules"], kind: "rules" } });
+   358|       // строка «Внешность» ставится ниже, второй после Quality tags (см. buildAppearanceRow)
+   359|       explain.unshift({
+   360|         label: "Quality tags",
+   361|         game: input.gameQuality || "",
+   362|         final: joinTags(head),
+   363|         rel: { path: ["pipeline", "families", P.family || "anima", "quality"] },
+   364|         changes: (P.qualityIsDefault ? [] : [{ id: "pipeline", to: joinTags(head), source: "Your settings \u2014 Pipeline & models (all heroines)" }]).concat(headChanges),
+
+### src\008-src_server_prompt.js:357
+   349|       for (const p of out) for (const c of p.changes) for (const t of splitTags(c.to)) yours.add(tagKey(t));
+   350|       for (const t of splitTags(P.quality)) yours.add(tagKey(t));
+   351|       for (const t of appearTags) yours.add(tagKey(t));
+   352|       let negative;
+   353|       try { negative = composeNegative(input, positiveTags, explain, warnings, heroDef, heroEff, yours); }
+   354|       catch (e) { console.error("[wb] composeNegative упал:", e && e.stack || e); throw e; }
+   355|       if (usingParts) for (const p of out) explain.push({ label: p.label, game: p.game, final: joinTags(p.tags), changes: p.changes, rel: p.rel });
+   356|       else for (const c of categorize(out[0] || { tags: [], changes: [], game: "" }, input, heroDef, heroEff)) explain.push(c);
+   357|       if (ruleAdded.length) explain.push({ label: "Tag rules", game: "", final: joinTags(ruleAdded), changes: [{ id: "added", to: joinTags(ruleAdded), source: addedSrc.join(", ") || ruleSrc }], rel: { path: ["prompts", "rules"], kind: "rules" } });
+   358|       // строка «Внешность» ставится ниже, второй после Quality tags (см. buildAppearanceRow)
+   359|       explain.unshift({
+   360|         label: "Quality tags",
+   361|         game: input.gameQuality || "",
+   362|         final: joinTags(head),
+   363|         rel: { path: ["pipeline", "families", P.family || "anima", "quality"] },
+   364|         changes: (P.qualityIsDefault ? [] : [{ id: "pipeline", to: joinTags(head), source: "Your settings \u2014 Pipeline & models (all heroines)" }]).concat(headChanges),
+   365|         note: P.qualityIsDefault ? "Pipeline & models: " + (P.family || "") + " default quality tags (they replace the game's)" : ""
+
+### src\008-src_server_prompt.js:359
+   351|       for (const t of appearTags) yours.add(tagKey(t));
+   352|       let negative;
+   353|       try { negative = composeNegative(input, positiveTags, explain, warnings, heroDef, heroEff, yours); }
+   354|       catch (e) { console.error("[wb] composeNegative упал:", e && e.stack || e); throw e; }
+   355|       if (usingParts) for (const p of out) explain.push({ label: p.label, game: p.game, final: joinTags(p.tags), changes: p.changes, rel: p.rel });
+   356|       else for (const c of categorize(out[0] || { tags: [], changes: [], game: "" }, input, heroDef, heroEff)) explain.push(c);
+   357|       if (ruleAdded.length) explain.push({ label: "Tag rules", game: "", final: joinTags(ruleAdded), changes: [{ id: "added", to: joinTags(ruleAdded), source: addedSrc.join(", ") || ruleSrc }], rel: { path: ["prompts", "rules"], kind: "rules" } });
+   358|       // строка «Внешность» ставится ниже, второй после Quality tags (см. buildAppearanceRow)
+   359|       explain.unshift({
+   360|         label: "Quality tags",
+   361|         game: input.gameQuality || "",
+   362|         final: joinTags(head),
+   363|         rel: { path: ["pipeline", "families", P.family || "anima", "quality"] },
+   364|         changes: (P.qualityIsDefault ? [] : [{ id: "pipeline", to: joinTags(head), source: "Your settings \u2014 Pipeline & models (all heroines)" }]).concat(headChanges),
+   365|         note: P.qualityIsDefault ? "Pipeline & models: " + (P.family || "") + " default quality tags (they replace the game's)" : ""
+   366|       });
+   367|       try { const appearRow = buildAppearanceRow(heroine, heroDefX, heroEffX, notes, origin); if (appearRow) explain.splice(1, 0, appearRow); } catch (e) { console.error("[wb] Внешность: упал разбор:", e && e.stack || e); }
+
+### src\008-src_server_prompt.js:367
+   359|       explain.unshift({
+   360|         label: "Quality tags",
+   361|         game: input.gameQuality || "",
+   362|         final: joinTags(head),
+   363|         rel: { path: ["pipeline", "families", P.family || "anima", "quality"] },
+   364|         changes: (P.qualityIsDefault ? [] : [{ id: "pipeline", to: joinTags(head), source: "Your settings \u2014 Pipeline & models (all heroines)" }]).concat(headChanges),
+   365|         note: P.qualityIsDefault ? "Pipeline & models: " + (P.family || "") + " default quality tags (they replace the game's)" : ""
+   366|       });
+   367|       try { const appearRow = buildAppearanceRow(heroine, heroDefX, heroEffX, notes, origin); if (appearRow) explain.splice(1, 0, appearRow); } catch (e) { console.error("[wb] Внешность: упал разбор:", e && e.stack || e); }
+   368|       if (!usingParts) warnings.push("The game did not send prompt parts for this picture, so edits were matched against the whole prompt (the parts below are worked out from your prompt tables).");
+   369|       return { positive: joinTags(positiveTags), negative, explain, warnings, usingParts };
+   370|     }
+   371|     function categorize(part, input, heroDef, heroEff) {
+   372|       const { parsed, defaults: D, prompts: E } = input;
+   373|       const texts = (label, list) => ({ label, keys: new Set(list.flatMap((t) => splitTags(t)).map(tagKey)) });
+   374|       const arr = (x) => Array.isArray(x) ? x : x == null ? [] : [x];
+   375|       const mask = exposureMask(parsed.exposure);
+
+### src\008-src_server_prompt.js:369
+   361|         game: input.gameQuality || "",
+   362|         final: joinTags(head),
+   363|         rel: { path: ["pipeline", "families", P.family || "anima", "quality"] },
+   364|         changes: (P.qualityIsDefault ? [] : [{ id: "pipeline", to: joinTags(head), source: "Your settings \u2014 Pipeline & models (all heroines)" }]).concat(headChanges),
+   365|         note: P.qualityIsDefault ? "Pipeline & models: " + (P.family || "") + " default quality tags (they replace the game's)" : ""
+   366|       });
+   367|       try { const appearRow = buildAppearanceRow(heroine, heroDefX, heroEffX, notes, origin); if (appearRow) explain.splice(1, 0, appearRow); } catch (e) { console.error("[wb] Внешность: упал разбор:", e && e.stack || e); }
+   368|       if (!usingParts) warnings.push("The game did not send prompt parts for this picture, so edits were matched against the whole prompt (the parts below are worked out from your prompt tables).");
+   369|       return { positive: joinTags(positiveTags), negative, explain, warnings, usingParts };
+   370|     }
+   371|     function categorize(part, input, heroDef, heroEff) {
+   372|       const { parsed, defaults: D, prompts: E } = input;
+   373|       const texts = (label, list) => ({ label, keys: new Set(list.flatMap((t) => splitTags(t)).map(tagKey)) });
+   374|       const arr = (x) => Array.isArray(x) ? x : x == null ? [] : [x];
+   375|       const mask = exposureMask(parsed.exposure);
+   376|       const rid = parsed.abed && (D.rooms || {}).in_bed ? "in_bed" : parsed.room;
+   377|       const room = (k) => [((D.rooms || {})[rid] || {})[k], ((E.rooms || {})[rid] || {})[k]];
+
+### src\008-src_server_prompt.js:443
+   435|         changes,
+   436|         partRows,
+   437|         keys: new Set(final.map(tagKey)),
+   438|         negative: true,
+   439|         rel: { path: ["prompts", "heroines", heroine, "sections"], kind: "appear" }
+   440|       };
+   441|     }
+   442| 
+   443|     function composeNegative(input, positiveTags, explain, warnings, heroDef, heroEff, yours) {
+   444|       const { parsed, defaults: D, prompts: E, pipeline: P } = input;
+   445|       const origin = input.origin || (() => "your settings");
+   446|       const signals = sectionSignals(parsed, D, E);
+   447|       const conds = E.conditions || D.conditions || {};
+   448|       const heroDefX = expandHero(heroDef, signals, conds, null, input.child || null);
+   449|       const heroEffX = expandHero(heroEff, signals, conds, null, input.child || null);
+   450|       const original = splitTags(input.gameNegative);
+   451|       const have = new Set(original.map(tagKey));
+
+### src\008-src_server_prompt.js:554
+   546|         if (lb.indexOf("Character negative") === 0 && !rows[i].tags.length) rows.splice(i, 1);
+   547|       }
+   548|       const shared = splitTags(P.negative).filter((t) => !pipeRow.tags.includes(t) && tags.some((u) => tagKey(u) === tagKey(t)));
+   549|       if (shared.length) pipeRow.note = "also in it, listed above: " + shared.join(", ");
+   550|       if (cleanup) (rows[1] || other).changes.push(cleanup);
+   551|       const pos = new Set(positiveTags.map(tagKey));
+   552|       const clash = tags.filter((t) => pos.has(tagKey(t)));
+   553|       if (clash.length) warnings.push("In both the prompt and the negative prompt: " + clash.join(", "));
+   554|       for (const r of [...rows, other]) if (r.tags.length || r.changes.length) explain.push({ label: "Negative \xB7 " + r.label, game: "", final: joinTags(r.tags), changes: r.changes, note: r.note, negative: true, rel: r.rel || null });
+   555|       return joinTags(tags);
+   556|     }
+   557|     function composePatron(input, explain, warnings) {
+   558|       const { parsed, defaults: D, prompts: E } = input;
+   559|       const origin = input.origin || (() => "your settings");
+   560|       const dp = D.patrons || {}, ep = E.patrons || {};
+   561|       const name = String(parsed.patron || "").toLowerCase();
+   562|       const named = (ep.named || {})[name];
+
+### src\008-src_server_prompt.js:557
+   549|       if (shared.length) pipeRow.note = "also in it, listed above: " + shared.join(", ");
+   550|       if (cleanup) (rows[1] || other).changes.push(cleanup);
+   551|       const pos = new Set(positiveTags.map(tagKey));
+   552|       const clash = tags.filter((t) => pos.has(tagKey(t)));
+   553|       if (clash.length) warnings.push("In both the prompt and the negative prompt: " + clash.join(", "));
+   554|       for (const r of [...rows, other]) if (r.tags.length || r.changes.length) explain.push({ label: "Negative \xB7 " + r.label, game: "", final: joinTags(r.tags), changes: r.changes, note: r.note, negative: true, rel: r.rel || null });
+   555|       return joinTags(tags);
+   556|     }
+   557|     function composePatron(input, explain, warnings) {
+   558|       const { parsed, defaults: D, prompts: E } = input;
+   559|       const origin = input.origin || (() => "your settings");
+   560|       const dp = D.patrons || {}, ep = E.patrons || {};
+   561|       const name = String(parsed.patron || "").toLowerCase();
+   562|       const named = (ep.named || {})[name];
+   563|       let tags = splitTags(input.gamePrompt);
+   564|       const changes = [];
+   565|       if (ep.quality != null && ep.quality.trim() !== String(dp.quality || "").trim()) {
+
+### src\008-src_server_prompt.js:587
+   579|           tags = replaceTags(tags, hit.text, effs[hit.id], false).tags;
+   580|           changes.push({ id: (dp.archetypes[hit.id] || {}).label || "archetype", to: effs[hit.id], source: origin(["patrons", "archetypes"]) });
+   581|         }
+   582|       }
+   583|       let neg = input.gameNegative || "";
+   584|       if (named && named.negative) neg = named.negative;
+   585|       else if (ep.negative != null && ep.negative.trim() !== String(dp.negative || "").trim()) neg = ep.negative;
+   586|       const positive = joinTags(dedupe(tags));
+   587|       explain.push({ label: "Patron portrait", game: input.gamePrompt || "", final: positive, changes, rel: named ? { path: ["prompts", "patrons", "named", name, "prompt"] } : null });
+   588|       const negSrc = named && named.negative ? origin(["patrons", "named", name]) : neg !== (input.gameNegative || "") ? origin(["patrons", "negative"]) : "";
+   589|       explain.push({ label: "Negative \xB7 " + (negSrc ? "Patron negative" : "Game: patron portrait negative"), game: input.gameNegative || "", final: neg, changes: negSrc ? [{ id: named && named.negative ? name : "patrons", to: neg, source: negSrc }] : [], negative: true, rel: { path: named && named.negative ? ["prompts", "patrons", "named", name, "negative"] : ["prompts", "patrons", "negative"] } });
+   590|       return { positive, negative: neg, explain, warnings, usingParts: false };
+   591|     }
+   592|     var NUDE_SCENES = /* @__PURE__ */ new Set(["facial", "patron_facial", "finish_on_stomach", "finish_on_chest", "finish_on_back"]);
+   593|     var BATH_SCENES = /* @__PURE__ */ new Set(["bath_attendant", "bath_attendant_wash_chest", "bath_attendant_wash_body", "bath_attendant_handjob"]);
+   594|     function noExposure(parsed) {
+   595|       const outfit = String(parsed.outfit || ""), scene = String(parsed.scene || "");
+
+### src\008-src_server_prompt.js:589
+   581|         }
+   582|       }
+   583|       let neg = input.gameNegative || "";
+   584|       if (named && named.negative) neg = named.negative;
+   585|       else if (ep.negative != null && ep.negative.trim() !== String(dp.negative || "").trim()) neg = ep.negative;
+   586|       const positive = joinTags(dedupe(tags));
+   587|       explain.push({ label: "Patron portrait", game: input.gamePrompt || "", final: positive, changes, rel: named ? { path: ["prompts", "patrons", "named", name, "prompt"] } : null });
+   588|       const negSrc = named && named.negative ? origin(["patrons", "named", name]) : neg !== (input.gameNegative || "") ? origin(["patrons", "negative"]) : "";
+   589|       explain.push({ label: "Negative \xB7 " + (negSrc ? "Patron negative" : "Game: patron portrait negative"), game: input.gameNegative || "", final: neg, changes: negSrc ? [{ id: named && named.negative ? name : "patrons", to: neg, source: negSrc }] : [], negative: true, rel: { path: named && named.negative ? ["prompts", "patrons", "named", name, "negative"] : ["prompts", "patrons", "negative"] } });
+   590|       return { positive, negative: neg, explain, warnings, usingParts: false };
+   591|     }
+   592|     var NUDE_SCENES = /* @__PURE__ */ new Set(["facial", "patron_facial", "finish_on_stomach", "finish_on_chest", "finish_on_back"]);
+   593|     var BATH_SCENES = /* @__PURE__ */ new Set(["bath_attendant", "bath_attendant_wash_chest", "bath_attendant_wash_body", "bath_attendant_handjob"]);
+   594|     function noExposure(parsed) {
+   595|       const outfit = String(parsed.outfit || ""), scene = String(parsed.scene || "");
+   596|       return outfit === "naked" || outfit === "nude" || String(parsed.finishOutfit || "") === "nude" || NUDE_SCENES.has(scene) || BATH_SCENES.has(scene);
+   597|     }
+
+### src\008-src_server_prompt.js:590
+   582|       }
+   583|       let neg = input.gameNegative || "";
+   584|       if (named && named.negative) neg = named.negative;
+   585|       else if (ep.negative != null && ep.negative.trim() !== String(dp.negative || "").trim()) neg = ep.negative;
+   586|       const positive = joinTags(dedupe(tags));
+   587|       explain.push({ label: "Patron portrait", game: input.gamePrompt || "", final: positive, changes, rel: named ? { path: ["prompts", "patrons", "named", name, "prompt"] } : null });
+   588|       const negSrc = named && named.negative ? origin(["patrons", "named", name]) : neg !== (input.gameNegative || "") ? origin(["patrons", "negative"]) : "";
+   589|       explain.push({ label: "Negative \xB7 " + (negSrc ? "Patron negative" : "Game: patron portrait negative"), game: input.gameNegative || "", final: neg, changes: negSrc ? [{ id: named && named.negative ? name : "patrons", to: neg, source: negSrc }] : [], negative: true, rel: { path: named && named.negative ? ["prompts", "patrons", "named", name, "negative"] : ["prompts", "patrons", "negative"] } });
+   590|       return { positive, negative: neg, explain, warnings, usingParts: false };
+   591|     }
+   592|     var NUDE_SCENES = /* @__PURE__ */ new Set(["facial", "patron_facial", "finish_on_stomach", "finish_on_chest", "finish_on_back"]);
+   593|     var BATH_SCENES = /* @__PURE__ */ new Set(["bath_attendant", "bath_attendant_wash_chest", "bath_attendant_wash_body", "bath_attendant_handjob"]);
+   594|     function noExposure(parsed) {
+   595|       const outfit = String(parsed.outfit || ""), scene = String(parsed.scene || "");
+   596|       return outfit === "naked" || outfit === "nude" || String(parsed.finishOutfit || "") === "nude" || NUDE_SCENES.has(scene) || BATH_SCENES.has(scene);
+   597|     }
+   598|     function synthesize(parsed, heroine, E, child) {
+
+### src\019-src_server_assets.generated.js:5759
+  5751|           parts.push(h("div", { class: "note", style: "margin-top:6px" }, "Edits are drafts until Save & Apply."));
+  5752|           return h("div", { class: "exedit" }, parts);
+  5753|         }
+  5754|         function splitT(t) {
+  5755|           return String(t || "").split(",").map(function(x) {
+  5756|             return x.trim();
+  5757|           }).filter(Boolean);
+  5758|         }
+  5759|         function explainTable(ex, compareTo) {
+  5760|           var before = {};
+  5761|           (compareTo || []).forEach(function(e) {
+  5762|             before[e.label] = e.final;
+  5763|           });
+  5764|           var pre = compareTo ? "pv:" : "cur:";
+  5765|           function isNeg(e) {
+  5766|             return e.negative || /^Negative/.test(e.label);
+  5767|           }
+
+### src\019-src_server_assets.generated.js:5876
+  5868|           var pv = S.preview && S.preview.id === S.render ? S.preview : null;
+  5869|           var pvSec = pv ? sec(
+  5870|             "With your current settings" + (pv.drafts ? " (including " + pv.drafts + " unsaved change" + (pv.drafts > 1 ? "s" : "") + ")" : ""),
+  5871|             "#a78bfa",
+  5872|             pv.positive === cur.positive && pv.negative === cur.negative ? "Same prompt as this picture: your settings would not change it." : "This is the prompt the picture would get now. Changed parts are marked.",
+  5873|             (pv.warnings || []).map(function(w) {
+  5874|               return h("div", { class: "warnbox" }, w);
+  5875|             }),
+  5876|             explainTable(pv.explain, cur.explain),
+  5877|             h("details", { open: true }, h("summary", null, "Full prompt"), h("pre", null, pv.positive), h("pre", { class: "neg" }, pv.negative))
+  5878|           ) : null;
+  5879|           if (pvSec) pvSec.setAttribute("data-sec", "preview");
+  5880|           return [
+  5881|             qsec,
+  5882|             h("div", { class: "thumbs" }, list.map(function(r) {
+  5883|               var id = renderId(r);
+  5884|               return h("button", {
+
+### src\019-src_server_assets.generated.js:5991
+  5983|               x.setAttribute("data-sec", "picture");
+  5984|               return x;
+  5985|             })(),
+  5986|             S.mcmp && !/^patron_/i.test(cur.key) ? modelCompareSection(cur) : null,
+  5987|             compareSection(cur, list.filter(function(r) {
+  5988|               return renderId(r) === S.cmp;
+  5989|             })[0]),
+  5990|             pvSec,
+  5991|             sec("How this prompt was built", "#c4b5fd", "Each category that went into the final prompt, in order, and what changed it.", explainTable(cur.explain), h("details", null, h("summary", null, "Full prompt"), h("pre", null, cur.positive), h("pre", { class: "neg" }, cur.negative)))
+  5992|           ];
+  5993|         };
+  5994|         function modelCompareSection(cur) {
+  5995|           if (!S.models) loadModels(false);
+  5996|           var fam = E(["pipeline", "family"]) || "anima", isAnima = fam === "anima";
+  5997|           var kind = isAnima ? "unet" : "checkpoint";
+  5998|           var files = (S.models && S.models.files && S.models.files[kind] || []).map(function(x2) {
+  5999|             return { value: x2.name, label: x2.name };
+
+### src\019-src_server_assets.generated.js:6633
+  6625|               pn.dataset.wb = "1";
+  6626|               var keySpan = pn.querySelector("span.font-mono");
+  6627|               var file = fileOf(imgOf(host2)), key = keySpan && keySpan.textContent || keyOf(host2);
+  6628|               var blocks = Array.prototype.filter.call(pn.children, function(c) {
+  6629|                 return c !== copy && c.tagName === "DIV";
+  6630|               });
+  6631|               var plusBlock = blocks[1], minusBlock = blocks[2];
+  6632|               if (plusBlock) plusBlock.style.opacity = ".4";
+  6633|               api("GET", "/bridge/api/explain?key=" + encodeURIComponent(key) + "&file=" + encodeURIComponent(file)).then(function(j) {
+  6634|                 if (keySpan) keySpan.textContent = j.key + (j.seed != null ? "  \xB7  seed " + j.seed : "");
+  6635|                 if (plusBlock) {
+  6636|                   plusBlock.style.opacity = "";
+  6637|                   plusBlock.innerHTML = "";
+  6638|                   var head = document.createElement("div");
+  6639|                   head.innerHTML = '<span style="color:#78716c;font-weight:700">+</span> <span style="color:#78716c">final prompt' + (j.drawn ? "" : " (with your current settings)") + " \u2014 Settings UI Mod</span>";
+  6640|                   plusBlock.appendChild(head);
+  6641|                   (j.explain || []).forEach(function(e) {
+
+### src\019-src_server_assets.generated.js:6641
+  6633|               api("GET", "/bridge/api/explain?key=" + encodeURIComponent(key) + "&file=" + encodeURIComponent(file)).then(function(j) {
+  6634|                 if (keySpan) keySpan.textContent = j.key + (j.seed != null ? "  \xB7  seed " + j.seed : "");
+  6635|                 if (plusBlock) {
+  6636|                   plusBlock.style.opacity = "";
+  6637|                   plusBlock.innerHTML = "";
+  6638|                   var head = document.createElement("div");
+  6639|                   head.innerHTML = '<span style="color:#78716c;font-weight:700">+</span> <span style="color:#78716c">final prompt' + (j.drawn ? "" : " (with your current settings)") + " \u2014 Settings UI Mod</span>";
+  6640|                   plusBlock.appendChild(head);
+  6641|                   (j.explain || []).forEach(function(e) {
+  6642|                     if (!e.final || e.negative || /^Negative/.test(e.label)) return;
+  6643|                     var d = document.createElement("div");
+  6644|                     d.style.cssText = "margin-left:12px;margin-top:2px";
+  6645|                     var lb = document.createElement("span");
+  6646|                     lb.style.cssText = "font-weight:700;color:" + (UPE[e.label] || "#a8a29e");
+  6647|                     lb.textContent = e.label + ":";
+  6648|                     var tx = document.createElement("span");
+  6649|                     tx.style.color = "#d6d3d1";
+
+### src\019-src_server_assets.generated.js:6669
+  6661|                       d.appendChild(ch);
+  6662|                     }
+  6663|                     plusBlock.appendChild(d);
+  6664|                   });
+  6665|                 }
+  6666|                 if (minusBlock) {
+  6667|                   var t = minusBlock.querySelectorAll("span")[1];
+  6668|                   if (t) t.textContent = j.negative || "";
+  6669|                   (j.explain || []).forEach(function(e) {
+  6670|                     if (!e.final || !(e.negative || /^Negative/.test(e.label))) return;
+  6671|                     var d = document.createElement("div");
+  6672|                     d.style.cssText = "margin-left:12px;margin-top:2px;font-size:.92em";
+  6673|                     var lb = document.createElement("span");
+  6674|                     lb.style.cssText = "font-weight:700;color:#fca5a5";
+  6675|                     lb.textContent = e.label.replace(/^Negative · /, "") + ":";
+  6676|                     var tx = document.createElement("span");
+  6677|                     tx.style.color = "#a8a29e";
+
+### src\024-src_server_index.js:256
+   248|         child
+   249|       });
+   250|       if (scopedOn.length && parsed.kind !== "patron") {
+   251|         const words = [...new Set(scopedOn.flatMap((l) => loraWords(l)))];
+   252|         if (words.length) {
+   253|           const have = new Set(r.positive.split(",").map((t) => t.trim().toLowerCase()));
+   254|           const add = words.filter((w2) => !have.has(String(w2).trim().toLowerCase()));
+   255|           if (add.length) r.positive = r.positive + ", " + add.join(", ");
+   256|           r.explain.push({ label: "LoRA trigger words", game: "", final: add.join(", "), changes: [{ id: scopedOn.map((l) => String(l.model).split("/").pop()).join(", "), to: add.join(", "), source: "Pipeline & models: LoRA for this scene / outfit" }] });
+   257|         }
+   258|       }
+   259|       const w = Number(req.width), h = Number(req.height);
+   260|       const portrait = parsed.kind === "patron" || w > 0 && w <= 640 && Math.abs(w - h) <= 32;
+   261|       const sid = sizeId(parsed);
+   262|       const own = !portrait && sid && pipe.sceneSizes && pipe.sceneSizes[sid];
+   263|       const size = portrait ? pipe.portrait : own && own.width && own.height ? own : pipe.scene;
+   264|       return { key, parsed, heroine, forHeroine, pipe, r, portrait, size };
+
+### src\024-src_server_index.js:331
+   323|       const rec = {
+   324|         key,
+   325|         at: Date.now(),
+   326|         seed,
+   327|         file,
+   328|         image,
+   329|         positive: r.positive,
+   330|         negative: r.negative,
+   331|         explain: r.explain,
+   332|         warnings: [...r.warnings, ...notes],
+   333|         usingParts: r.usingParts,
+   334|         family: pipe.family,
+   335|         ms: Date.now() - job.startedAt
+   336|       };
+   337|       renders.unshift(rec);
+   338|       {
+   339|         const who = plan.parsed.kind === "patron" ? "patron" : plan.heroine;
+
+### src\024-src_server_index.js:354
+   346|       if (renders.length > 40) renders.pop();
+   347|       if (req.aheadFor && req.aheadRev === store.revision) ahead.ready.set(req.aheadFor, { imagePath, rev: store.revision, at: Date.now() });
+   348|       if (req.saveTo !== "saved") autoDelete();
+   349|       broadcast({ type: "render", key, image: rec.image });
+   350|       console.log("[bridge] drew", key, "(" + rec.ms + " ms, seed " + seed + ")" + (r.usingParts ? "" : " [whole-prompt mode]"));
+   351|       return { imagePath };
+   352|     }
+   353|     function gifPrompt(g, r) {
+   354|       const scene = g.useScene && r && r.explain ? (r.explain.find((e) => e.label === "Scene" || e.label === "Task" || e.label === "Focus") || {}).final || "" : "";
+   355|       return [scene, g.prompt || ""].filter((x) => String(x).trim()).join(", ") || "2D anime animation, slow breathing, hair sway";
+   356|     }
+   357|     var PATH_KEYS = ["comfyUrl", "modelsDir", "gameDir", "comfyOutputDir", "ffmpegPath"];
+   358|     function makeBackup() {
+   359|       const addons = {};
+   360|       for (const a of store.listAddons()) {
+   361|         try {
+   362|           addons[a.file] = JSON.parse(fs.readFileSync(path.join(store.addonDir, a.file), "utf8"));
+
+### src\024-src_server_index.js:430
+   422|           position: i,
+   423|           step: pr && pr.max ? { value: pr.value, max: pr.max } : null,
+   424|           estimate: !pr && elapsed && avg ? Math.min(0.97, elapsed / avg) : null,
+   425|           elapsed
+   426|         };
+   427|       });
+   428|       return { items, batchLeft: jobs.counts().batchLeft, genAll: genAll.running ? { done: genAll.done, total: genAll.total, message: genAll.message } : null, ahead: ahead.status(), typicalMs: Math.round(avg) };
+   429|     }
+   430|     function explainComfyError(msg, pipe, caps) {
+   431|       const m = String(msg || "");
+   432|       if (/fetch failed|ECONNREFUSED|ENOTFOUND|timeout|aborted/i.test(m) && !/did not finish/.test(m)) return "ComfyUI is not reachable at " + comfy.base() + ". Is it running, and is the address in Config right?";
+   433|       if (/out of memory|CUDA error: out of memory|OutOfMemory|allocat/i.test(m)) return "Your graphics card ran out of memory (VRAM). Try a smaller picture size, turn off the hi-res fix, use fewer LoRAs, or start ComfyUI with --lowvram.";
+   434|       const missingNode = m.match(/(?:Cannot execute because node|node type|class_type)\s+['"]?([A-Za-z0-9_ ()-]+?)['"]?\s+(?:does not exist|not found|is not)/i);
+   435|       if (missingNode) return 'ComfyUI does not have the node "' + missingNode[1] + '". Install the custom node that provides it (ComfyUI Manager \u203A Install Missing Custom Nodes), or turn off the option that needs it.';
+   436|       if (/value_not_in_list|not in list|Value not in list/i.test(m)) {
+   437|         const field = (m.match(/(ckpt_name|unet_name|clip_name|vae_name|lora_name|model_name|sampler_name|scheduler)/) || [])[1] || "a model";
+   438|         const names = { ckpt_name: "checkpoint", unet_name: "UNET model", clip_name: "CLIP model", vae_name: "VAE", lora_name: "LoRA", model_name: "upscale model", sampler_name: "sampler", scheduler: "scheduler" };
+
+### src\024-src_server_index.js:471
+   463|         else if (!(caps.models.detector || []).length) out.push("Face / hand fix: no detector models found (ComfyUI/models/ultralytics/bbox, e.g. face_yolov8m.pt, hand_yolov8s.pt).");
+   464|       }
+   465|       return out;
+   466|     }
+   467|     async function testPipeline(b) {
+   468|       const t0 = Date.now();
+   469|       const heroine = String(b && b.heroine || currentHeroine());
+   470|       const pipe = resolvePipeline(store.effective(heroine).pipeline);
+   471|       if (!await comfy.ping()) return { ok: false, error: explainComfyError("fetch failed", pipe), warnings: [] };
+   472|       const caps = await comfy.capabilities(true);
+   473|       const warnings = pipelineWarnings(pipe, caps);
+   474|       const positive = [pipe.quality, "1girl, solo, upper body, smile, simple background"].filter(Boolean).join(", ");
+   475|       try {
+   476|         const { graph, notes } = buildGraph({ p: pipe, caps, positive, negative: pipe.negative || "", seed: 12345, width: 512, height: 512, portrait: false, noHires: !(b && b.hires), noDetail: !(b && b.hires), prefix: "wayward/test-pipeline", workflowDir: path.join(DATA_DIR, "workflows") });
+   477|         const id = await comfy.submit(graph);
+   478|         const img = await comfy.waitForImage(id, 5 * 60 * 1e3);
+   479|         if (!img) return { ok: false, error: "Cancelled.", warnings };
+
+### src\024-src_server_index.js:483
+   475|       try {
+   476|         const { graph, notes } = buildGraph({ p: pipe, caps, positive, negative: pipe.negative || "", seed: 12345, width: 512, height: 512, portrait: false, noHires: !(b && b.hires), noDetail: !(b && b.hires), prefix: "wayward/test-pipeline", workflowDir: path.join(DATA_DIR, "workflows") });
+   477|         const id = await comfy.submit(graph);
+   478|         const img = await comfy.waitForImage(id, 5 * 60 * 1e3);
+   479|         if (!img) return { ok: false, error: "Cancelled.", warnings };
+   480|         const buf = await comfy.view(img);
+   481|         return { ok: true, ms: Date.now() - t0, warnings, notes, family: pipe.family, image: "data:image/" + (path.extname(img.filename || ".png").slice(1) || "png") + ";base64," + buf.toString("base64") };
+   482|       } catch (e) {
+   483|         return { ok: false, error: explainComfyError(e.message, pipe, caps), raw: e.message, warnings };
+   484|       }
+   485|     }
+   486|     var genAll = { running: false, stop: false, total: 0, done: 0, failed: 0, skipped: 0, message: "", startedAt: 0, etaMs: 0, heroine: "" };
+   487|     function genAllLists(heroine) {
+   488|       const P = store.effective(heroine).prompts || {};
+   489|       return { scenes: Object.keys(P.scenes || {}), outfits: Object.keys(P.outfits || {}), rooms: Object.keys(P.rooms || {}), moods: Object.keys((P.moods || {}).scene || {}) };
+   490|     }
+   491|     function startGenAll(o) {
+
+### src\024-src_server_index.js:1170
+  1162|         writePresets(all);
+  1163|         return send(res, 200, { ok: true, presets: all });
+  1164|       }
+  1165|       if (p === "/bridge/api/preview" && m === "POST") {
+  1166|         const body = await readJson(req);
+  1167|         const key = String(body.key || lastKey || "");
+  1168|         const prev = requestFor(key);
+  1169|         const plan = store.withDrafts(body.ops, () => planRender(prev));
+  1170|         return send(res, 200, { key, positive: plan.r.positive, negative: plan.r.negative, explain: plan.r.explain, warnings: plan.r.warnings, usingParts: plan.r.usingParts, drafts: Array.isArray(body.ops) ? body.ops.length : 0 });
+  1171|       }
+  1172|       if (p === "/bridge/api/explain" && m === "GET") {
+  1173|         let file = String(url.searchParams.get("file") || "").replace(/^.*?\/images\/wb\//, "").replace(/^wb\//, "");
+  1174|         try {
+  1175|           file = decodeURIComponent(file);
+  1176|         } catch (_) {
+  1177|         }
+  1178|         const key = String(url.searchParams.get("key") || file && library.keyForFile(file) || lastKey || "");
+
+### src\024-src_server_index.js:1172
+  1164|       }
+  1165|       if (p === "/bridge/api/preview" && m === "POST") {
+  1166|         const body = await readJson(req);
+  1167|         const key = String(body.key || lastKey || "");
+  1168|         const prev = requestFor(key);
+  1169|         const plan = store.withDrafts(body.ops, () => planRender(prev));
+  1170|         return send(res, 200, { key, positive: plan.r.positive, negative: plan.r.negative, explain: plan.r.explain, warnings: plan.r.warnings, usingParts: plan.r.usingParts, drafts: Array.isArray(body.ops) ? body.ops.length : 0 });
+  1171|       }
+  1172|       if (p === "/bridge/api/explain" && m === "GET") {
+  1173|         let file = String(url.searchParams.get("file") || "").replace(/^.*?\/images\/wb\//, "").replace(/^wb\//, "");
+  1174|         try {
+  1175|           file = decodeURIComponent(file);
+  1176|         } catch (_) {
+  1177|         }
+  1178|         const key = String(url.searchParams.get("key") || file && library.keyForFile(file) || lastKey || "");
+  1179|         const rec = renders.find((r) => file && r.file === file) || renders.find((r) => r.key === key);
+  1180|         if (rec) return send(res, 200, { key: rec.key, seed: rec.seed, positive: rec.positive, negative: rec.negative, explain: rec.explain, drawn: true });
+
+### src\024-src_server_index.js:1180
+  1172|       if (p === "/bridge/api/explain" && m === "GET") {
+  1173|         let file = String(url.searchParams.get("file") || "").replace(/^.*?\/images\/wb\//, "").replace(/^wb\//, "");
+  1174|         try {
+  1175|           file = decodeURIComponent(file);
+  1176|         } catch (_) {
+  1177|         }
+  1178|         const key = String(url.searchParams.get("key") || file && library.keyForFile(file) || lastKey || "");
+  1179|         const rec = renders.find((r) => file && r.file === file) || renders.find((r) => r.key === key);
+  1180|         if (rec) return send(res, 200, { key: rec.key, seed: rec.seed, positive: rec.positive, negative: rec.negative, explain: rec.explain, drawn: true });
+  1181|         const e = file && library.history(key).find((x) => x.file === file) || library.latest(key);
+  1182|         const plan = planRender(requestFor(key));
+  1183|         return send(res, 200, { key, seed: e ? e.seed : null, positive: e ? e.prompt : plan.r.positive, negative: e ? e.negative : plan.r.negative, explain: plan.r.explain, drawn: !!e });
+  1184|       }
+  1185|       if (p === "/bridge/api/use-picture" && m === "POST") {
+  1186|         const b = await readJson(req);
+  1187|         const key = String(b.key || "");
+  1188|         let img = String(b.image || "");
+
+### src\024-src_server_index.js:1183
+  1175|           file = decodeURIComponent(file);
+  1176|         } catch (_) {
+  1177|         }
+  1178|         const key = String(url.searchParams.get("key") || file && library.keyForFile(file) || lastKey || "");
+  1179|         const rec = renders.find((r) => file && r.file === file) || renders.find((r) => r.key === key);
+  1180|         if (rec) return send(res, 200, { key: rec.key, seed: rec.seed, positive: rec.positive, negative: rec.negative, explain: rec.explain, drawn: true });
+  1181|         const e = file && library.history(key).find((x) => x.file === file) || library.latest(key);
+  1182|         const plan = planRender(requestFor(key));
+  1183|         return send(res, 200, { key, seed: e ? e.seed : null, positive: e ? e.prompt : plan.r.positive, negative: e ? e.negative : plan.r.negative, explain: plan.r.explain, drawn: !!e });
+  1184|       }
+  1185|       if (p === "/bridge/api/use-picture" && m === "POST") {
+  1186|         const b = await readJson(req);
+  1187|         const key = String(b.key || "");
+  1188|         let img = String(b.image || "");
+  1189|         try {
+  1190|           img = decodeURIComponent(img);
+  1191|         } catch (_) {
