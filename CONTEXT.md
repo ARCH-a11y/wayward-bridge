@@ -14,11 +14,11 @@
 - после каждого патча: wb-verify.js + wb-test.js
 
 ## Карта
-- wayward-bridge.js (1 863 288 символов, 29 файлов) — артефакт, грузится игрой
+- wayward-bridge.js (~1.87M символов, 29 файлов) — артефакт, грузится игрой
 - src/019-src_server_assets.generated.js — основная масса бандла; блоб TAGS_GZ_B64 в src/000-tags-blob.js
 - TAGS_GZ_B64 → 1 426 888 символов / 81 218 тегов
 - src/ORDER.txt + build.js — конкат-сборка, побайтово идентична
-- wb-verify.js (194 проверки), wb-test.js (91 тест, порт 8799, данные wb-test-data)
+- wb-verify.js (208 проверок), wb-test.js (91 тест, порт 8799, данные wb-test-data)
 - пересборка: node build.js (src/ORDER.txt → wayward-bridge.js)
 
 ## Ловушки (уже наступали)
@@ -29,6 +29,7 @@
 - sparse storage: значение = дефолту → пути нет в settings.json
 - __proto__ как id героини — объект {base:'...'}, не строка
 - hooks: parts / store / customWives / partsBroken
+- синтетическая строка разбора обязана иметь keys (Set) и tags ([]): без них падает раскладка тегов (наступали дважды)
 
 ## Задачи
 - [x] git init + baseline-42
@@ -51,13 +52,13 @@ origin/token (B30), хардненинг хрупких regex (B33–B38), пр�
 ## Репа
 - root: C:\Users\arch4\Downloads\Wayward
 - origin: https://github.com/ARCH-a11y/wayward-bridge (ветка main)
-- baseline: коммит 2bf0611; текущее verify 194/194, tests 91/91
+- baseline: коммит 2bf0611; текущее verify 208/208, tests 91/91
 
 ## Цикл правки
 1. правим ТОЛЬКО в src/, бандл не трогаем руками
 2. node build.js — пересборка
 3. node -e "new (require('vm').Script)(require('fs').readFileSync('wayward-bridge.js','utf8'))" — синтаксис
-4. node wb-verify.js — 194/194
+4. node wb-verify.js — 208/208
 5. node wb-test.js — 91/91
 6. тест в игре
 
@@ -71,8 +72,8 @@ origin/token (B30), хардненинг хрупких regex (B33–B38), пр�
 Выбор карточки реактивен (state.wbCard + вид __wbV). Диагностика и мёртвый код вычищены.
 Дальше по плану: H3 — свои комнаты/занятия ребёнка, игры и разговоры (статы растут только на child/teen),
 свои события в общем фиде (H5), блок стандартных событий героини. Вне очереди ждут пункты 1–6 плана.
-«Внешность» в инспекторе: код в src/008 на месте, ждёт подтверждения в игре.
-verify 194/194, тесты 91/91, бандл 1 863 288 символов.
+«Внешность» в инспекторе: строка в позитиве (вторая) и «Negative · Внешность» в негативе, источники по частям, дублей в Base нет. Открыто: Edit на строке показывает [object Object] — путь ведёт на объект sections.
+verify 208/208, тесты 91/91.
 
 ## G5–G7: дети, родня, сейв (сессия 2026-10)
 

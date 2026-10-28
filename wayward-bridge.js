@@ -1459,8 +1459,8 @@ var require_prompt = __commonJS({
       return cond.keywords.some((k) => hay.includes(String(k).toLowerCase()));
     }
     function expandHero(hero, signals, conds, notes, child) {
-      if (!hero) return { base: "", negative: "", parts: [] };
-      const base = [], neg = [], parts = [];
+      if (!hero) return { base: "", negative: "", parts: [], negParts: [] };
+      const base = [], neg = [], parts = [], negParts = [];
       if (String(hero.base || "").trim()) parts.push({ kind: "base", tags: String(hero.base).trim() });
       const bellyTag = child && child.stage && child.stage !== "none" ? BELLY_TAGS[child.stage] || "" : "";
       let sawBelly = false;
@@ -1471,11 +1471,11 @@ var require_prompt = __commonJS({
           sawBelly = true;
           if (bellyTag) { base.push(bellyTag); parts.push({ kind: "belly", id, tags: bellyTag }); }
           if (String(s.tags || "").trim()) { base.push(String(s.tags).trim()); parts.push({ kind: "section", id, tags: String(s.tags).trim() }); }
-          if (String(s.negative || "").trim()) neg.push(String(s.negative).trim());
+          if (String(s.negative || "").trim()) { neg.push(String(s.negative).trim()); negParts.push({ kind: "section", id, tags: String(s.negative).trim() }); }
           continue;
         }
         if (String(s.tags || "").trim()) { base.push(String(s.tags).trim()); parts.push({ kind: "section", id, tags: String(s.tags).trim() }); }
-        if (String(s.negative || "").trim()) neg.push(String(s.negative).trim());
+        if (String(s.negative || "").trim()) { neg.push(String(s.negative).trim()); negParts.push({ kind: "section", id, tags: String(s.negative).trim() }); }
       }
       if (!sawBelly && bellyTag) { base.push(bellyTag); parts.push({ kind: "belly", id: "belly", tags: bellyTag }); }
       if (child && child.milk) { base.push("lactating breasts, milk"); parts.push({ kind: "milk", tags: "lactating breasts, milk" }); }
@@ -1485,19 +1485,20 @@ var require_prompt = __commonJS({
         const fire = q.mode === "always" || condFires((conds || {})[q.when], signals);
         if (!fire) continue;
         if (String(q.tags || "").trim()) { base.push(String(q.tags).trim()); parts.push({ kind: "quarantine", id, when: q.when, tags: String(q.tags).trim() }); }
-        if (String(q.negative || "").trim()) neg.push(String(q.negative).trim());
+        if (String(q.negative || "").trim()) { neg.push(String(q.negative).trim()); negParts.push({ kind: "quarantine", id, tags: String(q.negative).trim() }); }
         if (notes) notes.push("quarantine." + id + " включён (условие " + q.when + ")");
       }
       return {
         base: [String(hero.base || "").trim(), ...base].filter(Boolean).join(", "),
         negative: [String(hero.negative || "").trim(), ...neg].filter(Boolean).join(", "),
-        parts
+        parts,
+        negParts
       };
     }
     function buildAppearanceRow(heroine, defX, effX, notes, origin) {
       const final = splitTags((effX && effX.base) || "");
       const hasNotes = !!(notes && notes.length);
-      if (!final.length && !hasNotes) { console.log("[wb] Внешность: строки нет (нет тегов и заметок)"); return null; }
+      if (!final.length && !hasNotes) return null;
       const defParts = new Map(((defX && defX.parts) || []).map((p) => [p.kind + ":" + (p.id || ""), p.tags]));
       const changes = [];
       for (const p of (effX && effX.parts) || []) {
@@ -1512,7 +1513,6 @@ var require_prompt = __commonJS({
           source: origin(path)
         });
       }
-      console.log("[wb] Внешность: тегов=" + final.length + ", правок=" + changes.length + ", заметок=" + (hasNotes ? 1 : 0));
       return {
         label: "Внешность",
         game: (defX && defX.base) || "",
@@ -1724,7 +1724,9 @@ var require_prompt = __commonJS({
       for (const p of out) for (const c of p.changes) for (const t of splitTags(c.to)) yours.add(tagKey(t));
       for (const t of splitTags(P.quality)) yours.add(tagKey(t));
       for (const t of appearTags) yours.add(tagKey(t));
-      const negative = composeNegative(input, positiveTags, explain, warnings, heroDef, heroEff, yours);
+      let negative;
+      try { negative = composeNegative(input, positiveTags, explain, warnings, heroDef, heroEff, yours); }
+      catch (e) { console.error("[wb] composeNegative упал:", e && e.stack || e); throw e; }
       if (usingParts) for (const p of out) explain.push({ label: p.label, game: p.game, final: joinTags(p.tags), changes: p.changes, rel: p.rel });
       else for (const c of categorize(out[0] || { tags: [], changes: [], game: "" }, input, heroDef, heroEff)) explain.push(c);
       if (ruleAdded.length) explain.push({ label: "Tag rules", game: "", final: joinTags(ruleAdded), changes: [{ id: "added", to: joinTags(ruleAdded), source: addedSrc.join(", ") || ruleSrc }], rel: { path: ["prompts", "rules"], kind: "rules" } });
@@ -1737,8 +1739,7 @@ var require_prompt = __commonJS({
         changes: (P.qualityIsDefault ? [] : [{ id: "pipeline", to: joinTags(head), source: "Your settings \u2014 Pipeline & models (all heroines)" }]).concat(headChanges),
         note: P.qualityIsDefault ? "Pipeline & models: " + (P.family || "") + " default quality tags (they replace the game's)" : ""
       });
-      const appearRow = buildAppearanceRow(heroine, heroDefX, heroEffX, notes, origin);
-      if (appearRow) explain.splice(1, 0, appearRow);
+      try { const appearRow = buildAppearanceRow(heroine, heroDefX, heroEffX, notes, origin); if (appearRow) explain.splice(1, 0, appearRow); } catch (e) { console.error("[wb] Внешность: упал разбор:", e && e.stack || e); }
       if (!usingParts) warnings.push("The game did not send prompt parts for this picture, so edits were matched against the whole prompt (the parts below are worked out from your prompt tables).");
       return { positive: joinTags(positiveTags), negative, explain, warnings, usingParts };
     }
@@ -1785,6 +1786,29 @@ var require_prompt = __commonJS({
       }
       return out.length ? out : [{ label: "Prompt", game: part.game, final: joinTags(part.tags), changes: part.changes || [] }];
     }
+    function buildAppearanceNegRow(heroine, defX, effX, origin) {
+      const parts = (effX && effX.negParts) || [];
+      const final = parts.flatMap((p) => splitTags(p.tags));
+      if (!final.length) return null;
+      const defParts = new Map(((defX && defX.negParts) || []).map((p) => [p.kind + ":" + (p.id || ""), p.tags]));
+      const changes = [];
+      for (const p of parts) {
+        const def = defParts.get(p.kind + ":" + (p.id || ""));
+        if (def != null && def === p.tags) continue;
+        const path = p.kind === "quarantine" ? ["heroines", heroine, "quarantine", p.id || p.kind, "negative"] : ["heroines", heroine, "sections", p.id || p.kind, "negative"];
+        changes.push({ id: p.kind + "." + (p.id || p.kind), from: def || "", to: p.tags, source: origin(path) });
+      }
+      return {
+        label: "Внешность",
+        game: "",
+        tags: [],
+        changes,
+        keys: new Set(final.map(tagKey)),
+        negative: true,
+        rel: { path: ["prompts", "heroines", heroine, "sections"] }
+      };
+    }
+
     function composeNegative(input, positiveTags, explain, warnings, heroDef, heroEff, yours) {
       const { parsed, defaults: D, prompts: E, pipeline: P } = input;
       const origin = input.origin || (() => "your settings");
@@ -1871,6 +1895,7 @@ var require_prompt = __commonJS({
       const fam = P.family || "anima";
       rows.push({ label: "Tag rules", keys: new Set(ruleAdded.map(tagKey)), changes: ruleChanges, tags: [], rel: { path: ["prompts", "rules"], kind: "rules" } });
       for (const x of src) if (x.on) rows.push({ label: x.changed ? (x.yourLabel || x.label.replace(/^Game: /, "").replace(/ \(game\)$/, "")) + " (yours)" : x.label, keys: new Set(splitTags(x.eff).map(tagKey)), changes: x.change ? [x.change] : [], tags: [], rel: { path: x.path } });
+      try { const r0 = buildAppearanceNegRow(input.heroine, heroDefX, heroEffX, origin); if (r0) { const cnIdx = rows.findIndex((r) => String(r.label).indexOf("Character negative") === 0); rows.splice(cnIdx >= 0 ? cnIdx : 1, 0, r0); } } catch (e) { console.error("[wb] негатив внешности: упал разбор:", e && e.stack || e); }
       const pipeKeys = new Set(splitTags(P.negative).map(tagKey));
       const pipeRow = {
         label: P.negativeIsDefault ? "Pipeline & models: " + fam + " default negative" : "Pipeline & models: your negative",
@@ -1883,7 +1908,11 @@ var require_prompt = __commonJS({
       const other = { label: "Game: other", keys: /* @__PURE__ */ new Set(), changes: [], tags: [] };
       for (const t of tags) {
         const k = tagKey(t);
-        (rows.find((r) => r.keys.has(k)) || other).tags.push(t);
+        (rows.find((r) => r.keys && r.keys.has(k)) || other).tags.push(t);
+      }
+      for (let i = rows.length - 1; i >= 0; i--) {
+        const lb = String(rows[i].label);
+        if (lb.indexOf("Character negative") === 0 && !rows[i].tags.length) rows.splice(i, 1);
       }
       const shared = splitTags(P.negative).filter((t) => !pipeRow.tags.includes(t) && tags.some((u) => tagKey(u) === tagKey(t)));
       if (shared.length) pipeRow.note = "also in it, listed above: " + shared.join(", ");
