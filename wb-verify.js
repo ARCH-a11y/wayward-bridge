@@ -223,6 +223,20 @@ const CHECKS = [
   ["V3  схема: conditions", "conditions: { \"*\": { sources: tagList(8), keywords: tagList(400) } }", 1],
   ["V4  карантин-секция в меню", "Карантин", 1],
   ["V4  conditions в общий слой", "rel[1] === \"conditions\"", 1],
+  ["Превью: фокус частей", "var PART_FOCUS = {", 1],
+  ["Превью: функция", "function partPreview(", 1],
+  ["Превью: роут", "/bridge/api/part-preview", 1],
+  ["Превью: классификатор", "function classifyPart(tag)", 1],
+  ["Превью: части героини", "function partTagBuckets(heroine, raw)", 1],
+  ["Превью: роут частей", "/bridge/api/parts", 1],
+  ["Превью: вкладка Body", "children:\"Body\"", 1],
+  ["Превью: ветка body", "n===\"body\"&&u.jsx(WBBody,{key:String", 1],
+  ["Превью: компонента", "function WBBody(props)", 1],
+  ["Превью: заполнение", "function wbPFill(el,key)", 1],
+  ["Превью: хранилище", "part-previews", 1],
+  ["Превью: id героини разрешается", "function resolveHeroine(id, arch)", 1],
+  ["Превью: lora героини", "const loras = (Object.values(buckets).join", 1],
+  ["Превью: лоры из настроек", "const pipeLoras = (pipe.loras || [])", 1],
 ];
 
 let bad = 0;
