@@ -18,7 +18,7 @@
 - src/019-src_server_assets.generated.js — основная масса бандла; блоб TAGS_GZ_B64 в src/000-tags-blob.js
 - TAGS_GZ_B64 → 1 426 888 символов / 81 218 тегов
 - src/ORDER.txt + build.js — конкат-сборка, побайтово идентична
-- wb-verify.js (208 проверок), wb-test.js (91 тест, порт 8799, данные wb-test-data)
+- wb-verify.js (216 проверок), wb-test.js (91 тест, порт 8799, данные wb-test-data)
 - пересборка: node build.js (src/ORDER.txt → wayward-bridge.js)
 
 ## Ловушки (уже наступали)
@@ -52,13 +52,14 @@ origin/token (B30), хардненинг хрупких regex (B33–B38), пр�
 ## Репа
 - root: C:\Users\arch4\Downloads\Wayward
 - origin: https://github.com/ARCH-a11y/wayward-bridge (ветка main)
-- baseline: коммит 2bf0611; текущее verify 208/208, tests 91/91
+- baseline: коммит 2bf0611; текущее verify 216/216, tests 91/91
+- ловушка: негативная строка «Внешность» пересобирается в composeNegative (объект с фиксированным списком полей) — новые поля надо протаскивать явно; ключ возврата в строителе — parts, не имя переменной.
 
 ## Цикл правки
 1. правим ТОЛЬКО в src/, бандл не трогаем руками
 2. node build.js — пересборка
 3. node -e "new (require('vm').Script)(require('fs').readFileSync('wayward-bridge.js','utf8'))" — синтаксис
-4. node wb-verify.js — 208/208
+4. node wb-verify.js — 216/216
 5. node wb-test.js — 91/91
 6. тест в игре
 
@@ -73,7 +74,7 @@ origin/token (B30), хардненинг хрупких regex (B33–B38), пр�
 Дальше по плану: H3 — свои комнаты/занятия ребёнка, игры и разговоры (статы растут только на child/teen),
 свои события в общем фиде (H5), блок стандартных событий героини. Вне очереди ждут пункты 1–6 плана.
 «Внешность» в инспекторе: строка в позитиве (вторая) и «Negative · Внешность» в негативе, источники по частям, дублей в Base нет. Открыто: Edit на строке показывает [object Object] — путь ведёт на объект sections.
-verify 208/208, тесты 91/91.
+verify 216/216, тесты 91/91.
 
 ## G5–G7: дети, родня, сейв (сессия 2026-10)
 
