@@ -3983,6 +3983,8 @@ var require_game = __commonJS({
           .replace('h=e.phase==="prep"&&!Tt(e),d=_(e),', 'h=e.phase==="prep"&&!Tt(e),d=_(__wbV(e)),')
 .replace('function _(e){const t=e.characters[e.primaryCharacterId];', 'function __wbV(e){const c=e.wbCard||window.__WB_CARD__;if(!c||!e.characters[c])return e;return e.characters[c]===e.characters[e.primaryCharacterId]?e:{...e,primaryCharacterId:c}}function _(e){const t=e.characters[e.primaryCharacterId];')
           .replace('[i,l]=Z.useState(null),h=ae(E=>E.state),d=_(h),', '[i,l]=Z.useState(null),[cardSel,setCard]=Z.useState(window.__WB_CARD__||""),h=ae(E=>E.state),d=_(__wbV(h)),')
+          .replace('const $=u.jsxs(u.Fragment,{children:[u.jsxs("div",{className:"flex flex-wrap gap-x-1 gap-y-0.5 mb-3 border-b border-stone-700"', 'var WB_PARTS=[["head","Head"],["mouth","Mouth"],["body","Body"],["breasts","Breasts"],["ass","Ass"],["vagina","Vagina"],["belly","Belly"]];\nfunction wbPStyle(){ if(document.getElementById("wb-prev-css")) return; var st=document.createElement("style"); st.id="wb-prev-css"; st.textContent=".wb-bp{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px}.wb-bc{background:rgba(28,25,23,.75);border:1px solid #3f3a36;border-radius:6px;padding:6px}.wb-bt{font-size:.65rem;color:#d6d3d1;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}.wb-iw{position:relative}.wb-bi{width:100%;aspect-ratio:1/1;object-fit:cover;background:#1c1917;border-radius:4px;display:block}.wb-bg{position:absolute;left:0;right:0;bottom:0;max-height:60%;overflow:auto;background:rgba(10,9,8,.93);color:#d6d3d1;font-size:.6rem;line-height:1.35;padding:4px 6px;border-radius:0 0 4px 4px;opacity:0;transition:opacity .12s}.wb-bc:hover .wb-bg{opacity:1}.wb-bc.noimg .wb-bg{position:static;opacity:1;background:none;padding:2px 0;margin:2px 0;max-height:2.4em}.wb-bb{width:100%;margin-top:4px;font-size:.65rem;padding:3px;border-radius:4px;background:#7c2d12;color:#fed7aa;border:0;cursor:pointer}.wb-bb[disabled]{opacity:.5}"; document.head.appendChild(st); }\nfunction wbChar(key){\n  try{\n    var s=window.__WB_STORE__; if(!s||!s.getState) return null;\n    var g2=(s.getState()||{}).state||{}, cs=g2.characters||{};\n    var id=String(key||g2.wbCard||g2.primaryCharacterId||"");\n    if(!id) return null;\n    var ch=Array.isArray(cs)?cs.find(function(x){return x.id===id;}):cs[id];\n    var ga=ch&&ch.generatedArchetype||null;\n    var kk=ga&&ga.id?String(ga.id):(ch?String(ch.archetypeId||""):"")||id;\n    return { id:id, key:kk, arch:ch?String(ch.archetypeId||""):"", base:ga?String(ga.imageBase||""):"", neg:ga?String(ga.imageNegative||""):"", look:(ch&&ch.look)||null, stage:String((ch&&ch.stage)||""), sex:String((ch&&ch.sex)||"f") };\n  }catch(e){ return null; }\n}\nfunction wbPCard(hero,key,part,label,tags,prev,src){\n  var w=document.createElement("div"); w.className="wb-bc"+(prev?"":" noimg");\n  var t=document.createElement("div"); t.className="wb-bt"; t.textContent=label; w.appendChild(t);\n  var iw=document.createElement("div"); iw.className="wb-iw"; w.appendChild(iw);\n  var im=document.createElement("img"); im.className="wb-bi"; im.alt=label; im.style.display="none"; iw.appendChild(im);\n  var g2=document.createElement("div"); g2.className="wb-bg"; g2.textContent=tags||"no tags"; iw.appendChild(g2);\n  var b=document.createElement("button"); b.className="wb-bb"; b.type="button"; b.textContent=prev?"Redraw":"Draw"; w.appendChild(b);\n  if(prev){ im.src=prev; im.style.display="block"; }\n  b.onclick=function(){\n    b.disabled=true; b.textContent="Drawing...";\n    fetch("/bridge/api/part-preview",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({heroine:hero,key:key,part:part,base:src.base,neg:src.neg,look:src.look,stage:src.stage,sex:src.sex,seed:im.style.display==="block"?(Date.now()%1e9):0})})\n      .then(function(r){ return r.json(); })\n      .then(function(j){\n        if(j&&j.ok&&j.image){ im.src=j.image; im.style.display="block"; w.className="wb-bc"; b.textContent="Redraw"; }\n        else { g2.textContent=(j&&j.error)||"error"; b.textContent="Retry"; }\n      })\n      .catch(function(){ b.textContent="Retry"; })\n      .then(function(){ b.disabled=false; });\n  };\n  return w;\n}\nfunction wbPFill(el,key){\n  wbPStyle(); el.textContent="";\n  var cap=document.createElement("div"); cap.className="text-[0.7rem] text-stone-500 mb-2"; cap.textContent="Body previews"; el.appendChild(cap);\n  var grid=document.createElement("div"); grid.className="wb-bp"; el.appendChild(grid);\n  var ch=wbChar(key);\n  if(!ch||!ch.id){ grid.textContent="No heroine selected."; return; }\n  fetch("/bridge/api/parts",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({heroine:ch.arch,key:ch.key,base:ch.base,neg:ch.neg,look:ch.look,stage:ch.stage,sex:ch.sex})})\n    .then(function(r){ return r.json(); })\n    .then(function(j){\n      var p=(j&&j.parts)||{}, pv=(j&&j.previews)||{}, real=String((j&&j.heroine)||ch.arch||""), k=String((j&&j.key)||ch.key);\n      cap.textContent="["+k+"] arch="+real+" base="+String(ch.base||"").length+" look="+(ch.look?"yes":"no")+" st="+ch.stage;\n      var misc=String(p.misc||"").trim(); WB_PARTS.forEach(function(x){ var t=x[0]==="head"||x[0]==="breasts" ? [p[x[0]],misc].filter(Boolean).join(", ") : p[x[0]]; grid.appendChild(wbPCard(real,k,x[0],x[1],t,pv[x[0]],ch)); });\n    })\n    .catch(function(){ grid.textContent="Bridge offline."; });\n}\nfunction WBBody(props){\n  var k=String((props&&props.key)||"");\n  return u.jsx("div",{ref:function(el){ if(el&&el.dataset.wbH!==k){ el.dataset.wbH=k; wbPFill(el,k); } }});\n}\nconst $=u.jsxs(u.Fragment,{children:[u.jsxs("div",{className:"flex flex-wrap gap-x-1 gap-y-0.5 mb-3 border-b border-stone-700"')
+          .replace('children:"Encounters"})]}),n==="stats"&&u.jsx($He,{})', 'children:"Encounters"}),u.jsx(Mc,{active:n==="body",onClick:()=>s("body"),children:"Body"})]}),n==="body"&&u.jsx(WBBody,{key:String((h&&h.wbCard)||"")}),n==="stats"&&u.jsx($He,{})')
           .replace('const $=u.jsxs(u.Fragment,{children:[u.jsxs("div",{className:"flex flex-wrap gap-x-1 gap-y-0.5 mb-3 border-b border-stone-700"', 'const __wbKids=(window.__WB_KIDS__&&window.__WB_KIDS__())||[],__wbCard=function(lbl,id){return u.jsx("button",{type:"button",className:"px-1.5 py-0.5 rounded border text-[0.65rem] "+(cardSel===id?"border-amber-600 bg-amber-900/40 text-amber-200":"border-stone-700 text-stone-400 hover:text-stone-200"),onClick:function(){window.__WB_CARD__=id;setCard(id);var __s=window.__WB_STORE__;if(__s&&__s.setState)__s.setState(function(x){var g=x.state||{},n={},k;for(k in g)n[k]=g[k];n.wbCard=id;return{state:n};});},children:lbl},id||"wife")}; const $=u.jsxs(u.Fragment,{children:[__wbKids.length?u.jsx("div",{className:"flex flex-wrap gap-1 mb-2",children:[__wbCard(h.characters[h.primaryCharacterId].name,"")].concat(__wbKids.map(function(c){return __wbCard(c.name,c.id)}))}):null,u.jsxs("div",{className:"flex flex-wrap gap-x-1 gap-y-0.5 mb-3 border-b border-stone-700"')
           .replace('n.has(f)&&(o[d].occupants.push(f),r.add(f))}', '(n.has(f)||e.characters&&e.characters[f])&&(o[d].occupants.push(f),r.add(f))}')
           .replace('g=iU(e,d);return{', 'g=iU(e,d).filter(function(v){return !((v.person||v).wbChild)});return{')
@@ -12651,9 +12653,9 @@ var require_server = __commonJS({
     }
     async function testPipeline(b) {
       const t0 = Date.now();
-      const heroine = String(b && b.heroine || currentHeroine());
+      const heroine = resolveHeroine(b && b.key, b && b.heroine);
       const pipe = resolvePipeline(store.effective(heroine).pipeline);
-      if (!await comfy.ping()) return { ok: false, error: explainComfyError("fetch failed", pipe), warnings: [] };
+if (!await comfy.ping()) return { ok: false, error: explainComfyError("fetch failed", pipe), warnings: [] };
       const caps = await comfy.capabilities(true);
       const warnings = pipelineWarnings(pipe, caps);
       const positive = [pipe.quality, "1girl, solo, upper body, smile, simple background"].filter(Boolean).join(", ");
@@ -12663,9 +12665,143 @@ var require_server = __commonJS({
         const img = await comfy.waitForImage(id, 5 * 60 * 1e3);
         if (!img) return { ok: false, error: "Cancelled.", warnings };
         const buf = await comfy.view(img);
-        return { ok: true, ms: Date.now() - t0, warnings, notes, family: pipe.family, image: "data:image/" + (path.extname(img.filename || ".png").slice(1) || "png") + ";base64," + buf.toString("base64") };
+return { ok: true, ms: Date.now() - t0, warnings, notes, family: pipe.family, image: "data:image/" + (path.extname(img.filename || ".png").slice(1) || "png") + ";base64," + buf.toString("base64") };
       } catch (e) {
         return { ok: false, error: explainComfyError(e.message, pipe, caps), raw: e.message, warnings };
+      }
+    }
+    var PART_FOCUS = {
+      base: "full body, standing, completely nude",
+      head: "face focus, portrait, close-up on face, looking at viewer",
+      mouth: "close-up on mouth, open mouth, tongue out, parted lips, showing teeth",
+      body: "full body, standing, contrapposto, from front, arms at sides, feet visible, pussy visible, pussy juice",
+      breasts: "close-up, head out of frame, cropped head, chest filling frame, bare breasts, nipples visible",
+      ass: "from below, ass focus, spread ass, asshole, facing viewer, puckered anus, spread anus, hips filling frame, head out of frame",
+      vagina: "spread pussy, pussy focus, pussy, anus, clitoris, pubic hair, front view, close-up, cropped head",
+      misc: "full body, standing",
+      belly: "belly focus, midriff filling frame, navel, from front, cropped head"
+    };
+    var PART_WORDS = [
+      ["breasts", ["breast", "nipple", "areola", "bust", "boob", "cleavage"]],
+      ["ass", ["ass", "butt", "anus", "anal", "glute"]],
+      ["vagina", ["pussy", "vagina", "labia", "clit", "pubic", "pubis", "mons", "vulva"]],
+      ["mouth", ["lip", "mouth", "teeth", "tongue"]],
+      ["head", ["hair", "eye", "eyebrow", "lash", "face", "nose", "ear", "freckle", "mole", "cheek", "ahoge", "bangs", "ponytail", "braid", "fringe", "iris"]],
+      ["belly", ["belly", "pregnan", "navel", "waist"]],
+      ["body", ["hip", "thigh", "leg", "build", "tall", "short", "slim", "curvy", "shoulder", "arm", "hand", "foot", "ankle", "calf", "muscular", "chubby", "plump", "skin"]]
+    ];
+    function classifyPart(tag) {
+      const t = String(tag || "").toLowerCase();
+      if (!t || t.indexOf(":") >= 0 || t.charAt(0) === "<") return "misc";
+      for (const [part, words] of PART_WORDS) for (const w of words) if (t.indexOf(w) >= 0) return part;
+      return "misc";
+    }
+    function partTagBuckets(heroine, raw) {
+      const sec = (((store.effective(heroine).prompts || {}).heroines || {})[heroine]) || {};
+      const out = {}, negOut = {};
+      const push = (part, tag) => { if (!tag) return; (out[part] = out[part] || []).push(tag); };
+      const pushNeg = (part, text) => { if (!text) return; (negOut[part] = negOut[part] || []).push(text); };
+      const sections = sec.sections || {};
+      let anySection = false;
+      for (const id of Object.keys(sections)) {
+        const t = String((sections[id] || {}).tags || "").trim();
+        if (!t) continue;
+        anySection = true;
+        t.split(",").forEach((x) => push(id, x.trim()));
+      }
+      const base = String(sec.base || "").trim();
+      if (!anySection) {
+        const fill = String(raw || "").trim() || base;
+        if (fill) fill.split(",").forEach((x) => push(classifyPart(x.trim()), x.trim()));
+      }
+      const qs = sec.quarantine || {};
+      for (const qid of Object.keys(qs)) {
+        const q = qs[qid] || {};
+        if (q.mode === "never") continue;
+        const qpart = classifyPart(qid);
+        const qt = String(q.tags || "").trim();
+        if (qt) qt.split(",").forEach((x) => push(qpart, x.trim()));
+        pushNeg(qpart, String(q.negative || "").trim());
+      }
+      const res = {}, neg = {};
+      for (const k of Object.keys(out)) res[k] = out[k].join(", ");
+      for (const k of Object.keys(negOut)) neg[k] = negOut[k].join(", ");
+      return { tags: res, neg };
+    }
+    function heroineSeed(id) {
+      let h = 2166136261;
+      const str = String(id || "");
+      for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+      return Math.abs(h) % 1e9;
+    }
+    function resolveHeroine(id, arch) {
+      const has = (x) => { const w = String(x || "").trim(); return w && ((store.effective(w).prompts || {}).heroines || {})[w] ? w : ""; };
+      const byKey = has(id);
+      if (byKey) return byKey;
+      const byArch = has(arch);
+      if (byArch) return byArch;
+      return currentHeroine();
+    }
+    function resolveHeroineOld(id) {
+      const want = String(id || "").trim();
+      if (want) {
+        const list = ((store.effective(want).prompts || {}).heroines || {});
+        if (list[want]) return want;
+      }
+      return currentHeroine();
+    }
+    async function partPreview(b) {
+      const heroine = String(b && b.heroine || currentHeroine());
+      const part = String(b && b.part || "body");
+      const key = String((b && b.key) || heroine);
+      const rawBase = String((b && b.base) || "").trim() || (b && b.look ? looksDescribe(b.look, b.stage, b.sex) : "");
+      const tb = partTagBuckets(heroine, rawBase);
+      const buckets = tb.tags;
+      const sec = (((store.effective(heroine).prompts || {}).heroines || {})[heroine]) || {};
+      const secPart = ((sec.sections || {})[part]) || {};
+      const anchor = String(Object.values(buckets).join(", ")).trim();
+      const hairTags = part === "belly" ? "" : String(buckets.head || "").split(",").map((x) => x.trim()).filter((x) => /^(breasts|ass|vagina)$/.test(part) ? /hair|skin/.test(x) : /hair|skin|eye/.test(x)).join(", ");
+      const full = part === "body" || part === "misc";
+      const miscTags = full ? "" : String(buckets.misc || "").trim();
+      const loras = (Object.values(buckets).join(", ").match(/<[^>]+>/g) || []).filter((v, i, a) => a.indexOf(v) === i).join(", ");
+      const bellyExtra = part === "belly" ? String(childstatePrompt(store.dataDir) || "").trim() : "";
+      const negTags = String((b && b.negative) || (b && b.neg) || tb.neg[part] || secPart.negative || "").trim();
+      const pipe = resolvePipeline(store.effective(heroine).pipeline);
+      const pipeLoras = (pipe.loras || []).filter((l) => l.enabled !== false && l.model).map((l) => Object.assign({}, l, { strength: Math.min(1, (Number(l.strength) || 1) * 0.7) }));
+      const loraTrig = [...new Set(pipeLoras.flatMap((l) => loraWords(l)))].join(", ");
+      const trigFilter = {
+        breasts: /breast|nipple|areola|montgomery|milk/,
+        ass: /ass|anus|anal|butt|glute/,
+        vagina: /pussy|vagina|labia|clit|pubic|anus|anal/,
+        belly: /belly|navel|pregnan/
+      };
+      const loraTrigUse = /^(head|mouth)$/.test(part) || String(buckets[part] || "").trim() ? "" : trigFilter[part] ? loraTrig.split(",").map((x) => x.trim()).filter((x) => x && trigFilter[part].test(x.toLowerCase())).join(", ") : loraTrig;
+      const seen = new Set();
+      const tags = [String((b && b.tags) || (full ? anchor : buckets[part]) || "").trim(), full ? "" : hairTags, miscTags, bellyExtra, loraTrigUse].filter(Boolean).join(", ").split(",").map((x) => x.trim()).filter((x) => {
+        if (!x || x.charAt(0) === "<") return false;
+        const k = x.toLowerCase();
+        if (seen.has(k)) return false;
+        seen.add(k);
+        return true;
+      }).join(", ");
+      if (!tags) return { ok: false, error: "This part has no words to draw." };
+            if (!await comfy.ping()) return { ok: false, error: explainComfyError("fetch failed", pipe) };
+      const caps = await comfy.capabilities(true);
+      const positive = [pipe.quality, "1girl, solo, completely nude", PART_FOCUS[part] || "", tags, "solid dark background, plain background", loras].filter(Boolean).join(", ");
+      const cropNeg = /^(breasts|ass|vagina)$/.test(part) ? "face, full face, head" : /^(head|mouth)$/.test(part) ? "spread legs, pussy, anus, full body" : "";
+      const negative = [negTags, cropNeg, "clothes, dress, skirt, shirt, pants, underwear, bra, panties", String(pipe.negative || "")].filter(Boolean).join(", ");
+      try {
+        const { graph } = buildGraph({ p: Object.assign({}, pipe, { loras: pipeLoras }), caps, positive, negative, seed: Number(b && b.seed) || heroineSeed(heroine), width: 640, height: 640, portrait: false, noHires: true, noDetail: true, prefix: "wayward/part-preview", workflowDir: path.join(DATA_DIR, "workflows") });
+        const id = await comfy.submit(graph);
+        const img = await comfy.waitForImage(id, 5 * 60 * 1e3);
+        if (!img) return { ok: false, error: "Cancelled." };
+        const buf = await comfy.view(img);
+        const pdir = path.join(DATA_DIR, "part-previews", key);
+        fs.mkdirSync(pdir, { recursive: true });
+        fs.writeFileSync(path.join(pdir, part + ".png"), buf);
+                return { ok: true, image: "data:image/" + (path.extname(img.filename || ".png").slice(1) || "png") + ";base64," + buf.toString("base64") };
+      } catch (e) {
+        return { ok: false, error: explainComfyError(e.message, pipe, caps), raw: e.message };
       }
     }
     var genAll = { running: false, stop: false, total: 0, done: 0, failed: 0, skipped: 0, message: "", startedAt: 0, etaMs: 0, heroine: "" };
@@ -13572,6 +13708,23 @@ var require_server = __commonJS({
         return send(res, 200, { ok: true, imported: n, presets: readPresets() });
       }
       if (p === "/bridge/api/test-pipeline" && m === "POST") return send(res, 200, await testPipeline(await readJson(req)));
+      if (p === "/bridge/api/parts" && m === "POST") {
+        const b = await readJson(req);
+        const h = resolveHeroine(b && b.key, b && b.heroine);
+        const key = String((b && b.key) || h);
+        const rawBase2 = String((b && b.base) || "").trim() || (b && b.look ? looksDescribe(b.look, b.stage, b.sex) : "");
+        const t2 = partTagBuckets(h, rawBase2);
+        const pv = {};
+        try {
+          const pdir2 = path.join(DATA_DIR, "part-previews", key);
+          for (const f2 of fs.readdirSync(pdir2)) {
+            if (!f2.endsWith(".png")) continue;
+            pv[f2.slice(0, -4)] = "data:image/png;base64," + fs.readFileSync(path.join(pdir2, f2)).toString("base64");
+          }
+        } catch (e) {}
+        return send(res, 200, { ok: true, heroine: h, key, parts: t2.tags, previews: pv });
+      }
+      if (p === "/bridge/api/part-preview" && m === "POST") return send(res, 200, await partPreview(await readJson(req)));
       if (p === "/bridge/api/learn" && m === "GET") return send(res, 200, suggestions(ratings.all(), store.settings.app.learnIgnore || []));
       if (p === "/bridge/api/learn/ignore" && m === "POST") {
         const b = await readJson(req);

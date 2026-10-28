@@ -466,9 +466,9 @@ var require_server = __commonJS({
     }
     async function testPipeline(b) {
       const t0 = Date.now();
-      const heroine = String(b && b.heroine || currentHeroine());
+      const heroine = resolveHeroine(b && b.key, b && b.heroine);
       const pipe = resolvePipeline(store.effective(heroine).pipeline);
-      if (!await comfy.ping()) return { ok: false, error: explainComfyError("fetch failed", pipe), warnings: [] };
+if (!await comfy.ping()) return { ok: false, error: explainComfyError("fetch failed", pipe), warnings: [] };
       const caps = await comfy.capabilities(true);
       const warnings = pipelineWarnings(pipe, caps);
       const positive = [pipe.quality, "1girl, solo, upper body, smile, simple background"].filter(Boolean).join(", ");
@@ -478,9 +478,143 @@ var require_server = __commonJS({
         const img = await comfy.waitForImage(id, 5 * 60 * 1e3);
         if (!img) return { ok: false, error: "Cancelled.", warnings };
         const buf = await comfy.view(img);
-        return { ok: true, ms: Date.now() - t0, warnings, notes, family: pipe.family, image: "data:image/" + (path.extname(img.filename || ".png").slice(1) || "png") + ";base64," + buf.toString("base64") };
+return { ok: true, ms: Date.now() - t0, warnings, notes, family: pipe.family, image: "data:image/" + (path.extname(img.filename || ".png").slice(1) || "png") + ";base64," + buf.toString("base64") };
       } catch (e) {
         return { ok: false, error: explainComfyError(e.message, pipe, caps), raw: e.message, warnings };
+      }
+    }
+    var PART_FOCUS = {
+      base: "full body, standing, completely nude",
+      head: "face focus, portrait, close-up on face, looking at viewer",
+      mouth: "close-up on mouth, open mouth, tongue out, parted lips, showing teeth",
+      body: "full body, standing, contrapposto, from front, arms at sides, feet visible, pussy visible, pussy juice",
+      breasts: "close-up, head out of frame, cropped head, chest filling frame, bare breasts, nipples visible",
+      ass: "from below, ass focus, spread ass, asshole, facing viewer, puckered anus, spread anus, hips filling frame, head out of frame",
+      vagina: "spread pussy, pussy focus, pussy, anus, clitoris, pubic hair, front view, close-up, cropped head",
+      misc: "full body, standing",
+      belly: "belly focus, midriff filling frame, navel, from front, cropped head"
+    };
+    var PART_WORDS = [
+      ["breasts", ["breast", "nipple", "areola", "bust", "boob", "cleavage"]],
+      ["ass", ["ass", "butt", "anus", "anal", "glute"]],
+      ["vagina", ["pussy", "vagina", "labia", "clit", "pubic", "pubis", "mons", "vulva"]],
+      ["mouth", ["lip", "mouth", "teeth", "tongue"]],
+      ["head", ["hair", "eye", "eyebrow", "lash", "face", "nose", "ear", "freckle", "mole", "cheek", "ahoge", "bangs", "ponytail", "braid", "fringe", "iris"]],
+      ["belly", ["belly", "pregnan", "navel", "waist"]],
+      ["body", ["hip", "thigh", "leg", "build", "tall", "short", "slim", "curvy", "shoulder", "arm", "hand", "foot", "ankle", "calf", "muscular", "chubby", "plump", "skin"]]
+    ];
+    function classifyPart(tag) {
+      const t = String(tag || "").toLowerCase();
+      if (!t || t.indexOf(":") >= 0 || t.charAt(0) === "<") return "misc";
+      for (const [part, words] of PART_WORDS) for (const w of words) if (t.indexOf(w) >= 0) return part;
+      return "misc";
+    }
+    function partTagBuckets(heroine, raw) {
+      const sec = (((store.effective(heroine).prompts || {}).heroines || {})[heroine]) || {};
+      const out = {}, negOut = {};
+      const push = (part, tag) => { if (!tag) return; (out[part] = out[part] || []).push(tag); };
+      const pushNeg = (part, text) => { if (!text) return; (negOut[part] = negOut[part] || []).push(text); };
+      const sections = sec.sections || {};
+      let anySection = false;
+      for (const id of Object.keys(sections)) {
+        const t = String((sections[id] || {}).tags || "").trim();
+        if (!t) continue;
+        anySection = true;
+        t.split(",").forEach((x) => push(id, x.trim()));
+      }
+      const base = String(sec.base || "").trim();
+      if (!anySection) {
+        const fill = String(raw || "").trim() || base;
+        if (fill) fill.split(",").forEach((x) => push(classifyPart(x.trim()), x.trim()));
+      }
+      const qs = sec.quarantine || {};
+      for (const qid of Object.keys(qs)) {
+        const q = qs[qid] || {};
+        if (q.mode === "never") continue;
+        const qpart = classifyPart(qid);
+        const qt = String(q.tags || "").trim();
+        if (qt) qt.split(",").forEach((x) => push(qpart, x.trim()));
+        pushNeg(qpart, String(q.negative || "").trim());
+      }
+      const res = {}, neg = {};
+      for (const k of Object.keys(out)) res[k] = out[k].join(", ");
+      for (const k of Object.keys(negOut)) neg[k] = negOut[k].join(", ");
+      return { tags: res, neg };
+    }
+    function heroineSeed(id) {
+      let h = 2166136261;
+      const str = String(id || "");
+      for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+      return Math.abs(h) % 1e9;
+    }
+    function resolveHeroine(id, arch) {
+      const has = (x) => { const w = String(x || "").trim(); return w && ((store.effective(w).prompts || {}).heroines || {})[w] ? w : ""; };
+      const byKey = has(id);
+      if (byKey) return byKey;
+      const byArch = has(arch);
+      if (byArch) return byArch;
+      return currentHeroine();
+    }
+    function resolveHeroineOld(id) {
+      const want = String(id || "").trim();
+      if (want) {
+        const list = ((store.effective(want).prompts || {}).heroines || {});
+        if (list[want]) return want;
+      }
+      return currentHeroine();
+    }
+    async function partPreview(b) {
+      const heroine = String(b && b.heroine || currentHeroine());
+      const part = String(b && b.part || "body");
+      const key = String((b && b.key) || heroine);
+      const rawBase = String((b && b.base) || "").trim() || (b && b.look ? looksDescribe(b.look, b.stage, b.sex) : "");
+      const tb = partTagBuckets(heroine, rawBase);
+      const buckets = tb.tags;
+      const sec = (((store.effective(heroine).prompts || {}).heroines || {})[heroine]) || {};
+      const secPart = ((sec.sections || {})[part]) || {};
+      const anchor = String(Object.values(buckets).join(", ")).trim();
+      const hairTags = part === "belly" ? "" : String(buckets.head || "").split(",").map((x) => x.trim()).filter((x) => /^(breasts|ass|vagina)$/.test(part) ? /hair|skin/.test(x) : /hair|skin|eye/.test(x)).join(", ");
+      const full = part === "body" || part === "misc";
+      const miscTags = full ? "" : String(buckets.misc || "").trim();
+      const loras = (Object.values(buckets).join(", ").match(/<[^>]+>/g) || []).filter((v, i, a) => a.indexOf(v) === i).join(", ");
+      const bellyExtra = part === "belly" ? String(childstatePrompt(store.dataDir) || "").trim() : "";
+      const negTags = String((b && b.negative) || (b && b.neg) || tb.neg[part] || secPart.negative || "").trim();
+      const pipe = resolvePipeline(store.effective(heroine).pipeline);
+      const pipeLoras = (pipe.loras || []).filter((l) => l.enabled !== false && l.model).map((l) => Object.assign({}, l, { strength: Math.min(1, (Number(l.strength) || 1) * 0.7) }));
+      const loraTrig = [...new Set(pipeLoras.flatMap((l) => loraWords(l)))].join(", ");
+      const trigFilter = {
+        breasts: /breast|nipple|areola|montgomery|milk/,
+        ass: /ass|anus|anal|butt|glute/,
+        vagina: /pussy|vagina|labia|clit|pubic|anus|anal/,
+        belly: /belly|navel|pregnan/
+      };
+      const loraTrigUse = /^(head|mouth)$/.test(part) || String(buckets[part] || "").trim() ? "" : trigFilter[part] ? loraTrig.split(",").map((x) => x.trim()).filter((x) => x && trigFilter[part].test(x.toLowerCase())).join(", ") : loraTrig;
+      const seen = new Set();
+      const tags = [String((b && b.tags) || (full ? anchor : buckets[part]) || "").trim(), full ? "" : hairTags, miscTags, bellyExtra, loraTrigUse].filter(Boolean).join(", ").split(",").map((x) => x.trim()).filter((x) => {
+        if (!x || x.charAt(0) === "<") return false;
+        const k = x.toLowerCase();
+        if (seen.has(k)) return false;
+        seen.add(k);
+        return true;
+      }).join(", ");
+      if (!tags) return { ok: false, error: "This part has no words to draw." };
+            if (!await comfy.ping()) return { ok: false, error: explainComfyError("fetch failed", pipe) };
+      const caps = await comfy.capabilities(true);
+      const positive = [pipe.quality, "1girl, solo, completely nude", PART_FOCUS[part] || "", tags, "solid dark background, plain background", loras].filter(Boolean).join(", ");
+      const cropNeg = /^(breasts|ass|vagina)$/.test(part) ? "face, full face, head" : /^(head|mouth)$/.test(part) ? "spread legs, pussy, anus, full body" : "";
+      const negative = [negTags, cropNeg, "clothes, dress, skirt, shirt, pants, underwear, bra, panties", String(pipe.negative || "")].filter(Boolean).join(", ");
+      try {
+        const { graph } = buildGraph({ p: Object.assign({}, pipe, { loras: pipeLoras }), caps, positive, negative, seed: Number(b && b.seed) || heroineSeed(heroine), width: 640, height: 640, portrait: false, noHires: true, noDetail: true, prefix: "wayward/part-preview", workflowDir: path.join(DATA_DIR, "workflows") });
+        const id = await comfy.submit(graph);
+        const img = await comfy.waitForImage(id, 5 * 60 * 1e3);
+        if (!img) return { ok: false, error: "Cancelled." };
+        const buf = await comfy.view(img);
+        const pdir = path.join(DATA_DIR, "part-previews", key);
+        fs.mkdirSync(pdir, { recursive: true });
+        fs.writeFileSync(path.join(pdir, part + ".png"), buf);
+                return { ok: true, image: "data:image/" + (path.extname(img.filename || ".png").slice(1) || "png") + ";base64," + buf.toString("base64") };
+      } catch (e) {
+        return { ok: false, error: explainComfyError(e.message, pipe, caps), raw: e.message };
       }
     }
     var genAll = { running: false, stop: false, total: 0, done: 0, failed: 0, skipped: 0, message: "", startedAt: 0, etaMs: 0, heroine: "" };
@@ -1387,6 +1521,23 @@ var require_server = __commonJS({
         return send(res, 200, { ok: true, imported: n, presets: readPresets() });
       }
       if (p === "/bridge/api/test-pipeline" && m === "POST") return send(res, 200, await testPipeline(await readJson(req)));
+      if (p === "/bridge/api/parts" && m === "POST") {
+        const b = await readJson(req);
+        const h = resolveHeroine(b && b.key, b && b.heroine);
+        const key = String((b && b.key) || h);
+        const rawBase2 = String((b && b.base) || "").trim() || (b && b.look ? looksDescribe(b.look, b.stage, b.sex) : "");
+        const t2 = partTagBuckets(h, rawBase2);
+        const pv = {};
+        try {
+          const pdir2 = path.join(DATA_DIR, "part-previews", key);
+          for (const f2 of fs.readdirSync(pdir2)) {
+            if (!f2.endsWith(".png")) continue;
+            pv[f2.slice(0, -4)] = "data:image/png;base64," + fs.readFileSync(path.join(pdir2, f2)).toString("base64");
+          }
+        } catch (e) {}
+        return send(res, 200, { ok: true, heroine: h, key, parts: t2.tags, previews: pv });
+      }
+      if (p === "/bridge/api/part-preview" && m === "POST") return send(res, 200, await partPreview(await readJson(req)));
       if (p === "/bridge/api/learn" && m === "GET") return send(res, 200, suggestions(ratings.all(), store.settings.app.learnIgnore || []));
       if (p === "/bridge/api/learn/ignore" && m === "POST") {
         const b = await readJson(req);

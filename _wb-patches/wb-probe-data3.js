@@ -1,0 +1,10 @@
+const fs=require('fs'),path=require('path');
+const dir='wayward-bridge-data';
+const g=JSON.parse(fs.readFileSync(path.join(dir,'game-snapshot.json'),'utf8'));
+console.log('prompts ключи: '+Object.keys(g.prompts||{}).join(', '));
+const c=JSON.parse(fs.readFileSync(path.join(dir,'custom-heroines.json'),'utf8'));
+console.log('custom-heroines ключи: '+Object.keys(c).slice(0,20).join(', '));
+const arr=Array.isArray(c)?c:(c.heroines||c.items||[]);
+const list=Array.isArray(arr)?arr:Object.values(arr);
+console.log('штук: '+list.length);
+list.slice(0,5).forEach((x,i)=>console.log(i+': '+JSON.stringify(x).slice(0,220)));

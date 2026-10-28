@@ -4570,6 +4570,16 @@
                 "groups": [],
                 "only": [],
                 "trigger": []
+              },
+              {
+                "model": "Illustrious/large_areolae_addift.safetensors",
+                "strength": 0,
+                "enabled": false,
+                "words": [],
+                "removed": [],
+                "groups": [],
+                "only": [],
+                "trigger": []
               }
             ]
           }
@@ -4588,6 +4598,37 @@
           "mode": "donut",
           "enabled": true
         }
+      },
+      "prompts": {
+        "heroines": {
+          "wbchild_c880apn9": {
+            "sections": {
+              "vagina": {
+                "tags": "pussy, "
+              },
+              "breasts": {
+                "tags": ""
+              },
+              "ass": {
+                "tags": "ass, "
+              },
+              "misc": {
+                "tags": "olive skin, sturdy build,"
+              },
+              "head": {
+                "tags": "chestnut wavy hair, grey eyes, round face, "
+              }
+            },
+            "quarantine": {
+              "ass": {
+                "tags": "ass, ",
+                "negative": "",
+                "when": "ass_visible",
+                "mode": "auto"
+              }
+            }
+          }
+        }
       }
     }
   },
@@ -4595,7 +4636,7 @@
     "pippa.17qhigs1l00zv0": {
       "heroine": "pippa",
       "name": "Zenit",
-      "at": 1793205189029
+      "at": 1793218963495
     },
     "wbchild_c880apn9.17qhigs1l00zv0": {
       "heroine": "wbchild_c880apn9",

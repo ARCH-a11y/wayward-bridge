@@ -1,6 +1,29 @@
-settings.json в 003-src_server_store.js
-DATA_DIR в 024-src_server_index.js: path.resolve(args.data || process.env.WB_DATA || path.join(BASE_DIR, "wayward-bridge-data"))
-
-кандидаты: .aider.model.metadata.json, Start-Wayward-Bridge.bat, wayward-bridge-data, wayward-bridge.before-split.js, wayward-bridge.js, wayward-bridge.orig.js, wayward-bridge.pre-split.js, wb-test.js, wb-verify.js, _wb-patches
-настройки: wayward-bridge-data\settings.json
-gameDir: null
+NaN
+statDetailPinned: 5
+--- 2605236..2608336 ---
+2605236: r,a]=Z.useState(!1),[i,l]=Z.useState(null),h=ae(E=>E.state),d=_(h),f=d.taskTarget?(j=Sb(h,d.taskTarget))==null?void 0:j.
+2605356: name:void 0,p=At(E=>E.proximityMode),g=kt(h);if(p&&!g)return null;const{player:b}=h,w=si(h),k={wife:d,player:b,drives:w}
+2605476: ,x=SHe(d),T=async(E,R)=>{const L=JSON.stringify(R,null,2);let M=!0;try{await THe(L)}catch(W){M=!1,console.warn("[wife-js
+2605596: on] Copy failed",W)}l({key:E,ok:M}),window.setTimeout(()=>{l(W=>(W==null?void 0:W.key)===E?null:W)},1400)};if(!e&&!t)ret
+2605716: urn u.jsx("button",{onClick:()=>o(!0),className:"font-medium text-amber-300 hover:text-amber-200 hover:underline cursor-
+2605836: pointer py-1 -my-1",children:d.name});const $=u.jsxs(u.Fragment,{children:[u.jsxs("div",{className:"flex flex-wrap gap-x
+2605956: -1 gap-y-0.5 mb-3 border-b border-stone-700",children:[u.jsx(Mc,{active:n==="stats",onClick:()=>s("stats"),children:"Sta
+2606076: ts"}),u.jsx(Mc,{active:n==="personality",onClick:()=>s("personality"),children:"Personality"}),u.jsx(Mc,{active:n==="att
+2606196: ributes",onClick:()=>s("attributes"),children:"Attributes"}),u.jsx(Mc,{active:n==="reputation",onClick:()=>s("reputation
+2606316: "),children:"Reputation"}),u.jsx(Mc,{active:n==="expectations",onClick:()=>s("expectations"),children:"Expectations"}),u
+2606436: .jsx(Mc,{active:n==="encounters",onClick:()=>s("encounters"),children:"Encounters"})]}),n==="stats"&&u.jsx($He,{}),n==="
+2606556: personality"&&u.jsx(IHe,{}),n==="attributes"&&u.jsx(NHe,{}),n==="reputation"&&u.jsx(jHe,{}),n==="expectations"&&u.jsx(AH
+2606676: e,{}),n==="encounters"&&u.jsx(PHe,{})]});return e?u.jsxs("div",{className:"bg-stone-900/60 border border-stone-800 round
+2606796: ed p-2",children:[u.jsxs("div",{className:"text-[0.7rem] text-stone-500 mb-2",children:["Day ",h.day," · ",d.currentTask
+2606916: .replace(/_/g," "),f?` · with ${f}`:""]}),$]}):u.jsxs(u.Fragment,{children:[u.jsx("button",{onClick:()=>o(!0),className:
+2607036: "font-medium text-amber-300 hover:text-amber-200 hover:underline cursor-pointer py-1 -my-1",children:d.name}),u.jsx("div
+2607156: ",{className:"fixed inset-0 z-50 flex items-center justify-center bg-black/60",onClick:()=>o(!1),children:u.jsxs("div",{
+2607276: className:"bg-stone-900 border border-stone-700 rounded-lg shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6"
+2607396: ,onClick:E=>E.stopPropagation(),children:[u.jsxs("div",{className:"flex justify-between items-center mb-3",children:[u.j
+2607516: sxs("div",{children:[u.jsx("h2",{className:"text-xl font-bold text-amber-400",children:d.name}),u.jsxs("div",{className:
+2607636: "text-xs text-stone-500 mt-0.5",children:["Day ",h.day," · ",d.currentTask.replace(/_/g," "),f?` · with ${f}`:""]})]}),u
+2607756: .jsx("button",{onClick:()=>o(!1),className:"text-stone-500 hover:text-stone-300 text-lg",children:"x"})]}),$,u.jsxs("div
+2607876: ",{className:"mt-4 pt-4 border-t border-stone-700",children:[u.jsxs("button",{onClick:()=>a(E=>!E),className:"text-xs te
+2607996: xt-stone-500 hover:text-stone-300 transition-colors",children:[r?"Hide":"Show"," Raw JSON"]}),r&&u.jsxs("div",{className
+2608116: :"mt-2 space-y-2",children:[u.jsxs("div",{className:"flex flex-wrap items-center gap-1.5",children:[u.jsx(Bi,{status:(i=
+2608236: =null?void 0:i.key)==="full"?i:null,onClick:()=>T("full",k),children:"Full"}),u.jsx(Bi,{status:(i==null?void 0:i.key)===
