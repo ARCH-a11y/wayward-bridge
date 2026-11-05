@@ -165,7 +165,10 @@ var require_schema = __commonJS({
       lastBirth: { day: num(0, 1e9), outcome: str(), count: num(0, 10) }
     };
     var PLAYER = { look: { hair: str(), hairType: str(), eyes: str(), skin: str(), face: str(), build: str(), bust: str(), hips: str(), set: bool() } };
-    var LAYER = { prompts: PROMPTS, pipeline: PIPELINE, childstate: CHILDSTATE, player: PLAYER };
+    var PART_LORA = { enabled: bool(), model: str(400), strength: num(-2, 2), triggers: str(4e3) };
+    var PART_FOCUS_SCHEMA = { "*": str(4e3) };
+    var PART_PROMPT = { text: str(4e3), negative: str(4e3) };
+    var LAYER = { prompts: PROMPTS, pipeline: PIPELINE, childstate: CHILDSTATE, player: PLAYER, partLora: PART_LORA, partFocus: PART_FOCUS_SCHEMA, partPrompt: PART_PROMPT };
     var SCHEMA = {
       version: num(1, 1e3),
       app: {
@@ -3157,7 +3160,7 @@ var require_workflows = __commonJS({
     function buildGraph(args) {
       const p = args.p;
       const notes = [];
-      const loras = args.portrait ? [] : (p.loras || []).filter((l) => l.enabled !== false && l.model);
+      const loras = (args.keepLoras || !args.portrait ? (p.loras || []) : []).filter((l) => l.enabled !== false && l.model);
       const a = Object.assign({}, args, {
         notes,
         loras,
@@ -3983,7 +3986,7 @@ var require_game = __commonJS({
           .replace('h=e.phase==="prep"&&!Tt(e),d=_(e),', 'h=e.phase==="prep"&&!Tt(e),d=_(__wbV(e)),')
 .replace('function _(e){const t=e.characters[e.primaryCharacterId];', 'function __wbV(e){const c=e.wbCard||window.__WB_CARD__;if(!c||!e.characters[c])return e;return e.characters[c]===e.characters[e.primaryCharacterId]?e:{...e,primaryCharacterId:c}}function _(e){const t=e.characters[e.primaryCharacterId];')
           .replace('[i,l]=Z.useState(null),h=ae(E=>E.state),d=_(h),', '[i,l]=Z.useState(null),[cardSel,setCard]=Z.useState(window.__WB_CARD__||""),h=ae(E=>E.state),d=_(__wbV(h)),')
-          .replace('const $=u.jsxs(u.Fragment,{children:[u.jsxs("div",{className:"flex flex-wrap gap-x-1 gap-y-0.5 mb-3 border-b border-stone-700"', 'var WB_PARTS=[["head","Head"],["mouth","Mouth"],["body","Body"],["breasts","Breasts"],["ass","Ass"],["vagina","Vagina"],["belly","Belly"]];\nfunction wbPStyle(){ if(document.getElementById("wb-prev-css")) return; var st=document.createElement("style"); st.id="wb-prev-css"; st.textContent=".wb-bp{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px}.wb-bc{background:rgba(28,25,23,.75);border:1px solid #3f3a36;border-radius:6px;padding:6px}.wb-bt{font-size:.65rem;color:#d6d3d1;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}.wb-iw{position:relative}.wb-bi{width:100%;aspect-ratio:1/1;object-fit:cover;background:#1c1917;border-radius:4px;display:block}.wb-bg{position:absolute;left:0;right:0;bottom:0;max-height:60%;overflow:auto;background:rgba(10,9,8,.93);color:#d6d3d1;font-size:.6rem;line-height:1.35;padding:4px 6px;border-radius:0 0 4px 4px;opacity:0;transition:opacity .12s}.wb-bc:hover .wb-bg{opacity:1}.wb-bc.noimg .wb-bg{position:static;opacity:1;background:none;padding:2px 0;margin:2px 0;max-height:2.4em}.wb-bb{width:100%;margin-top:4px;font-size:.65rem;padding:3px;border-radius:4px;background:#7c2d12;color:#fed7aa;border:0;cursor:pointer}.wb-bb[disabled]{opacity:.5}"; document.head.appendChild(st); }\nfunction wbChar(key){\n  try{\n    var s=window.__WB_STORE__; if(!s||!s.getState) return null;\n    var g2=(s.getState()||{}).state||{}, cs=g2.characters||{};\n    var id=String(key||g2.wbCard||g2.primaryCharacterId||"");\n    if(!id) return null;\n    var ch=Array.isArray(cs)?cs.find(function(x){return x.id===id;}):cs[id];\n    var ga=ch&&ch.generatedArchetype||null;\n    var kk=ga&&ga.id?String(ga.id):(ch?String(ch.archetypeId||""):"")||id;\n    return { id:id, key:kk, arch:ch?String(ch.archetypeId||""):"", base:ga?String(ga.imageBase||""):"", neg:ga?String(ga.imageNegative||""):"", look:(ch&&ch.look)||null, stage:String((ch&&ch.stage)||""), sex:String((ch&&ch.sex)||"f") };\n  }catch(e){ return null; }\n}\nfunction wbPCard(hero,key,part,label,tags,prev,src){\n  var w=document.createElement("div"); w.className="wb-bc"+(prev?"":" noimg");\n  var t=document.createElement("div"); t.className="wb-bt"; t.textContent=label; w.appendChild(t);\n  var iw=document.createElement("div"); iw.className="wb-iw"; w.appendChild(iw);\n  var im=document.createElement("img"); im.className="wb-bi"; im.alt=label; im.style.display="none"; iw.appendChild(im);\n  var g2=document.createElement("div"); g2.className="wb-bg"; g2.textContent=tags||"no tags"; iw.appendChild(g2);\n  var b=document.createElement("button"); b.className="wb-bb"; b.type="button"; b.textContent=prev?"Redraw":"Draw"; w.appendChild(b);\n  if(prev){ im.src=prev; im.style.display="block"; }\n  b.onclick=function(){\n    b.disabled=true; b.textContent="Drawing...";\n    fetch("/bridge/api/part-preview",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({heroine:hero,key:key,part:part,base:src.base,neg:src.neg,look:src.look,stage:src.stage,sex:src.sex,seed:im.style.display==="block"?(Date.now()%1e9):0})})\n      .then(function(r){ return r.json(); })\n      .then(function(j){\n        if(j&&j.ok&&j.image){ im.src=j.image; im.style.display="block"; w.className="wb-bc"; b.textContent="Redraw"; }\n        else { g2.textContent=(j&&j.error)||"error"; b.textContent="Retry"; }\n      })\n      .catch(function(){ b.textContent="Retry"; })\n      .then(function(){ b.disabled=false; });\n  };\n  return w;\n}\nfunction wbPFill(el,key){\n  wbPStyle(); el.textContent="";\n  var cap=document.createElement("div"); cap.className="text-[0.7rem] text-stone-500 mb-2"; cap.textContent="Body previews"; el.appendChild(cap);\n  var grid=document.createElement("div"); grid.className="wb-bp"; el.appendChild(grid);\n  var ch=wbChar(key);\n  if(!ch||!ch.id){ grid.textContent="No heroine selected."; return; }\n  fetch("/bridge/api/parts",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({heroine:ch.arch,key:ch.key,base:ch.base,neg:ch.neg,look:ch.look,stage:ch.stage,sex:ch.sex})})\n    .then(function(r){ return r.json(); })\n    .then(function(j){\n      var p=(j&&j.parts)||{}, pv=(j&&j.previews)||{}, real=String((j&&j.heroine)||ch.arch||""), k=String((j&&j.key)||ch.key);\n      cap.textContent="["+k+"] arch="+real+" base="+String(ch.base||"").length+" look="+(ch.look?"yes":"no")+" st="+ch.stage;\n      var misc=String(p.misc||"").trim(); WB_PARTS.forEach(function(x){ var t=x[0]==="head"||x[0]==="breasts" ? [p[x[0]],misc].filter(Boolean).join(", ") : p[x[0]]; grid.appendChild(wbPCard(real,k,x[0],x[1],t,pv[x[0]],ch)); });\n    })\n    .catch(function(){ grid.textContent="Bridge offline."; });\n}\nfunction WBBody(props){\n  var k=String((props&&props.key)||"");\n  return u.jsx("div",{ref:function(el){ if(el&&el.dataset.wbH!==k){ el.dataset.wbH=k; wbPFill(el,k); } }});\n}\nconst $=u.jsxs(u.Fragment,{children:[u.jsxs("div",{className:"flex flex-wrap gap-x-1 gap-y-0.5 mb-3 border-b border-stone-700"')
+          .replace('const $=u.jsxs(u.Fragment,{children:[u.jsxs("div",{className:"flex flex-wrap gap-x-1 gap-y-0.5 mb-3 border-b border-stone-700"', 'var WB_PARTS=[["head","Head"],["mouth","Mouth"],["body","Body"],["breasts","Breasts"],["ass","Ass"],["vagina","Vagina"],["belly","Belly"]];\nfunction wbPStyle(){ if(document.getElementById("wb-prev-css")) return; var st=document.createElement("style"); st.id="wb-prev-css"; st.textContent=".wb-bp{display:grid;grid-template-columns:1fr;gap:12px;max-width:100%}.wb-bp--grid{grid-template-columns:repeat(2,1fr);gap:8px}.wb-bc{background:rgba(28,25,23,.75);border:1px solid #3f3a36;border-radius:6px;padding:6px}.wb-pl{font-size:.62rem;color:#d6d3d1;text-transform:uppercase;letter-spacing:.06em;margin:0 0 4px;padding:2px 6px;border:1px solid #3f3a36;border-radius:4px;background:rgba(10,9,8,.6);display:inline-block}.wb-iw{position:relative}.wb-bi{width:100%;aspect-ratio:1/1;object-fit:cover;background:#1c1917;border-radius:4px;display:block}.wb-bc{width:100%}.wb-bp .wb-bc .wb-bi{aspect-ratio:2/3}.wb-bp--grid .wb-bc .wb-bi{aspect-ratio:1/1}.wb-bg{position:absolute;left:0;right:0;bottom:0;max-height:60%;overflow:auto;background:rgba(10,9,8,.93);color:#d6d3d1;font-size:.6rem;line-height:1.35;padding:4px 6px;border-radius:0 0 4px 4px;opacity:0;transition:opacity .12s}.wb-bc:hover .wb-bg{opacity:1}.wb-bc.noimg .wb-bg{position:static;opacity:1;background:none;padding:2px 0;margin:2px 0;max-height:2.4em}.wb-bb{width:100%;margin-top:4px;font-size:.65rem;padding:3px;border-radius:4px;background:#7c2d12;color:#fed7aa;border:0;cursor:pointer}.wb-bb[disabled]{opacity:.5}"; document.head.appendChild(st); }\nfunction wbChar(key){\n  try{\n    var s=window.__WB_STORE__; if(!s||!s.getState) return null;\n    var g2=(s.getState()||{}).state||{}, cs=g2.characters||{};\n    var id=String(key||g2.wbCard||g2.primaryCharacterId||"");\n    if(!id) return null;\n    var ch=Array.isArray(cs)?cs.find(function(x){return x.id===id;}):cs[id];\n    var ga=ch&&ch.generatedArchetype||null;\n    var kk=ga&&ga.id?String(ga.id):(ch?String(ch.archetypeId||""):"")||id;\n    return { id:id, key:kk, arch:ch?String(ch.archetypeId||""):"", base:ga?String(ga.imageBase||""):"", neg:ga?String(ga.imageNegative||""):"", look:(ch&&ch.look)||null, stage:String((ch&&ch.stage)||""), sex:String((ch&&ch.sex)||"f") };\n  }catch(e){ return null; }\n}\nfunction wbPCard(hero,key,part,label,tags,prev,src){\n  var w=document.createElement("div"); w.className="wb-bc "+(part==="body"?"wb-shot--full":part==="misc"?"wb-shot--misc":"wb-shot--close")+(prev?"":" noimg");\n  var t=document.createElement("div"); t.className="wb-pl"; t.textContent=label; w.appendChild(t);\n  var iw=document.createElement("div"); iw.className="wb-iw"; w.appendChild(iw);\n  var im=document.createElement("img"); im.className="wb-bi"; im.alt=label; im.style.display="none"; iw.appendChild(im);\n  var g2=document.createElement("div"); g2.className="wb-bg"; g2.textContent=tags||"no tags"; iw.appendChild(g2);\n  var b=document.createElement("button"); b.className="wb-bb"; b.type="button"; b.textContent=prev?"Redraw":"Draw"; w.appendChild(b);\n  if(prev){ im.src=prev; im.style.display="block"; }\n  b.onclick=function(){\n    b.disabled=true; b.textContent="Drawing...";\n    fetch("/bridge/api/part-preview",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify((function(){ var c=(window.__WB_PART_CFG__&&window.__WB_PART_CFG__())||{}; return {heroine:hero,key:key,part:part,base:src.base,neg:src.neg,look:src.look,stage:src.stage,sex:src.sex,seed:im.style.display==="block"?(Date.now()%1e9):0,prompt:(c.prompt||{}).text||"",negPrompt:(c.prompt||{}).negative||"",lora:c.lora||null}; })())})\n      .then(function(r){ return r.json(); })\n      .then(function(j){\n        if(j&&j.ok&&j.image){ im.src=j.image; im.style.display="block"; w.className="wb-bc"; b.textContent="Redraw"; }\n        else { g2.textContent=(j&&j.error)||"error"; b.textContent="Retry"; }\n      })\n      .catch(function(){ b.textContent="Retry"; })\n      .then(function(){ b.disabled=false; });\n  };\n  return w;\n}\nfunction wbPFill(el,key,which){\n  wbPStyle(); el.textContent="";\n  var onlyBody=which==="body";\n  var grid=document.createElement("div"); grid.className="wb-bp"+(onlyBody?"":" wb-bp--grid"); el.appendChild(grid);\n  var ch=wbChar(key);\n  if(!ch||!ch.id){ grid.textContent="No heroine selected."; return; }\n  fetch("/bridge/api/parts",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({heroine:ch.arch,key:ch.key,base:ch.base,neg:ch.neg,look:ch.look,stage:ch.stage,sex:ch.sex})})\n    .then(function(r){ return r.json(); })\n    .then(function(j){\n      var p=(j&&j.parts)||{}, pv=(j&&j.previews)||{}, real=String((j&&j.heroine)||ch.arch||""), k=String((j&&j.key)||ch.key);\n      var misc=String(p.misc||"").trim(); WB_PARTS.forEach(function(x){ if(onlyBody?x[0]!=="body":x[0]==="body") return; var t=x[0]==="head"||x[0]==="breasts" ? [p[x[0]],misc].filter(Boolean).join(", ") : p[x[0]]; grid.appendChild(wbPCard(real,k,x[0],x[1],t,pv[x[0]],ch)); });\n    })\n    .catch(function(){ grid.textContent="Bridge offline."; });\n}\nfunction WBBody(props){\n  var k=String((props&&props.key)||"");\n  var S=window.__WB_STORE__, st=(S&&S.getState?S.getState():{}).state||{}, tab=st.wbBodyTab==="report"?"report":"body";\n  function go(v){ if(!S||!S.setState) return; S.setState(function(x){ var g=x.state||{}, n={}, q; for(q in g) n[q]=g[q]; n.wbBodyTab=v; return {state:n}; }); }\n  return u.jsxs("div",{children:[u.jsxs("div",{className:"flex flex-wrap gap-x-1 gap-y-0.5 mb-2 border-b border-stone-700",children:[u.jsx(Mc,{key:"report",active:tab==="report",onClick:function(){go("report")},children:"Report"}),u.jsx(Mc,{key:"body",active:tab==="body",onClick:function(){go("body")},children:"Body report"})]}),tab==="body"?u.jsx("div",{ref:function(el){ if(el&&el.dataset.wbH!=="body|"+k){ el.dataset.wbH="body|"+k; wbPFill(el,k,"body"); } }}):u.jsx("div",{ref:function(el){ if(el&&el.dataset.wbH!=="rest|"+k){ el.dataset.wbH="rest|"+k; wbPFill(el,k,"rest"); } }})]});\n}\nconst $=u.jsxs(u.Fragment,{children:[u.jsxs("div",{className:"flex flex-wrap gap-x-1 gap-y-0.5 mb-3 border-b border-stone-700"')
           .replace('children:"Encounters"})]}),n==="stats"&&u.jsx($He,{})', 'children:"Encounters"}),u.jsx(Mc,{active:n==="body",onClick:()=>s("body"),children:"Body"})]}),n==="body"&&u.jsx(WBBody,{key:String((h&&h.wbCard)||"")}),n==="stats"&&u.jsx($He,{})')
           .replace('const $=u.jsxs(u.Fragment,{children:[u.jsxs("div",{className:"flex flex-wrap gap-x-1 gap-y-0.5 mb-3 border-b border-stone-700"', 'const __wbKids=(window.__WB_KIDS__&&window.__WB_KIDS__())||[],__wbCard=function(lbl,id){return u.jsx("button",{type:"button",className:"px-1.5 py-0.5 rounded border text-[0.65rem] "+(cardSel===id?"border-amber-600 bg-amber-900/40 text-amber-200":"border-stone-700 text-stone-400 hover:text-stone-200"),onClick:function(){window.__WB_CARD__=id;setCard(id);var __s=window.__WB_STORE__;if(__s&&__s.setState)__s.setState(function(x){var g=x.state||{},n={},k;for(k in g)n[k]=g[k];n.wbCard=id;return{state:n};});},children:lbl},id||"wife")}; const $=u.jsxs(u.Fragment,{children:[__wbKids.length?u.jsx("div",{className:"flex flex-wrap gap-1 mb-2",children:[__wbCard(h.characters[h.primaryCharacterId].name,"")].concat(__wbKids.map(function(c){return __wbCard(c.name,c.id)}))}):null,u.jsxs("div",{className:"flex flex-wrap gap-x-1 gap-y-0.5 mb-3 border-b border-stone-700"')
           .replace('n.has(f)&&(o[d].occupants.push(f),r.add(f))}', '(n.has(f)||e.characters&&e.characters[f])&&(o[d].occupants.push(f),r.add(f))}')
@@ -4942,6 +4945,9 @@ var require_assets_generated = __commonJS({
         function E(rel) {
           return getAt(effective(S.viewHeroine), rel);
         }
+        window.__WB_PART_CFG__ = function() {
+          return { prompt: E(["partPrompt"]) || {}, lora: { enabled: E(["partLora", "enabled"]) !== false, model: E(["partLora", "model"]), strength: E(["partLora", "strength"]), triggers: E(["partLora", "triggers"]) } };
+        };
         function D(rel) {
           return getAt(S.st.defaults, rel);
         }
@@ -7246,7 +7252,7 @@ var require_assets_generated = __commonJS({
           );
           charSec.insertBefore(addonRow("character"), charSec.children[1]);
           outSec.insertBefore(addonRow("clothing", "Outfits and exposure presets come from one add-on together."), outSec.children[1]);
-          return [charSec, stateSec(), passportSec(), bodySec(), quarantineSec(), trigSec, outSec, exposureSec(), partsSection()];
+          return [charSec, stateSec(), passportSec(), bodySec(), reportSec(), quarantineSec(), trigSec, outSec, exposureSec(), partsSection()];
         };
         function exposureSec() {
           var ids = liveIds();
@@ -8167,7 +8173,7 @@ var require_assets_generated = __commonJS({
             )
           );
           out.setAttribute("data-sec", "state");
-          return out;
+          return foldable(out, "state");
         }
         function passportSec() {
           var rb = ["player", "look"];
@@ -8191,6 +8197,22 @@ var require_assets_generated = __commonJS({
           );
           out.setAttribute("data-sec", "passport");
           return out;
+        }
+        function foldable(out, key) {
+          S.fold = S.fold || {};
+          var d = document.createElement("details");
+          d.className = out.className + " fold";
+          d.open = S.fold[key] === undefined ? key !== "report" : !!S.fold[key];
+          var t = out.querySelector(".stitle");
+          var s = document.createElement("summary");
+          s.className = "stitle";
+          s.style.cssText = "cursor:pointer;user-select:none";
+          s.textContent = t ? t.textContent : "";
+          if (t) out.removeChild(t);
+          d.appendChild(s);
+          while (out.firstChild) d.appendChild(out.firstChild);
+          d.addEventListener("toggle", function() { S.fold[key] = d.open; });
+          return d;
         }
         function bodySec() {
           var id = S.viewHeroine, rb = ["prompts", "heroines", id];
@@ -8220,7 +8242,40 @@ var require_assets_generated = __commonJS({
             }))
           );
           out.setAttribute("data-sec", "body");
-          return out;
+          return foldable(out, "body");
+        }
+        function reportSec() {
+          var plOrder = ["Anima", "Illustrious", "NoobAI", "Pony", "SDXL", "Flux", "SD 1.5", "SD 2.1", "Unknown"];
+          function partLoraItems() {
+            return [{ value: "", label: "None", group: "" }].concat(modelItems("lora", function(f) {
+              var b = String(f.base || "").split(",")[0].trim();
+              return plOrder.indexOf(b) >= 0 ? b : "Unknown";
+            }));
+          }
+          var loraCur = E(["partLora", "model"]);
+          if (loraCur === undefined) loraCur = "pussy spec report_ILL-v2.1.safetensors";
+          var out = sec(
+            "Композиция Report",
+            "#22d3ee",
+            "Чем и как рисуется коллаж Body report: LoRA, её сила, триггеры и кадр для каждой части.",
+            h("div", { class: "pcell" },
+              h("div", { class: "phead" }, h("span", { class: "plab" }, "LoRA отчёта"), (function(){ var c = h("input", { type: "checkbox", checked: E(["partLora", "enabled"]) !== false, onchange: function(){ edit(["partLora", "enabled"], c.checked); render(); } }); return c; })()),
+              h("div", { style: "display:flex;gap:6px;margin:4px 0" },
+                picker(partLoraItems(), String(loraCur || ""), function(v){ edit(["partLora", "model"], v); render(); }, { width: 460, style: "flex:1;min-width:0", dirty: isDirty(["partLora", "model"]) }),
+                h("input", { type: "number", step: "0.05", min: "0", max: "2", value: String(E(["partLora", "strength"]) || 0.9), style: "width:64px;padding:4px;background:#1c1917;color:#e7e5e4;border:1px solid #57534e;border-radius:4px;font-size:.7rem", oninput: function(e){ edit(["partLora", "strength"], Number(e.target.value)); } })
+              ),
+              promptBox("триггеры", ["partLora", "triggers"], { height: "40px" }),
+              h("div", { style: "color:#a8a29e;font-size:.65rem" }, "Только для превью тела (Body report). Нужна LoRA «pussy spec report» (Illustrious).")
+            ),
+            h("div", { class: "pcell" },
+              h("div", { class: "phead" }, h("span", { class: "plab" }, "Композиция")),
+              promptBox("поза, кадр, фон", ["partPrompt", "text"], { height: "40px" }),
+              promptBox("негатив", ["partPrompt", "negative"], { height: "40px" }),
+              h("div", { style: "color:#a8a29e;font-size:.65rem" }, "Поза, кадр и фон для превью. Пусто — значение по умолчанию.")
+            ),
+          );
+          out.setAttribute("data-sec", "report");
+          return foldable(out, "report");
         }
         function quarantineSec() {
           var id = S.viewHeroine, rb = ["prompts", "heroines", id];
@@ -12769,6 +12824,11 @@ return { ok: true, ms: Date.now() - t0, warnings, notes, family: pipe.family, im
       const pipe = resolvePipeline(store.effective(heroine).pipeline);
       const pipeLoras = (pipe.loras || []).filter((l) => l.enabled !== false && l.model).map((l) => Object.assign({}, l, { strength: Math.min(1, (Number(l.strength) || 1) * 0.7) }));
       const loraTrig = [...new Set(pipeLoras.flatMap((l) => loraWords(l)))].join(", ");
+      const pl = Object.assign({}, store.effective(heroine).partLora || {}, (b && b.lora) || {});
+      const partLoraModel = String(pl.model === undefined ? "pussy spec report_ILL-v2.1.safetensors" : pl.model).trim();
+      const usePartLora = pl.enabled !== false && partLoraModel && part === "body";
+      if (usePartLora) pipeLoras.unshift({ model: partLoraModel, strength: Math.min(2, Number(pl.strength) || 0.9), enabled: true });
+      const partTrig = usePartLora ? String(pl.triggers === undefined ? "pussy report, stats, hexagon stats, character profile, photo \\(object\\), pussy" : pl.triggers).trim() : "";
       const trigFilter = {
         breasts: /breast|nipple|areola|montgomery|milk/,
         ass: /ass|anus|anal|butt|glute/,
@@ -12777,7 +12837,7 @@ return { ok: true, ms: Date.now() - t0, warnings, notes, family: pipe.family, im
       };
       const loraTrigUse = /^(head|mouth)$/.test(part) || String(buckets[part] || "").trim() ? "" : trigFilter[part] ? loraTrig.split(",").map((x) => x.trim()).filter((x) => x && trigFilter[part].test(x.toLowerCase())).join(", ") : loraTrig;
       const seen = new Set();
-      const tags = [String((b && b.tags) || (full ? anchor : buckets[part]) || "").trim(), full ? "" : hairTags, miscTags, bellyExtra, loraTrigUse].filter(Boolean).join(", ").split(",").map((x) => x.trim()).filter((x) => {
+      const tags = [String((b && b.tags) || (full ? anchor : buckets[part]) || "").trim(), full ? "" : part === "mouth" ? String(buckets.head || "").trim() : hairTags, miscTags, bellyExtra, loraTrigUse].filter(Boolean).join(", ").split(",").map((x) => x.trim()).filter((x) => {
         if (!x || x.charAt(0) === "<") return false;
         const k = x.toLowerCase();
         if (seen.has(k)) return false;
@@ -12787,11 +12847,15 @@ return { ok: true, ms: Date.now() - t0, warnings, notes, family: pipe.family, im
       if (!tags) return { ok: false, error: "This part has no words to draw." };
             if (!await comfy.ping()) return { ok: false, error: explainComfyError("fetch failed", pipe) };
       const caps = await comfy.capabilities(true);
-      const positive = [pipe.quality, "1girl, solo, completely nude", PART_FOCUS[part] || "", tags, "solid dark background, plain background", loras].filter(Boolean).join(", ");
+      const pp = store.effective(heroine).partPrompt || {};
+      const comp = part === "body" ? String((b && (b.prompt || b.focus)) || pp.text || "").trim() : "";
+      const focus = [PART_FOCUS[part] || "", comp].filter(Boolean).join(", ");
+      const compNeg = part === "body" ? String((b && b.negPrompt) || pp.negative || "").trim() : "";
+      const positive = [pipe.quality, "1girl, solo, completely nude", focus, tags, partTrig, "solid dark background, plain background", loras].filter(Boolean).join(", ");
       const cropNeg = /^(breasts|ass|vagina)$/.test(part) ? "face, full face, head" : /^(head|mouth)$/.test(part) ? "spread legs, pussy, anus, full body" : "";
-      const negative = [negTags, cropNeg, "clothes, dress, skirt, shirt, pants, underwear, bra, panties", String(pipe.negative || "")].filter(Boolean).join(", ");
+      const negative = [negTags, cropNeg, compNeg, "clothes, dress, skirt, shirt, pants, underwear, bra, panties", String(pipe.negative || "")].filter(Boolean).join(", ");
       try {
-        const { graph } = buildGraph({ p: Object.assign({}, pipe, { loras: pipeLoras }), caps, positive, negative, seed: Number(b && b.seed) || heroineSeed(heroine), width: 640, height: 640, portrait: false, noHires: true, noDetail: true, prefix: "wayward/part-preview", workflowDir: path.join(DATA_DIR, "workflows") });
+        const { graph } = buildGraph({ p: Object.assign({}, pipe, { loras: pipeLoras }), caps, positive, negative, seed: Number(b && b.seed) || heroineSeed(heroine), keepLoras: true, width: part === "body" ? (pipe.scene && Math.min(pipe.scene.width, pipe.scene.height)) || 832 : 900, height: part === "body" ? (pipe.scene && Math.max(pipe.scene.width, pipe.scene.height)) || 1216 : 900, portrait: true, noHires: true, noDetail: true, prefix: "wayward/part-preview", workflowDir: path.join(DATA_DIR, "workflows") });
         const id = await comfy.submit(graph);
         const img = await comfy.waitForImage(id, 5 * 60 * 1e3);
         if (!img) return { ok: false, error: "Cancelled." };
