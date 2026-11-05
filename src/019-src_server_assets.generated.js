@@ -304,6 +304,9 @@ var require_assets_generated = __commonJS({
         function E(rel) {
           return getAt(effective(S.viewHeroine), rel);
         }
+        window.__WB_PART_CFG__ = function() {
+          return { prompt: E(["partPrompt"]) || {}, lora: { enabled: E(["partLora", "enabled"]) !== false, model: E(["partLora", "model"]), strength: E(["partLora", "strength"]), triggers: E(["partLora", "triggers"]) } };
+        };
         function D(rel) {
           return getAt(S.st.defaults, rel);
         }
@@ -2608,7 +2611,7 @@ var require_assets_generated = __commonJS({
           );
           charSec.insertBefore(addonRow("character"), charSec.children[1]);
           outSec.insertBefore(addonRow("clothing", "Outfits and exposure presets come from one add-on together."), outSec.children[1]);
-          return [charSec, stateSec(), passportSec(), bodySec(), quarantineSec(), trigSec, outSec, exposureSec(), partsSection()];
+          return [charSec, stateSec(), passportSec(), bodySec(), reportSec(), quarantineSec(), trigSec, outSec, exposureSec(), partsSection()];
         };
         function exposureSec() {
           var ids = liveIds();
@@ -3529,7 +3532,7 @@ var require_assets_generated = __commonJS({
             )
           );
           out.setAttribute("data-sec", "state");
-          return out;
+          return foldable(out, "state");
         }
         function passportSec() {
           var rb = ["player", "look"];
@@ -3553,6 +3556,22 @@ var require_assets_generated = __commonJS({
           );
           out.setAttribute("data-sec", "passport");
           return out;
+        }
+        function foldable(out, key) {
+          S.fold = S.fold || {};
+          var d = document.createElement("details");
+          d.className = out.className + " fold";
+          d.open = S.fold[key] === undefined ? key !== "report" : !!S.fold[key];
+          var t = out.querySelector(".stitle");
+          var s = document.createElement("summary");
+          s.className = "stitle";
+          s.style.cssText = "cursor:pointer;user-select:none";
+          s.textContent = t ? t.textContent : "";
+          if (t) out.removeChild(t);
+          d.appendChild(s);
+          while (out.firstChild) d.appendChild(out.firstChild);
+          d.addEventListener("toggle", function() { S.fold[key] = d.open; });
+          return d;
         }
         function bodySec() {
           var id = S.viewHeroine, rb = ["prompts", "heroines", id];
@@ -3582,7 +3601,40 @@ var require_assets_generated = __commonJS({
             }))
           );
           out.setAttribute("data-sec", "body");
-          return out;
+          return foldable(out, "body");
+        }
+        function reportSec() {
+          var plOrder = ["Anima", "Illustrious", "NoobAI", "Pony", "SDXL", "Flux", "SD 1.5", "SD 2.1", "Unknown"];
+          function partLoraItems() {
+            return [{ value: "", label: "None", group: "" }].concat(modelItems("lora", function(f) {
+              var b = String(f.base || "").split(",")[0].trim();
+              return plOrder.indexOf(b) >= 0 ? b : "Unknown";
+            }));
+          }
+          var loraCur = E(["partLora", "model"]);
+          if (loraCur === undefined) loraCur = "pussy spec report_ILL-v2.1.safetensors";
+          var out = sec(
+            "Композиция Report",
+            "#22d3ee",
+            "Чем и как рисуется коллаж Body report: LoRA, её сила, триггеры и кадр для каждой части.",
+            h("div", { class: "pcell" },
+              h("div", { class: "phead" }, h("span", { class: "plab" }, "LoRA отчёта"), (function(){ var c = h("input", { type: "checkbox", checked: E(["partLora", "enabled"]) !== false, onchange: function(){ edit(["partLora", "enabled"], c.checked); render(); } }); return c; })()),
+              h("div", { style: "display:flex;gap:6px;margin:4px 0" },
+                picker(partLoraItems(), String(loraCur || ""), function(v){ edit(["partLora", "model"], v); render(); }, { width: 460, style: "flex:1;min-width:0", dirty: isDirty(["partLora", "model"]) }),
+                h("input", { type: "number", step: "0.05", min: "0", max: "2", value: String(E(["partLora", "strength"]) || 0.9), style: "width:64px;padding:4px;background:#1c1917;color:#e7e5e4;border:1px solid #57534e;border-radius:4px;font-size:.7rem", oninput: function(e){ edit(["partLora", "strength"], Number(e.target.value)); } })
+              ),
+              promptBox("триггеры", ["partLora", "triggers"], { height: "40px" }),
+              h("div", { style: "color:#a8a29e;font-size:.65rem" }, "Только для превью тела (Body report). Нужна LoRA «pussy spec report» (Illustrious).")
+            ),
+            h("div", { class: "pcell" },
+              h("div", { class: "phead" }, h("span", { class: "plab" }, "Композиция")),
+              promptBox("поза, кадр, фон", ["partPrompt", "text"], { height: "40px" }),
+              promptBox("негатив", ["partPrompt", "negative"], { height: "40px" }),
+              h("div", { style: "color:#a8a29e;font-size:.65rem" }, "Поза, кадр и фон для превью. Пусто — значение по умолчанию.")
+            ),
+          );
+          out.setAttribute("data-sec", "report");
+          return foldable(out, "report");
         }
         function quarantineSec() {
           var id = S.viewHeroine, rb = ["prompts", "heroines", id];

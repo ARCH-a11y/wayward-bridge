@@ -582,6 +582,11 @@ return { ok: true, ms: Date.now() - t0, warnings, notes, family: pipe.family, im
       const pipe = resolvePipeline(store.effective(heroine).pipeline);
       const pipeLoras = (pipe.loras || []).filter((l) => l.enabled !== false && l.model).map((l) => Object.assign({}, l, { strength: Math.min(1, (Number(l.strength) || 1) * 0.7) }));
       const loraTrig = [...new Set(pipeLoras.flatMap((l) => loraWords(l)))].join(", ");
+      const pl = Object.assign({}, store.effective(heroine).partLora || {}, (b && b.lora) || {});
+      const partLoraModel = String(pl.model === undefined ? "pussy spec report_ILL-v2.1.safetensors" : pl.model).trim();
+      const usePartLora = pl.enabled !== false && partLoraModel && part === "body";
+      if (usePartLora) pipeLoras.unshift({ model: partLoraModel, strength: Math.min(2, Number(pl.strength) || 0.9), enabled: true });
+      const partTrig = usePartLora ? String(pl.triggers === undefined ? "pussy report, stats, hexagon stats, character profile, photo \\(object\\), pussy" : pl.triggers).trim() : "";
       const trigFilter = {
         breasts: /breast|nipple|areola|montgomery|milk/,
         ass: /ass|anus|anal|butt|glute/,
@@ -590,7 +595,7 @@ return { ok: true, ms: Date.now() - t0, warnings, notes, family: pipe.family, im
       };
       const loraTrigUse = /^(head|mouth)$/.test(part) || String(buckets[part] || "").trim() ? "" : trigFilter[part] ? loraTrig.split(",").map((x) => x.trim()).filter((x) => x && trigFilter[part].test(x.toLowerCase())).join(", ") : loraTrig;
       const seen = new Set();
-      const tags = [String((b && b.tags) || (full ? anchor : buckets[part]) || "").trim(), full ? "" : hairTags, miscTags, bellyExtra, loraTrigUse].filter(Boolean).join(", ").split(",").map((x) => x.trim()).filter((x) => {
+      const tags = [String((b && b.tags) || (full ? anchor : buckets[part]) || "").trim(), full ? "" : part === "mouth" ? String(buckets.head || "").trim() : hairTags, miscTags, bellyExtra, loraTrigUse].filter(Boolean).join(", ").split(",").map((x) => x.trim()).filter((x) => {
         if (!x || x.charAt(0) === "<") return false;
         const k = x.toLowerCase();
         if (seen.has(k)) return false;
@@ -600,11 +605,15 @@ return { ok: true, ms: Date.now() - t0, warnings, notes, family: pipe.family, im
       if (!tags) return { ok: false, error: "This part has no words to draw." };
             if (!await comfy.ping()) return { ok: false, error: explainComfyError("fetch failed", pipe) };
       const caps = await comfy.capabilities(true);
-      const positive = [pipe.quality, "1girl, solo, completely nude", PART_FOCUS[part] || "", tags, "solid dark background, plain background", loras].filter(Boolean).join(", ");
+      const pp = store.effective(heroine).partPrompt || {};
+      const comp = part === "body" ? String((b && (b.prompt || b.focus)) || pp.text || "").trim() : "";
+      const focus = [PART_FOCUS[part] || "", comp].filter(Boolean).join(", ");
+      const compNeg = part === "body" ? String((b && b.negPrompt) || pp.negative || "").trim() : "";
+      const positive = [pipe.quality, "1girl, solo, completely nude", focus, tags, partTrig, "solid dark background, plain background", loras].filter(Boolean).join(", ");
       const cropNeg = /^(breasts|ass|vagina)$/.test(part) ? "face, full face, head" : /^(head|mouth)$/.test(part) ? "spread legs, pussy, anus, full body" : "";
-      const negative = [negTags, cropNeg, "clothes, dress, skirt, shirt, pants, underwear, bra, panties", String(pipe.negative || "")].filter(Boolean).join(", ");
+      const negative = [negTags, cropNeg, compNeg, "clothes, dress, skirt, shirt, pants, underwear, bra, panties", String(pipe.negative || "")].filter(Boolean).join(", ");
       try {
-        const { graph } = buildGraph({ p: Object.assign({}, pipe, { loras: pipeLoras }), caps, positive, negative, seed: Number(b && b.seed) || heroineSeed(heroine), width: 640, height: 640, portrait: false, noHires: true, noDetail: true, prefix: "wayward/part-preview", workflowDir: path.join(DATA_DIR, "workflows") });
+        const { graph } = buildGraph({ p: Object.assign({}, pipe, { loras: pipeLoras }), caps, positive, negative, seed: Number(b && b.seed) || heroineSeed(heroine), keepLoras: true, width: part === "body" ? (pipe.scene && Math.min(pipe.scene.width, pipe.scene.height)) || 832 : 900, height: part === "body" ? (pipe.scene && Math.max(pipe.scene.width, pipe.scene.height)) || 1216 : 900, portrait: true, noHires: true, noDetail: true, prefix: "wayward/part-preview", workflowDir: path.join(DATA_DIR, "workflows") });
         const id = await comfy.submit(graph);
         const img = await comfy.waitForImage(id, 5 * 60 * 1e3);
         if (!img) return { ok: false, error: "Cancelled." };

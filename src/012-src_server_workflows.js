@@ -220,7 +220,7 @@ var require_workflows = __commonJS({
     function buildGraph(args) {
       const p = args.p;
       const notes = [];
-      const loras = args.portrait ? [] : (p.loras || []).filter((l) => l.enabled !== false && l.model);
+      const loras = (args.keepLoras || !args.portrait ? (p.loras || []) : []).filter((l) => l.enabled !== false && l.model);
       const a = Object.assign({}, args, {
         notes,
         loras,

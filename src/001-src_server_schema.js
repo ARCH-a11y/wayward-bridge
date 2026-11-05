@@ -151,7 +151,10 @@ var require_schema = __commonJS({
       lastBirth: { day: num(0, 1e9), outcome: str(), count: num(0, 10) }
     };
     var PLAYER = { look: { hair: str(), hairType: str(), eyes: str(), skin: str(), face: str(), build: str(), bust: str(), hips: str(), set: bool() } };
-    var LAYER = { prompts: PROMPTS, pipeline: PIPELINE, childstate: CHILDSTATE, player: PLAYER };
+    var PART_LORA = { enabled: bool(), model: str(400), strength: num(-2, 2), triggers: str(4e3) };
+    var PART_FOCUS_SCHEMA = { "*": str(4e3) };
+    var PART_PROMPT = { text: str(4e3), negative: str(4e3) };
+    var LAYER = { prompts: PROMPTS, pipeline: PIPELINE, childstate: CHILDSTATE, player: PLAYER, partLora: PART_LORA, partFocus: PART_FOCUS_SCHEMA, partPrompt: PART_PROMPT };
     var SCHEMA = {
       version: num(1, 1e3),
       app: {
