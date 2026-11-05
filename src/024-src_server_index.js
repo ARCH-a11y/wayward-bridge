@@ -606,7 +606,7 @@ return { ok: true, ms: Date.now() - t0, warnings, notes, family: pipe.family, im
             if (!await comfy.ping()) return { ok: false, error: explainComfyError("fetch failed", pipe) };
       const caps = await comfy.capabilities(true);
       const pp = store.effective(heroine).partPrompt || {};
-      const comp = part === "body" ? String((b && (b.prompt || b.focus)) || pp.text || "").trim() : "";
+      const comp = part === "body" ? String((b && b.prompt) || pp.text || "").trim() : "";
       const focus = [PART_FOCUS[part] || "", comp].filter(Boolean).join(", ");
       const compNeg = part === "body" ? String((b && b.negPrompt) || pp.negative || "").trim() : "";
       const positive = [pipe.quality, "1girl, solo, completely nude", focus, tags, partTrig, "solid dark background, plain background", loras].filter(Boolean).join(", ");

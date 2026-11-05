@@ -166,9 +166,8 @@ var require_schema = __commonJS({
     };
     var PLAYER = { look: { hair: str(), hairType: str(), eyes: str(), skin: str(), face: str(), build: str(), bust: str(), hips: str(), set: bool() } };
     var PART_LORA = { enabled: bool(), model: str(400), strength: num(-2, 2), triggers: str(4e3) };
-    var PART_FOCUS_SCHEMA = { "*": str(4e3) };
     var PART_PROMPT = { text: str(4e3), negative: str(4e3) };
-    var LAYER = { prompts: PROMPTS, pipeline: PIPELINE, childstate: CHILDSTATE, player: PLAYER, partLora: PART_LORA, partFocus: PART_FOCUS_SCHEMA, partPrompt: PART_PROMPT };
+    var LAYER = { prompts: PROMPTS, pipeline: PIPELINE, childstate: CHILDSTATE, player: PLAYER, partLora: PART_LORA, partPrompt: PART_PROMPT };
     var SCHEMA = {
       version: num(1, 1e3),
       app: {
@@ -12848,7 +12847,7 @@ return { ok: true, ms: Date.now() - t0, warnings, notes, family: pipe.family, im
             if (!await comfy.ping()) return { ok: false, error: explainComfyError("fetch failed", pipe) };
       const caps = await comfy.capabilities(true);
       const pp = store.effective(heroine).partPrompt || {};
-      const comp = part === "body" ? String((b && (b.prompt || b.focus)) || pp.text || "").trim() : "";
+      const comp = part === "body" ? String((b && b.prompt) || pp.text || "").trim() : "";
       const focus = [PART_FOCUS[part] || "", comp].filter(Boolean).join(", ");
       const compNeg = part === "body" ? String((b && b.negPrompt) || pp.negative || "").trim() : "";
       const positive = [pipe.quality, "1girl, solo, completely nude", focus, tags, partTrig, "solid dark background, plain background", loras].filter(Boolean).join(", ");
